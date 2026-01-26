@@ -22,6 +22,7 @@ const AdminSettings = () => {
     instagram_link: '',
     facebook_link: '',
     tiktok_link: '',
+    youtube_link: '',
     logo_url: '',
   });
 
@@ -37,6 +38,7 @@ const AdminSettings = () => {
         instagram_link: settings.instagram_link || '',
         facebook_link: settings.facebook_link || '',
         tiktok_link: (settings as any).tiktok_link || '',
+        youtube_link: (settings as any).youtube_link || '',
         logo_url: settings.logo_url || '',
       });
     }
@@ -167,6 +169,14 @@ const AdminSettings = () => {
                 value={formData.tiktok_link}
                 onChange={(e) => setFormData({ ...formData, tiktok_link: e.target.value })}
                 placeholder="https://tiktok.com/@powergym"
+              />
+            </div>
+            <div>
+              <Label>YouTube Link</Label>
+              <Input
+                value={formData.youtube_link}
+                onChange={(e) => setFormData({ ...formData, youtube_link: e.target.value })}
+                placeholder="https://youtube.com/@powergym"
               />
             </div>
           </div>
