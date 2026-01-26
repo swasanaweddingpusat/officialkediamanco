@@ -39,6 +39,21 @@ export function HeroSection() {
 
   const currentTitleSize = (slide?.title_size as keyof typeof titleSizeClasses) || 'large';
   const currentButtonSize = (slide?.button_size as keyof typeof buttonSizeMap) || 'large';
+  const currentPosition = (slide?.content_position as 'left' | 'center' | 'right') || 'left';
+
+  // Position classes for content
+  const positionClasses = {
+    left: 'justify-start text-left',
+    center: 'justify-center text-center',
+    right: 'justify-end text-right',
+  };
+
+  // Position classes for button container
+  const buttonPositionClasses = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end',
+  };
 
   return (
     <section className="relative h-screen overflow-hidden">
@@ -54,7 +69,7 @@ export function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative container mx-auto px-4 h-full flex items-center">
+      <div className={`relative container mx-auto px-4 h-full flex items-center ${positionClasses[currentPosition]}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -62,17 +77,17 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.5 }}
-            className="max-w-2xl"
+            className={`max-w-2xl ${currentPosition === 'center' ? 'mx-auto' : ''}`}
           >
             <h1 className={`font-display ${titleSizeClasses[currentTitleSize]} leading-none mb-6`}>
               <span className="text-gradient">{slide?.title || 'GET STRONG'}</span>
               <br />
               <span className="text-foreground">{slide?.subtitle || 'GET REWARDS'}</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-lg">
+            <p className={`text-lg md:text-xl text-muted-foreground mb-8 ${currentPosition === 'center' ? 'mx-auto' : ''} max-w-lg`}>
               {slide?.description || 'Transform your body and mind with state-of-the-art equipment, expert trainers, and a motivating community.'}
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className={`flex flex-wrap gap-4 ${buttonPositionClasses[currentPosition]}`}>
               <Button size={buttonSizeMap[currentButtonSize]} className="btn-glow group">
                 {slide?.button_text || 'Start Your Journey'}
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />

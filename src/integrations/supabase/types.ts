@@ -49,6 +49,7 @@ export type Database = {
           button_link: string | null
           button_size: string | null
           button_text: string | null
+          content_position: string | null
           created_at: string
           description: string | null
           id: string
@@ -64,6 +65,7 @@ export type Database = {
           button_link?: string | null
           button_size?: string | null
           button_text?: string | null
+          content_position?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -79,6 +81,7 @@ export type Database = {
           button_link?: string | null
           button_size?: string | null
           button_text?: string | null
+          content_position?: string | null
           created_at?: string
           description?: string | null
           id?: string
