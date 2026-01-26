@@ -215,7 +215,7 @@ export function useUpdateTrainer() {
 export function useCreateTrainer() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (trainer: { name: string; specialization?: string; bio?: string; photo_url?: string }) => {
+    mutationFn: async (trainer: { name: string; specialization?: string; bio?: string; photo_url?: string; instagram?: string; certifications?: string[]; sort_order?: number; is_active?: boolean }) => {
       const { error } = await supabase.from('trainers').insert(trainer);
       if (error) throw error;
     },
@@ -275,7 +275,7 @@ export function useUpdateLocation() {
 export function useCreateLocation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (location: { name: string; address?: string; phone?: string }) => {
+    mutationFn: async (location: { name: string; address?: string; phone?: string; email?: string; google_maps_url?: string; image_url?: string; facilities?: string[]; is_coming_soon?: boolean; sort_order?: number; is_active?: boolean }) => {
       const { error } = await supabase.from('locations').insert(location);
       if (error) throw error;
     },
