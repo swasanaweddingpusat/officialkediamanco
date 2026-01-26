@@ -22,6 +22,7 @@ type HeroSlide = {
   button_link: string | null;
   title_size: string | null;
   button_size: string | null;
+  content_position: string | null;
   sort_order: number | null;
   is_active: boolean | null;
 };
@@ -46,6 +47,7 @@ const AdminHero = () => {
     button_link: '',
     title_size: 'large',
     button_size: 'large',
+    content_position: 'left',
     sort_order: 0,
     is_active: true,
   });
@@ -60,6 +62,7 @@ const AdminHero = () => {
       button_link: '',
       title_size: 'large',
       button_size: 'large',
+      content_position: 'left',
       sort_order: 0,
       is_active: true,
     });
@@ -82,6 +85,7 @@ const AdminHero = () => {
       button_link: item.button_link || '',
       title_size: item.title_size || 'large',
       button_size: item.button_size || 'large',
+      content_position: item.content_position || 'left',
       sort_order: item.sort_order || 0,
       is_active: item.is_active ?? true,
     });
@@ -219,6 +223,22 @@ const AdminHero = () => {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          <div>
+            <Label>Content Position</Label>
+            <Select
+              value={formData.content_position}
+              onValueChange={(value) => setFormData({ ...formData, content_position: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select position" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="left">Left</SelectItem>
+                <SelectItem value="center">Center</SelectItem>
+                <SelectItem value="right">Right</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
