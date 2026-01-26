@@ -21,6 +21,7 @@ const AdminSettings = () => {
     whatsapp_link: '',
     instagram_link: '',
     facebook_link: '',
+    tiktok_link: '',
     logo_url: '',
   });
 
@@ -35,6 +36,7 @@ const AdminSettings = () => {
         whatsapp_link: settings.whatsapp_link || '',
         instagram_link: settings.instagram_link || '',
         facebook_link: settings.facebook_link || '',
+        tiktok_link: (settings as any).tiktok_link || '',
         logo_url: settings.logo_url || '',
       });
     }
@@ -157,6 +159,14 @@ const AdminSettings = () => {
                 value={formData.facebook_link}
                 onChange={(e) => setFormData({ ...formData, facebook_link: e.target.value })}
                 placeholder="https://facebook.com/powergym"
+              />
+            </div>
+            <div>
+              <Label>TikTok Link</Label>
+              <Input
+                value={formData.tiktok_link}
+                onChange={(e) => setFormData({ ...formData, tiktok_link: e.target.value })}
+                placeholder="https://tiktok.com/@powergym"
               />
             </div>
           </div>
