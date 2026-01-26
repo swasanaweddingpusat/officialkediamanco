@@ -205,6 +205,7 @@ export type Database = {
           facebook_link: string | null
           id: string
           instagram_link: string | null
+          logo_url: string | null
           phone: string | null
           site_name: string
           tagline: string | null
@@ -218,6 +219,7 @@ export type Database = {
           facebook_link?: string | null
           id?: string
           instagram_link?: string | null
+          logo_url?: string | null
           phone?: string | null
           site_name?: string
           tagline?: string | null
@@ -231,6 +233,7 @@ export type Database = {
           facebook_link?: string | null
           id?: string
           instagram_link?: string | null
+          logo_url?: string | null
           phone?: string | null
           site_name?: string
           tagline?: string | null
