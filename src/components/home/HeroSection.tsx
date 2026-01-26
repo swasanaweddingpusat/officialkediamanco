@@ -22,6 +22,24 @@ export function HeroSection() {
 
   const slide = activeSlides[currentSlide];
 
+  // Size classes for title
+  const titleSizeClasses = {
+    small: 'text-3xl md:text-4xl lg:text-5xl',
+    medium: 'text-4xl md:text-5xl lg:text-6xl',
+    large: 'text-5xl md:text-7xl lg:text-8xl',
+    xlarge: 'text-6xl md:text-8xl lg:text-9xl',
+  };
+
+  // Size classes for button
+  const buttonSizeMap = {
+    small: 'sm' as const,
+    medium: 'default' as const,
+    large: 'lg' as const,
+  };
+
+  const currentTitleSize = (slide?.title_size as keyof typeof titleSizeClasses) || 'large';
+  const currentButtonSize = (slide?.button_size as keyof typeof buttonSizeMap) || 'large';
+
   return (
     <section className="relative h-screen overflow-hidden">
       {/* Background Image */}
@@ -46,21 +64,20 @@ export function HeroSection() {
             transition={{ duration: 0.5 }}
             className="max-w-2xl"
           >
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-none mb-6">
+            <h1 className={`font-display ${titleSizeClasses[currentTitleSize]} leading-none mb-6`}>
               <span className="text-gradient">{slide?.title || 'GET STRONG'}</span>
               <br />
               <span className="text-foreground">{slide?.subtitle || 'GET REWARDS'}</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-lg">
-              Transform your body and mind with state-of-the-art equipment, 
-              expert trainers, and a motivating community.
+              {slide?.description || 'Transform your body and mind with state-of-the-art equipment, expert trainers, and a motivating community.'}
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="btn-glow group">
+              <Button size={buttonSizeMap[currentButtonSize]} className="btn-glow group">
                 {slide?.button_text || 'Start Your Journey'}
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button size="lg" variant="outline">
+              <Button size={buttonSizeMap[currentButtonSize]} variant="outline">
                 View Special Offers
               </Button>
             </div>

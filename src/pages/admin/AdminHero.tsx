@@ -7,6 +7,8 @@ import { ImageUpload } from '@/components/admin/ImageUpload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useHeroSlides, useCreateHeroSlide, useUpdateHeroSlide, useDeleteHeroSlide } from '@/hooks/useCMS';
 import { Badge } from '@/components/ui/badge';
 
@@ -14,9 +16,12 @@ type HeroSlide = {
   id: string;
   title: string;
   subtitle: string | null;
+  description: string | null;
   image_url: string | null;
   button_text: string | null;
   button_link: string | null;
+  title_size: string | null;
+  button_size: string | null;
   sort_order: number | null;
   is_active: boolean | null;
 };
@@ -35,9 +40,12 @@ const AdminHero = () => {
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
+    description: '',
     image_url: '',
     button_text: '',
     button_link: '',
+    title_size: 'large',
+    button_size: 'large',
     sort_order: 0,
     is_active: true,
   });
@@ -46,9 +54,12 @@ const AdminHero = () => {
     setFormData({
       title: '',
       subtitle: '',
+      description: '',
       image_url: '',
       button_text: '',
       button_link: '',
+      title_size: 'large',
+      button_size: 'large',
       sort_order: 0,
       is_active: true,
     });
@@ -65,9 +76,12 @@ const AdminHero = () => {
     setFormData({
       title: item.title,
       subtitle: item.subtitle || '',
+      description: item.description || '',
       image_url: item.image_url || '',
       button_text: item.button_text || '',
       button_link: item.button_link || '',
+      title_size: item.title_size || 'large',
+      button_size: item.button_size || 'large',
       sort_order: item.sort_order || 0,
       is_active: item.is_active ?? true,
     });
@@ -161,6 +175,50 @@ const AdminHero = () => {
               onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
               placeholder="Transform your body"
             />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Transform your body and mind with state-of-the-art equipment..."
+              rows={3}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Title Size</Label>
+              <Select
+                value={formData.title_size}
+                onValueChange={(value) => setFormData({ ...formData, title_size: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Small</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="large">Large</SelectItem>
+                  <SelectItem value="xlarge">Extra Large</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Button Size</Label>
+              <Select
+                value={formData.button_size}
+                onValueChange={(value) => setFormData({ ...formData, button_size: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Small</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="large">Large</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
