@@ -25,10 +25,10 @@ const Classes = () => {
             className="text-center"
           >
             <h1 className="font-display text-5xl md:text-7xl mb-4">
-              OUR <span className="text-gradient">CLASSES</span>
+              <span className="text-gradient">SPECIAL OFFERS</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Discover a variety of fitness programs designed to challenge and inspire you
+              Discover our exclusive packages and promotions designed for you
             </p>
           </motion.div>
         </div>
