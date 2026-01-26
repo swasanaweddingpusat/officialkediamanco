@@ -104,6 +104,7 @@ export type Database = {
           google_maps_url: string | null
           id: string
           image_url: string | null
+          images: string[] | null
           is_active: boolean | null
           is_coming_soon: boolean | null
           name: string
@@ -120,6 +121,7 @@ export type Database = {
           google_maps_url?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_active?: boolean | null
           is_coming_soon?: boolean | null
           name: string
@@ -136,6 +138,7 @@ export type Database = {
           google_maps_url?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_active?: boolean | null
           is_coming_soon?: boolean | null
           name?: string
