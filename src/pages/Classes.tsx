@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Layout } from '@/components/layout/Layout';
 import { usePrograms } from '@/hooks/useCMS';
@@ -10,6 +11,7 @@ import gymInterior from '@/assets/gym-interior.jpg';
 const fallbackImages = [pilatesImage, hiitImage, gymInterior];
 
 const Classes = () => {
+  const navigate = useNavigate();
   const { data: programs, isLoading } = usePrograms();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -90,7 +92,8 @@ const Classes = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
-                  className="group relative overflow-hidden rounded-2xl aspect-[4/5]"
+                  onClick={() => navigate(`/classes/${program.id}`)}
+                  className="group relative overflow-hidden rounded-2xl aspect-[4/5] cursor-pointer"
                 >
                   <img
                     src={program.image_url || fallbackImages[index % fallbackImages.length]}
