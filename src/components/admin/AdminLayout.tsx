@@ -15,7 +15,7 @@ const navItems = [
   { name: 'Hero Slides', href: '/admin/hero', icon: Image },
   { name: 'Features', href: '/admin/features', icon: Zap },
   { name: 'Programs', href: '/admin/programs', icon: Dumbbell },
-  { name: 'Trainers', href: '/admin/trainers', icon: Users },
+  { name: 'Portfolio', href: '/admin/trainers', icon: Users },
   { name: 'Locations', href: '/admin/locations', icon: MapPin },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];

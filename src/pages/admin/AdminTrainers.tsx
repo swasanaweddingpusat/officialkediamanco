@@ -127,21 +127,21 @@ const AdminTrainers = () => {
   ];
 
   return (
-    <AdminLayout title="Trainers">
+    <AdminLayout title="Portfolio">
       <AdminTable
         data={trainers as Trainer[]}
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onCreate={handleCreate}
-        createLabel="Add Trainer"
+        createLabel="Add Portfolio"
         isLoading={isLoading}
       />
 
       <AdminFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        title={editingItem ? 'Edit Trainer' : 'Add Trainer'}
+        title={editingItem ? 'Edit Portfolio' : 'Add Portfolio'}
         onSubmit={handleSubmit}
         isSubmitting={createMutation.isPending || updateMutation.isPending}
       >
@@ -217,7 +217,7 @@ const AdminTrainers = () => {
         onOpenChange={setDeleteOpen}
         onConfirm={handleConfirmDelete}
         isDeleting={deleteMutation.isPending}
-        title="Delete Trainer"
+        title="Delete Portfolio"
       />
     </AdminLayout>
   );

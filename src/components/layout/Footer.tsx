@@ -31,7 +31,7 @@ export function Footer() {
               </li>
               <li>
                 <Link to="/trainers" className="text-muted-foreground hover:text-primary transition-colors">
-                  Our Team
+                  Our Portfolio
                 </Link>
               </li>
               <li>
