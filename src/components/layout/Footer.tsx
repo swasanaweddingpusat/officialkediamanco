@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
-import { Dumbbell, Instagram, Facebook, Phone, Mail, MapPin } from 'lucide-react';
-import { useSiteSettings } from '@/hooks/useCMS';
+import { Link } from "react-router-dom";
+import { Dumbbell, Instagram, Facebook, Phone, Mail, MapPin } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useCMS";
 
 export function Footer() {
   const { data: settings } = useSiteSettings();
@@ -15,13 +15,9 @@ export function Footer() {
               <div className="p-2 bg-primary rounded-lg">
                 <Dumbbell className="w-6 h-6 text-primary-foreground" />
               </div>
-              <span className="font-display text-2xl tracking-wider">
-                {settings?.site_name || 'POWER GYM'}
-              </span>
+              <span className="font-display text-2xl tracking-wider">{settings?.site_name || "KEDIAMAN CORP"}</span>
             </Link>
-            <p className="text-muted-foreground">
-              {settings?.tagline || 'Get Strong Get Rewards'}
-            </p>
+            <p className="text-muted-foreground">{settings?.tagline || "Get Strong Get Rewards"}</p>
           </div>
 
           {/* Quick Links */}
@@ -30,12 +26,12 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link to="/classes" className="text-muted-foreground hover:text-primary transition-colors">
-                  Classes
+                  Packages
                 </Link>
               </li>
               <li>
                 <Link to="/trainers" className="text-muted-foreground hover:text-primary transition-colors">
-                  Trainers
+                  Our Team
                 </Link>
               </li>
               <li>
@@ -100,7 +96,9 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border text-center text-muted-foreground">
-          <p>© {new Date().getFullYear()} {settings?.site_name || 'Power Gym'}. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} {settings?.site_name || "Power Gym"}. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
