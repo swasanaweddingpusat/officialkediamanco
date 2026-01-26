@@ -25,15 +25,15 @@ export function ProgramsSection() {
         >
           <div>
             <h2 className="font-display text-4xl md:text-5xl mb-4">
-              OUR <span className="text-gradient">PROGRAMS</span>
+              OUR <span className="text-gradient">LOCATIONS</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl">
-              From high-intensity training to mindful yoga, find the perfect class for your fitness journey
+              Find our premium fitness centers across multiple cities
             </p>
           </div>
-          <Link to="/classes">
+          <Link to="/locations">
             <Button variant="outline" className="mt-4 md:mt-0">
-              View Special Offers
+              View All Locations
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </Link>
