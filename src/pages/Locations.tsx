@@ -8,130 +8,177 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 const LOCATION_CATEGORIES = ['Semua', 'Jakarta Selatan', 'Jakarta Timur', 'Bintaro', 'Bandung'] as const;
+
 const Locations = () => {
-  const {
-    data: locations,
-    isLoading
-  } = useLocations();
+  const { data: locations, isLoading } = useLocations();
   const [expandedGallery, setExpandedGallery] = useState<string | null>(null);
   const [expandedFacilities, setExpandedFacilities] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
+
   const activeLocations = locations?.filter(l => l.is_active) || [];
+  
   const filteredLocations = useMemo(() => {
     if (selectedCategory === 'Semua') return activeLocations;
     return activeLocations.filter(l => l.category === selectedCategory);
   }, [activeLocations, selectedCategory]);
+
   const comingSoonLocations = filteredLocations.filter(l => l.is_coming_soon);
   const openLocations = filteredLocations.filter(l => !l.is_coming_soon);
+
   const toggleGallery = (id: string) => {
     setExpandedGallery(expandedGallery === id ? null : id);
   };
+
   const toggleFacilities = (id: string) => {
     setExpandedFacilities(expandedFacilities === id ? null : id);
   };
+
   const getImages = (location: typeof activeLocations[0]) => {
     if (location.images && location.images.length > 0) return location.images;
     if (location.image_url) return [location.image_url];
     return [];
   };
-  return <Layout>
+
+  return (
+    <Layout>
       {/* Hero */}
-      <section className="pt-20 pb-10 bg-card">
-        <div className="container mx-auto px-4">
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} className="text-center">
-            
-            <h1 className="font-display text-5xl md:text-7xl mb-4">
+      <section className="pt-12 sm:pt-16 md:pt-20 pb-8 md:pb-10 bg-card">
+        <div className="container mx-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-4">
               OUR <span className="text-gradient">LOCATIONS</span>
             </h1>
           </motion.div>
 
           {/* Category Filter */}
-          <motion.div initial={{
-          opacity: 0,
-          y: 10
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          delay: 0.2
-        }} className="flex flex-wrap justify-center gap-2 mt-8">
-            {LOCATION_CATEGORIES.map(category => <Button key={category} variant={selectedCategory === category ? 'default' : 'outline'} size="sm" onClick={() => setSelectedCategory(category)} className="rounded-full">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-wrap justify-center gap-2 mt-6 md:mt-8"
+          >
+            {LOCATION_CATEGORIES.map(category => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className="rounded-full text-xs sm:text-sm px-3 sm:px-4"
+              >
                 {category}
-              </Button>)}
+              </Button>
+            ))}
           </motion.div>
         </div>
       </section>
 
       {/* Locations Grid */}
-      <section className="py-8 pb-20">
-        <div className="container mx-auto px-4">
-          {isLoading ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-[420px] rounded-2xl" />)}
-            </div> : openLocations.length > 0 || comingSoonLocations.length > 0 ? <AnimatePresence mode="wait">
-              <motion.div key={selectedCategory} initial={{
-            opacity: 0,
-            y: 20
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} exit={{
-            opacity: 0,
-            y: -20
-          }} transition={{
-            duration: 0.3
-          }}>
+      <section className="py-6 sm:py-8 pb-12 sm:pb-16 md:pb-20">
+        <div className="container mx-auto px-4 sm:px-6">
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {[...Array(6)].map((_, i) => (
+                <Skeleton key={i} className="h-[380px] sm:h-[420px] rounded-2xl" />
+              ))}
+            </div>
+          ) : openLocations.length > 0 || comingSoonLocations.length > 0 ? (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedCategory}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
                 {/* Open Locations */}
-                {openLocations.length > 0 && <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                    {openLocations.map((location, index) => <LocationCard key={location.id} location={location} index={index} images={getImages(location)} expandedGallery={expandedGallery} expandedFacilities={expandedFacilities} onToggleGallery={toggleGallery} onToggleFacilities={toggleFacilities} onImageClick={setLightboxImage} />)}
-                  </div>}
+                {openLocations.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 md:mb-12">
+                    {openLocations.map((location, index) => (
+                      <LocationCard
+                        key={location.id}
+                        location={location}
+                        index={index}
+                        images={getImages(location)}
+                        expandedGallery={expandedGallery}
+                        expandedFacilities={expandedFacilities}
+                        onToggleGallery={toggleGallery}
+                        onToggleFacilities={toggleFacilities}
+                        onImageClick={setLightboxImage}
+                      />
+                    ))}
+                  </div>
+                )}
 
                 {/* Coming Soon */}
-                {comingSoonLocations.length > 0 && <>
-                    <h2 className="font-display text-3xl text-center mb-8">
+                {comingSoonLocations.length > 0 && (
+                  <>
+                    <h2 className="font-display text-2xl sm:text-3xl text-center mb-6 md:mb-8">
                       <span className="text-muted-foreground">COMING</span> SOON
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {comingSoonLocations.map((location, index) => <LocationCard key={location.id} location={location} index={index} images={getImages(location)} expandedGallery={expandedGallery} expandedFacilities={expandedFacilities} onToggleGallery={toggleGallery} onToggleFacilities={toggleFacilities} onImageClick={setLightboxImage} isComingSoon />)}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                      {comingSoonLocations.map((location, index) => (
+                        <LocationCard
+                          key={location.id}
+                          location={location}
+                          index={index}
+                          images={getImages(location)}
+                          expandedGallery={expandedGallery}
+                          expandedFacilities={expandedFacilities}
+                          onToggleGallery={toggleGallery}
+                          onToggleFacilities={toggleFacilities}
+                          onImageClick={setLightboxImage}
+                          isComingSoon
+                        />
+                      ))}
                     </div>
-                  </>}
+                  </>
+                )}
               </motion.div>
-            </AnimatePresence> : <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg">
+            </AnimatePresence>
+          ) : (
+            <div className="text-center py-12 md:py-16">
+              <p className="text-muted-foreground text-base sm:text-lg">
                 {selectedCategory === 'Semua' ? 'No locations available yet.' : `Tidak ada lokasi di ${selectedCategory}.`}
               </p>
-            </div>}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Lightbox */}
       <AnimatePresence>
-        {lightboxImage && <motion.div initial={{
-        opacity: 0
-      }} animate={{
-        opacity: 1
-      }} exit={{
-        opacity: 0
-      }} className="fixed inset-0 z-50 bg-background/95 flex items-center justify-center p-4" onClick={() => setLightboxImage(null)}>
-            <button className="absolute top-4 right-4 p-2 bg-secondary rounded-full" onClick={() => setLightboxImage(null)}>
-              <X className="w-6 h-6" />
+        {lightboxImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background/95 flex items-center justify-center p-2 sm:p-4"
+            onClick={() => setLightboxImage(null)}
+          >
+            <button
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 bg-secondary rounded-full z-10"
+              onClick={() => setLightboxImage(null)}
+            >
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
-            <motion.img initial={{
-          scale: 0.9
-        }} animate={{
-          scale: 1
-        }} exit={{
-          scale: 0.9
-        }} src={lightboxImage} alt="Gallery" className="max-w-full max-h-[90vh] rounded-lg object-contain" />
-          </motion.div>}
+            <motion.img
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              src={lightboxImage}
+              alt="Gallery"
+              className="max-w-full max-h-[85vh] sm:max-h-[90vh] rounded-lg object-contain"
+            />
+          </motion.div>
+        )}
       </AnimatePresence>
-    </Layout>;
+    </Layout>
+  );
 };
 interface LocationCardProps {
   location: {
@@ -167,14 +214,14 @@ const LocationCard = ({
 }: LocationCardProps) => {
   const isGalleryExpanded = expandedGallery === location.id;
   const isFacilitiesExpanded = expandedFacilities === location.id;
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
-      className="group relative overflow-hidden rounded-2xl bg-card border border-border"
+      transition={{ delay: Math.min(index * 0.1, 0.3) }}
+      className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-card border border-border"
     >
       {/* Main Image - Clickable to detail */}
       <Link to={`/locations/${location.id}`}>
@@ -187,7 +234,7 @@ const LocationCard = ({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              <MapPin className="w-12 h-12 opacity-30" />
+              <MapPin className="w-10 h-10 sm:w-12 sm:h-12 opacity-30" />
             </div>
           )}
 
@@ -199,7 +246,7 @@ const LocationCard = ({
                 e.stopPropagation();
                 window.open(location.google_maps_url!, '_blank');
               }}
-              className="absolute top-4 right-4 px-4 py-2 bg-primary text-primary-foreground font-semibold text-sm rounded-full hover:bg-primary/90 transition-colors"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary text-primary-foreground font-semibold text-xs sm:text-sm rounded-full hover:bg-primary/90 transition-colors"
             >
               View in Maps
             </span>
@@ -207,7 +254,7 @@ const LocationCard = ({
 
           {/* Coming Soon Badge */}
           {isComingSoon && (
-            <div className="absolute top-4 right-4 px-4 py-2 bg-accent text-accent-foreground font-bold text-sm rounded-full">
+            <div className="absolute top-3 right-3 sm:top-4 sm:right-4 px-3 py-1.5 sm:px-4 sm:py-2 bg-accent text-accent-foreground font-bold text-xs sm:text-sm rounded-full">
               Coming Soon
             </div>
           )}
@@ -215,40 +262,40 @@ const LocationCard = ({
       </Link>
 
       {/* Content */}
-      <div className="p-5">
+      <div className="p-4 sm:p-5">
         {/* Badge */}
-        <Badge variant="outline" className="mb-3 border-primary text-primary">
+        <Badge variant="outline" className="mb-2 sm:mb-3 border-primary text-primary text-xs">
           {location.category || 'Jakarta Selatan'}
         </Badge>
 
         {/* Name - Clickable */}
         <Link to={`/locations/${location.id}`}>
-          <h3 className="font-display text-2xl mb-2 hover:text-primary transition-colors">
+          <h3 className="font-display text-xl sm:text-2xl mb-2 hover:text-primary transition-colors line-clamp-1">
             {location.name}
           </h3>
         </Link>
 
         {/* Address */}
         {location.address && (
-          <div className="flex items-start gap-2 text-muted-foreground text-sm mb-4">
-            <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 text-muted-foreground text-xs sm:text-sm mb-3 sm:mb-4">
+            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary flex-shrink-0 mt-0.5" />
             <span className="line-clamp-2">{location.address}</span>
           </div>
         )}
 
         {/* Gallery Toggle */}
         {images.length > 1 && (
-          <div className="border-t border-border pt-3">
+          <div className="border-t border-border pt-2 sm:pt-3">
             <button
               onClick={() => onToggleGallery(location.id)}
-              className="flex items-center justify-between w-full py-2 text-left hover:text-primary transition-colors"
+              className="flex items-center justify-between w-full py-1.5 sm:py-2 text-left hover:text-primary transition-colors"
             >
-              <span className="font-semibold flex items-center gap-2">
-                <Play className="w-4 h-4" />
+              <span className="font-semibold flex items-center gap-2 text-sm sm:text-base">
+                <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Gallery
               </span>
               <ChevronDown
-                className={`w-5 h-5 transition-transform ${isGalleryExpanded ? 'rotate-180' : ''}`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${isGalleryExpanded ? 'rotate-180' : ''}`}
               />
             </button>
             <AnimatePresence>
@@ -259,12 +306,12 @@ const LocationCard = ({
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="grid grid-cols-3 gap-2 pt-2 pb-3">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-2 pb-2 sm:pb-3">
                     {images.map((img, i) => (
                       <button
                         key={i}
                         onClick={() => onImageClick(img)}
-                        className="aspect-square rounded-lg overflow-hidden hover:ring-2 ring-primary transition-all"
+                        className="aspect-square rounded-md sm:rounded-lg overflow-hidden hover:ring-2 ring-primary transition-all"
                       >
                         <img src={img} alt="" className="w-full h-full object-cover" />
                       </button>
@@ -278,14 +325,14 @@ const LocationCard = ({
 
         {/* Facilities Toggle */}
         {location.facilities && location.facilities.length > 0 && (
-          <div className="border-t border-border pt-3">
+          <div className="border-t border-border pt-2 sm:pt-3">
             <button
               onClick={() => onToggleFacilities(location.id)}
-              className="flex items-center justify-between w-full py-2 text-left hover:text-primary transition-colors"
+              className="flex items-center justify-between w-full py-1.5 sm:py-2 text-left hover:text-primary transition-colors"
             >
-              <span className="font-semibold">Facilities</span>
+              <span className="font-semibold text-sm sm:text-base">Facilities</span>
               <ChevronDown
-                className={`w-5 h-5 transition-transform ${isFacilitiesExpanded ? 'rotate-180' : ''}`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${isFacilitiesExpanded ? 'rotate-180' : ''}`}
               />
             </button>
             <AnimatePresence>
@@ -296,11 +343,11 @@ const LocationCard = ({
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="flex flex-wrap gap-2 pt-2 pb-3">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-2 pb-2 sm:pb-3">
                     {location.facilities.map((facility, i) => (
                       <span
                         key={i}
-                        className="px-3 py-1 bg-secondary text-secondary-foreground text-xs rounded-full"
+                        className="px-2 py-0.5 sm:px-3 sm:py-1 bg-secondary text-secondary-foreground text-[10px] sm:text-xs rounded-full"
                       >
                         {facility}
                       </span>
@@ -315,4 +362,5 @@ const LocationCard = ({
     </motion.div>
   );
 };
+
 export default Locations;
