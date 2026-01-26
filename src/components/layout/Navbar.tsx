@@ -9,7 +9,7 @@ import { useSiteSettings } from '@/hooks/useCMS';
 const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Special Offers', href: '/classes' },
-  { name: 'Trainers', href: '/trainers' },
+  { name: 'Our Portfolio', href: '/trainers' },
   { name: 'Locations', href: '/locations' },
 ];
 

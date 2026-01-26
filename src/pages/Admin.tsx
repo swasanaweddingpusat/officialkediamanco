@@ -15,7 +15,7 @@ const Admin = () => {
     { name: 'Hero Slides', count: slides?.length || 0, icon: Image, href: '/admin/hero', color: 'bg-blue-500/10 text-blue-500' },
     { name: 'Features', count: features?.length || 0, icon: Zap, href: '/admin/features', color: 'bg-yellow-500/10 text-yellow-500' },
     { name: 'Programs', count: programs?.length || 0, icon: Dumbbell, href: '/admin/programs', color: 'bg-green-500/10 text-green-500' },
-    { name: 'Trainers', count: trainers?.length || 0, icon: Users, href: '/admin/trainers', color: 'bg-purple-500/10 text-purple-500' },
+    { name: 'Portfolio', count: trainers?.length || 0, icon: Users, href: '/admin/trainers', color: 'bg-purple-500/10 text-purple-500' },
     { name: 'Locations', count: locations?.length || 0, icon: MapPin, href: '/admin/locations', color: 'bg-red-500/10 text-red-500' },
   ];
 
@@ -59,7 +59,7 @@ const Admin = () => {
             </li>
             <li className="flex items-center gap-2">
               <Users className="w-4 h-4 text-primary" />
-              <span><strong>Trainers</strong> - Personal trainer</span>
+              <span><strong>Portfolio</strong> - Our portfolio items</span>
             </li>
             <li className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-primary" />
@@ -81,7 +81,7 @@ const Admin = () => {
             </Link>
             <Link to="/admin/trainers" className="p-4 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors text-center">
               <Users className="w-6 h-6 mx-auto mb-2" />
-              <span className="text-sm">Add Trainer</span>
+              <span className="text-sm">Add Portfolio</span>
             </Link>
             <Link to="/admin/locations" className="p-4 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors text-center">
               <MapPin className="w-6 h-6 mx-auto mb-2" />
