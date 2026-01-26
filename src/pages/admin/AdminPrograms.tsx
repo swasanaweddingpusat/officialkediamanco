@@ -95,7 +95,7 @@ const AdminPrograms = () => {
         <img src={item.image_url} alt="" className="w-16 h-10 object-cover rounded" />
       ) : <span className="text-muted-foreground">-</span>,
     },
-    { key: 'name', label: 'Name' },
+    { key: 'name', label: 'Offer Name' },
     { key: 'category', label: 'Category' },
     { key: 'sort_order', label: 'Order' },
     {
@@ -110,21 +110,21 @@ const AdminPrograms = () => {
   ];
 
   return (
-    <AdminLayout title="Programs">
+    <AdminLayout title="Special Offers">
       <AdminTable
         data={programs as Program[]}
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onCreate={handleCreate}
-        createLabel="Add Program"
+        createLabel="Add Offer"
         isLoading={isLoading}
       />
 
       <AdminFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        title={editingItem ? 'Edit Program' : 'Add Program'}
+        title={editingItem ? 'Edit Special Offer' : 'Add Special Offer'}
         onSubmit={handleSubmit}
         isSubmitting={createMutation.isPending || updateMutation.isPending}
       >
@@ -138,11 +138,11 @@ const AdminPrograms = () => {
             />
           </div>
           <div>
-            <Label>Name *</Label>
+            <Label>Offer Name *</Label>
             <Input
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Reformer Pilates"
+              placeholder="Summer Promo 50% Off"
             />
           </div>
           <div>
@@ -150,7 +150,7 @@ const AdminPrograms = () => {
             <Textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Build core strength and flexibility..."
+              placeholder="Get 50% off for all membership packages..."
             />
           </div>
           <div>
@@ -158,7 +158,7 @@ const AdminPrograms = () => {
             <Input
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              placeholder="Pilates, Cardio, Strength..."
+              placeholder="Membership, Package, Discount..."
             />
           </div>
           <div>
@@ -184,7 +184,7 @@ const AdminPrograms = () => {
         onOpenChange={setDeleteOpen}
         onConfirm={handleConfirmDelete}
         isDeleting={deleteMutation.isPending}
-        title="Delete Program"
+        title="Delete Special Offer"
       />
     </AdminLayout>
   );
