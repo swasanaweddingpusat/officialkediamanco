@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { useDynamicFavicon } from "@/hooks/useDynamicFavicon";
 import Index from "./pages/Index";
 import Classes from "./pages/Classes";
 import ProgramDetail from "./pages/ProgramDetail";
@@ -22,8 +23,14 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function FaviconManager() {
+  useDynamicFavicon();
+  return null;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <FaviconManager />
     <AuthProvider>
       <TooltipProvider>
         <Toaster />
