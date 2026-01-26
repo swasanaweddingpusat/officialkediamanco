@@ -24,6 +24,7 @@ const AdminSettings = () => {
     tiktok_link: '',
     youtube_link: '',
     logo_url: '',
+    auth_background_url: '',
   });
 
   useEffect(() => {
@@ -40,6 +41,7 @@ const AdminSettings = () => {
         tiktok_link: (settings as any).tiktok_link || '',
         youtube_link: (settings as any).youtube_link || '',
         logo_url: settings.logo_url || '',
+        auth_background_url: (settings as any).auth_background_url || '',
       });
     }
   }, [settings]);
@@ -72,7 +74,7 @@ const AdminSettings = () => {
               <h3 className="font-display text-xl mb-4">Branding</h3>
             </div>
 
-            <div className="md:col-span-2">
+            <div>
               <Label>Logo</Label>
               <p className="text-sm text-muted-foreground mb-2">
                 Upload logo untuk ditampilkan di navbar (rekomendasi: PNG transparan, max 200x60px)
@@ -80,6 +82,18 @@ const AdminSettings = () => {
               <ImageUpload
                 value={formData.logo_url}
                 onChange={(url) => setFormData({ ...formData, logo_url: url })}
+                folder="branding"
+              />
+            </div>
+
+            <div>
+              <Label>Auth Page Background</Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Gambar background untuk halaman login/register (rekomendasi: 1920x1080px)
+              </p>
+              <ImageUpload
+                value={formData.auth_background_url}
+                onChange={(url) => setFormData({ ...formData, auth_background_url: url })}
                 folder="branding"
               />
             </div>

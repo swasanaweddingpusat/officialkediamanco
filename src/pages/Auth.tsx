@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Dumbbell, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
+import { useSiteSettings } from '@/hooks/useCMS';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -20,6 +21,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { user, signIn, signUp } = useAuth();
+  const { data: siteSettings } = useSiteSettings();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -68,36 +70,52 @@ const Auth = () => {
     }
   };
 
+  const defaultBackgroundImage = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=80';
+  const backgroundImage = (siteSettings as any)?.auth_background_url || defaultBackgroundImage;
+
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-md"
         >
-          <div className="flex items-center gap-2 mb-8">
-            <div className="p-2 bg-primary rounded-lg">
-              <Dumbbell className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <span className="font-display text-2xl tracking-wider">POWER GYM</span>
-          </div>
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 mb-6 sm:mb-8">
+            {siteSettings?.logo_url ? (
+              <img
+                src={siteSettings.logo_url}
+                alt={siteSettings.site_name || 'Logo'}
+                className="h-10 sm:h-12 w-auto object-contain"
+              />
+            ) : (
+              <>
+                <div className="p-2 bg-primary rounded-lg">
+                  <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
+                </div>
+                <span className="font-display text-xl sm:text-2xl tracking-wider">
+                  {siteSettings?.site_name || 'POWER GYM'}
+                </span>
+              </>
+            )}
+          </Link>
 
-          <h1 className="font-display text-4xl mb-2">
+          <h1 className="font-display text-3xl sm:text-4xl mb-2">
             {isLogin ? 'WELCOME BACK' : 'JOIN US'}
           </h1>
-          <p className="text-muted-foreground mb-8">
+          <p className="text-muted-foreground text-sm sm:text-base mb-6 sm:mb-8">
             {isLogin
               ? 'Sign in to access your account'
               : 'Create an account to start your fitness journey'}
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
@@ -113,7 +131,7 @@ const Auth = () => {
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                 <Input
                   id="password"
                   type="password"
@@ -132,7 +150,7 @@ const Auth = () => {
             </Button>
           </form>
 
-          <p className="text-center mt-6 text-muted-foreground">
+          <p className="text-center mt-4 sm:mt-6 text-sm sm:text-base text-muted-foreground">
             {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
             <button
               type="button"
@@ -149,8 +167,8 @@ const Auth = () => {
       <div className="hidden lg:block flex-1 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-background to-transparent z-10" />
         <img
-          src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=80"
-          alt="Gym"
+          src={backgroundImage}
+          alt="Background"
           className="w-full h-full object-cover"
         />
       </div>
