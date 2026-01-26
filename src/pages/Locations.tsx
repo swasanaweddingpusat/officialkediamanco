@@ -217,7 +217,7 @@ const LocationCard = ({
       <div className="p-5">
         {/* Badge */}
         <Badge variant="outline" className="mb-3 border-primary text-primary">
-          FTL Club
+          {location.name}
         </Badge>
 
         {/* Name */}
