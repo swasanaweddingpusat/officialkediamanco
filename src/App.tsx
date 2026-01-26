@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Classes from "./pages/Classes";
+import ProgramDetail from "./pages/ProgramDetail";
 import Trainers from "./pages/Trainers";
 import Locations from "./pages/Locations";
 import Auth from "./pages/Auth";
@@ -30,6 +31,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/classes" element={<Classes />} />
+            <Route path="/classes/:id" element={<ProgramDetail />} />
             <Route path="/trainers" element={<Trainers />} />
             <Route path="/locations" element={<Locations />} />
             <Route path="/auth" element={<Auth />} />
