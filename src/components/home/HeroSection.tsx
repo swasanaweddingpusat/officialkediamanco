@@ -69,7 +69,7 @@ export function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className={`relative container mx-auto px-4 h-full flex items-center ${positionClasses[currentPosition]}`}>
+      <div className={`relative container mx-auto px-6 md:px-12 lg:px-16 h-full flex items-center ${positionClasses[currentPosition]}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
