@@ -3,7 +3,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminTable } from '@/components/admin/AdminTable';
 import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
-import { ImageUpload } from '@/components/admin/ImageUpload';
+import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -19,6 +19,7 @@ type Location = {
   email: string | null;
   google_maps_url: string | null;
   image_url: string | null;
+  images: string[] | null;
   facilities: string[] | null;
   is_coming_soon: boolean | null;
   sort_order: number | null;
@@ -42,7 +43,7 @@ const AdminLocations = () => {
     phone: '',
     email: '',
     google_maps_url: '',
-    image_url: '',
+    images: [] as string[],
     facilities: '',
     is_coming_soon: false,
     sort_order: 0,
@@ -50,7 +51,7 @@ const AdminLocations = () => {
   });
 
   const resetForm = () => {
-    setFormData({ name: '', address: '', phone: '', email: '', google_maps_url: '', image_url: '', facilities: '', is_coming_soon: false, sort_order: 0, is_active: true });
+    setFormData({ name: '', address: '', phone: '', email: '', google_maps_url: '', images: [], facilities: '', is_coming_soon: false, sort_order: 0, is_active: true });
     setEditingItem(null);
   };
 
@@ -67,7 +68,7 @@ const AdminLocations = () => {
       phone: item.phone || '',
       email: item.email || '',
       google_maps_url: item.google_maps_url || '',
-      image_url: item.image_url || '',
+      images: item.images || (item.image_url ? [item.image_url] : []),
       facilities: item.facilities?.join(', ') || '',
       is_coming_soon: item.is_coming_soon ?? false,
       sort_order: item.sort_order || 0,
@@ -88,7 +89,8 @@ const AdminLocations = () => {
       phone: formData.phone || undefined,
       email: formData.email || undefined,
       google_maps_url: formData.google_maps_url || undefined,
-      image_url: formData.image_url || undefined,
+      image_url: formData.images[0] || undefined,
+      images: formData.images.length > 0 ? formData.images : undefined,
       facilities: formData.facilities ? formData.facilities.split(',').map(s => s.trim()).filter(Boolean) : undefined,
       is_coming_soon: formData.is_coming_soon,
       sort_order: formData.sort_order,
@@ -114,11 +116,23 @@ const AdminLocations = () => {
 
   const columns = [
     {
-      key: 'image_url',
-      label: 'Image',
-      render: (item: Location) => item.image_url ? (
-        <img src={item.image_url} alt="" className="w-16 h-10 object-cover rounded" />
-      ) : <span className="text-muted-foreground">-</span>,
+      key: 'images',
+      label: 'Images',
+      render: (item: Location) => {
+        const images = item.images || (item.image_url ? [item.image_url] : []);
+        return images.length > 0 ? (
+          <div className="flex -space-x-2">
+            {images.slice(0, 3).map((url, i) => (
+              <img key={i} src={url} alt="" className="w-10 h-10 object-cover rounded border-2 border-background" />
+            ))}
+            {images.length > 3 && (
+              <div className="w-10 h-10 rounded border-2 border-background bg-muted flex items-center justify-center text-xs font-medium">
+                +{images.length - 3}
+              </div>
+            )}
+          </div>
+        ) : <span className="text-muted-foreground">-</span>;
+      },
     },
     { key: 'name', label: 'Name' },
     { key: 'address', label: 'Address' },
@@ -159,12 +173,14 @@ const AdminLocations = () => {
       >
         <div className="space-y-4">
           <div>
-            <Label>Image</Label>
-            <ImageUpload
-              value={formData.image_url}
-              onChange={(url) => setFormData({ ...formData, image_url: url })}
+            <Label>Images</Label>
+            <MultiImageUpload
+              value={formData.images}
+              onChange={(urls) => setFormData({ ...formData, images: urls })}
               folder="locations"
+              maxImages={10}
             />
+            <p className="text-xs text-muted-foreground mt-1">Gambar pertama akan menjadi gambar utama</p>
           </div>
           <div>
             <Label>Name *</Label>
