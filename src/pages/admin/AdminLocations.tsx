@@ -3,6 +3,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminTable } from '@/components/admin/AdminTable';
 import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -112,6 +113,13 @@ const AdminLocations = () => {
   };
 
   const columns = [
+    {
+      key: 'image_url',
+      label: 'Image',
+      render: (item: Location) => item.image_url ? (
+        <img src={item.image_url} alt="" className="w-16 h-10 object-cover rounded" />
+      ) : <span className="text-muted-foreground">-</span>,
+    },
     { key: 'name', label: 'Name' },
     { key: 'address', label: 'Address' },
     {
@@ -150,6 +158,14 @@ const AdminLocations = () => {
         isSubmitting={createMutation.isPending || updateMutation.isPending}
       >
         <div className="space-y-4">
+          <div>
+            <Label>Image</Label>
+            <ImageUpload
+              value={formData.image_url}
+              onChange={(url) => setFormData({ ...formData, image_url: url })}
+              folder="locations"
+            />
+          </div>
           <div>
             <Label>Name *</Label>
             <Input
@@ -190,14 +206,6 @@ const AdminLocations = () => {
               value={formData.google_maps_url}
               onChange={(e) => setFormData({ ...formData, google_maps_url: e.target.value })}
               placeholder="https://maps.google.com/..."
-            />
-          </div>
-          <div>
-            <Label>Image URL</Label>
-            <Input
-              value={formData.image_url}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-              placeholder="https://..."
             />
           </div>
           <div>

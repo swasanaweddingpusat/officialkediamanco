@@ -3,6 +3,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminTable } from '@/components/admin/AdminTable';
 import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -97,8 +98,14 @@ const AdminHero = () => {
   };
 
   const columns = [
+    {
+      key: 'image_url',
+      label: 'Image',
+      render: (item: HeroSlide) => item.image_url ? (
+        <img src={item.image_url} alt="" className="w-16 h-10 object-cover rounded" />
+      ) : <span className="text-muted-foreground">-</span>,
+    },
     { key: 'title', label: 'Title' },
-    { key: 'subtitle', label: 'Subtitle' },
     { key: 'sort_order', label: 'Order' },
     {
       key: 'is_active',
@@ -132,6 +139,14 @@ const AdminHero = () => {
       >
         <div className="space-y-4">
           <div>
+            <Label>Image</Label>
+            <ImageUpload
+              value={formData.image_url}
+              onChange={(url) => setFormData({ ...formData, image_url: url })}
+              folder="hero"
+            />
+          </div>
+          <div>
             <Label>Title *</Label>
             <Input
               value={formData.title}
@@ -145,14 +160,6 @@ const AdminHero = () => {
               value={formData.subtitle}
               onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
               placeholder="Transform your body"
-            />
-          </div>
-          <div>
-            <Label>Image URL</Label>
-            <Input
-              value={formData.image_url}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-              placeholder="https://..."
             />
           </div>
           <div className="grid grid-cols-2 gap-4">

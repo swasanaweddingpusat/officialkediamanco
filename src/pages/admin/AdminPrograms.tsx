@@ -3,6 +3,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminTable } from '@/components/admin/AdminTable';
 import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -87,6 +88,13 @@ const AdminPrograms = () => {
   };
 
   const columns = [
+    {
+      key: 'image_url',
+      label: 'Image',
+      render: (item: Program) => item.image_url ? (
+        <img src={item.image_url} alt="" className="w-16 h-10 object-cover rounded" />
+      ) : <span className="text-muted-foreground">-</span>,
+    },
     { key: 'name', label: 'Name' },
     { key: 'category', label: 'Category' },
     { key: 'sort_order', label: 'Order' },
@@ -122,6 +130,14 @@ const AdminPrograms = () => {
       >
         <div className="space-y-4">
           <div>
+            <Label>Image</Label>
+            <ImageUpload
+              value={formData.image_url}
+              onChange={(url) => setFormData({ ...formData, image_url: url })}
+              folder="programs"
+            />
+          </div>
+          <div>
             <Label>Name *</Label>
             <Input
               value={formData.name}
@@ -143,14 +159,6 @@ const AdminPrograms = () => {
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               placeholder="Pilates, Cardio, Strength..."
-            />
-          </div>
-          <div>
-            <Label>Image URL</Label>
-            <Input
-              value={formData.image_url}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-              placeholder="https://..."
             />
           </div>
           <div>
