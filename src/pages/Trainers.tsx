@@ -21,7 +21,7 @@ const Trainers = () => {
           opacity: 1,
           y: 0
         }} className="text-center">
-            <h1 className="font-display text-5xl md:text-7xl mb-4">OUR CREW<span className="text-gradient">OUR PORTFOLIO</span>
+            <h1 className="font-display text-5xl md:text-7xl mb-4">OUR PORTFOLIO<span className="text-gradient">OUR PORTFOLIO</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Find inspiration from several events that have been held</p>
           </motion.div>
