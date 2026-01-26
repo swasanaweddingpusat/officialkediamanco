@@ -218,6 +218,7 @@ export type Database = {
       site_settings: {
         Row: {
           address: string | null
+          auth_background_url: string | null
           created_at: string
           email: string | null
           facebook_link: string | null
@@ -234,6 +235,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          auth_background_url?: string | null
           created_at?: string
           email?: string | null
           facebook_link?: string | null
@@ -250,6 +252,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          auth_background_url?: string | null
           created_at?: string
           email?: string | null
           facebook_link?: string | null
