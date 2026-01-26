@@ -227,6 +227,7 @@ export type Database = {
           phone: string | null
           site_name: string
           tagline: string | null
+          tiktok_link: string | null
           updated_at: string
           whatsapp_link: string | null
         }
@@ -241,6 +242,7 @@ export type Database = {
           phone?: string | null
           site_name?: string
           tagline?: string | null
+          tiktok_link?: string | null
           updated_at?: string
           whatsapp_link?: string | null
         }
@@ -255,6 +257,7 @@ export type Database = {
           phone?: string | null
           site_name?: string
           tagline?: string | null
+          tiktok_link?: string | null
           updated_at?: string
           whatsapp_link?: string | null
         }
