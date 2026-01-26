@@ -152,6 +152,7 @@ interface LocationCardProps {
     images: string[] | null;
     facilities: string[] | null;
     is_coming_soon: boolean | null;
+    category: string | null;
   };
   index: number;
   images: string[];
@@ -217,7 +218,7 @@ const LocationCard = ({
       <div className="p-5">
         {/* Badge */}
         <Badge variant="outline" className="mb-3 border-primary text-primary">
-          {location.name}
+          {location.category || 'Jakarta Selatan'}
         </Badge>
 
         {/* Name */}
