@@ -47,38 +47,47 @@ export type Database = {
       hero_slides: {
         Row: {
           button_link: string | null
+          button_size: string | null
           button_text: string | null
           created_at: string
+          description: string | null
           id: string
           image_url: string | null
           is_active: boolean | null
           sort_order: number | null
           subtitle: string | null
           title: string
+          title_size: string | null
           updated_at: string
         }
         Insert: {
           button_link?: string | null
+          button_size?: string | null
           button_text?: string | null
           created_at?: string
+          description?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
           sort_order?: number | null
           subtitle?: string | null
           title: string
+          title_size?: string | null
           updated_at?: string
         }
         Update: {
           button_link?: string | null
+          button_size?: string | null
           button_text?: string | null
           created_at?: string
+          description?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
           sort_order?: number | null
           subtitle?: string | null
           title?: string
+          title_size?: string | null
           updated_at?: string
         }
         Relationships: []
