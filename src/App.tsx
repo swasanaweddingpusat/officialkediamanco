@@ -9,6 +9,7 @@ import Classes from "./pages/Classes";
 import ProgramDetail from "./pages/ProgramDetail";
 import Trainers from "./pages/Trainers";
 import Locations from "./pages/Locations";
+import LocationDetail from "./pages/LocationDetail";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import AdminHero from "./pages/admin/AdminHero";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/classes/:id" element={<ProgramDetail />} />
             <Route path="/trainers" element={<Trainers />} />
             <Route path="/locations" element={<Locations />} />
+            <Route path="/locations/:id" element={<LocationDetail />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/hero" element={<AdminHero />} />
