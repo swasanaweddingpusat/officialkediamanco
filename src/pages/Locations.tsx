@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, ChevronDown, Play, X } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
@@ -8,15 +8,24 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import gymInterior from '@/assets/gym-interior.jpg';
 
+const LOCATION_CATEGORIES = ['Semua', 'Jakarta Selatan', 'Jakarta Timur', 'Bintaro', 'Bandung'] as const;
+
 const Locations = () => {
   const { data: locations, isLoading } = useLocations();
   const [expandedGallery, setExpandedGallery] = useState<string | null>(null);
   const [expandedFacilities, setExpandedFacilities] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
 
   const activeLocations = locations?.filter(l => l.is_active) || [];
-  const comingSoonLocations = activeLocations.filter(l => l.is_coming_soon);
-  const openLocations = activeLocations.filter(l => !l.is_coming_soon);
+  
+  const filteredLocations = useMemo(() => {
+    if (selectedCategory === 'Semua') return activeLocations;
+    return activeLocations.filter(l => l.category === selectedCategory);
+  }, [activeLocations, selectedCategory]);
+
+  const comingSoonLocations = filteredLocations.filter(l => l.is_coming_soon);
+  const openLocations = filteredLocations.filter(l => !l.is_coming_soon);
 
   const toggleGallery = (id: string) => {
     setExpandedGallery(expandedGallery === id ? null : id);
@@ -47,6 +56,26 @@ const Locations = () => {
               OUR <span className="text-gradient">LOCATIONS</span>
             </h1>
           </motion.div>
+
+          {/* Category Filter */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-wrap justify-center gap-2 mt-8"
+          >
+            {LOCATION_CATEGORIES.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory(category)}
+                className="rounded-full"
+              >
+                {category}
+              </Button>
+            ))}
+          </motion.div>
         </div>
       </section>
 
@@ -60,32 +89,18 @@ const Locations = () => {
               ))}
             </div>
           ) : openLocations.length > 0 || comingSoonLocations.length > 0 ? (
-            <>
-              {/* Open Locations */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                {openLocations.map((location, index) => (
-                  <LocationCard
-                    key={location.id}
-                    location={location}
-                    index={index}
-                    images={getImages(location)}
-                    expandedGallery={expandedGallery}
-                    expandedFacilities={expandedFacilities}
-                    onToggleGallery={toggleGallery}
-                    onToggleFacilities={toggleFacilities}
-                    onImageClick={setLightboxImage}
-                  />
-                ))}
-              </div>
-
-              {/* Coming Soon */}
-              {comingSoonLocations.length > 0 && (
-                <>
-                  <h2 className="font-display text-3xl text-center mb-8">
-                    <span className="text-muted-foreground">COMING</span> SOON
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {comingSoonLocations.map((location, index) => (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedCategory}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Open Locations */}
+                {openLocations.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    {openLocations.map((location, index) => (
                       <LocationCard
                         key={location.id}
                         location={location}
@@ -96,16 +111,44 @@ const Locations = () => {
                         onToggleGallery={toggleGallery}
                         onToggleFacilities={toggleFacilities}
                         onImageClick={setLightboxImage}
-                        isComingSoon
                       />
                     ))}
                   </div>
-                </>
-              )}
-            </>
+                )}
+
+                {/* Coming Soon */}
+                {comingSoonLocations.length > 0 && (
+                  <>
+                    <h2 className="font-display text-3xl text-center mb-8">
+                      <span className="text-muted-foreground">COMING</span> SOON
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {comingSoonLocations.map((location, index) => (
+                        <LocationCard
+                          key={location.id}
+                          location={location}
+                          index={index}
+                          images={getImages(location)}
+                          expandedGallery={expandedGallery}
+                          expandedFacilities={expandedFacilities}
+                          onToggleGallery={toggleGallery}
+                          onToggleFacilities={toggleFacilities}
+                          onImageClick={setLightboxImage}
+                          isComingSoon
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </motion.div>
+            </AnimatePresence>
           ) : (
             <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg">No locations available yet.</p>
+              <p className="text-muted-foreground text-lg">
+                {selectedCategory === 'Semua' 
+                  ? 'No locations available yet.' 
+                  : `Tidak ada lokasi di ${selectedCategory}.`}
+              </p>
             </div>
           )}
         </div>
