@@ -98,6 +98,7 @@ export type Database = {
       locations: {
         Row: {
           address: string | null
+          category: string | null
           created_at: string
           email: string | null
           facilities: string[] | null
@@ -115,6 +116,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          category?: string | null
           created_at?: string
           email?: string | null
           facilities?: string[] | null
@@ -132,6 +134,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          category?: string | null
           created_at?: string
           email?: string | null
           facilities?: string[] | null

@@ -8,8 +8,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLocations, useCreateLocation, useUpdateLocation, useDeleteLocation } from '@/hooks/useCMS';
 import { Badge } from '@/components/ui/badge';
+
+const LOCATION_CATEGORIES = [
+  'Jakarta Selatan',
+  'Jakarta Timur',
+  'Bintaro',
+  'Bandung',
+] as const;
 
 type Location = {
   id: string;
@@ -24,6 +32,7 @@ type Location = {
   is_coming_soon: boolean | null;
   sort_order: number | null;
   is_active: boolean | null;
+  category: string | null;
 };
 
 const AdminLocations = () => {
@@ -48,10 +57,23 @@ const AdminLocations = () => {
     is_coming_soon: false,
     sort_order: 0,
     is_active: true,
+    category: 'Jakarta Selatan',
   });
 
   const resetForm = () => {
-    setFormData({ name: '', address: '', phone: '', email: '', google_maps_url: '', images: [], facilities: '', is_coming_soon: false, sort_order: 0, is_active: true });
+    setFormData({ 
+      name: '', 
+      address: '', 
+      phone: '', 
+      email: '', 
+      google_maps_url: '', 
+      images: [], 
+      facilities: '', 
+      is_coming_soon: false, 
+      sort_order: 0, 
+      is_active: true,
+      category: 'Jakarta Selatan',
+    });
     setEditingItem(null);
   };
 
@@ -73,6 +95,7 @@ const AdminLocations = () => {
       is_coming_soon: item.is_coming_soon ?? false,
       sort_order: item.sort_order || 0,
       is_active: item.is_active ?? true,
+      category: item.category || 'Jakarta Selatan',
     });
     setFormOpen(true);
   };
@@ -95,6 +118,7 @@ const AdminLocations = () => {
       is_coming_soon: formData.is_coming_soon,
       sort_order: formData.sort_order,
       is_active: formData.is_active,
+      category: formData.category,
     };
 
     if (editingItem) {
@@ -135,7 +159,15 @@ const AdminLocations = () => {
       },
     },
     { key: 'name', label: 'Name' },
-    { key: 'address', label: 'Address' },
+    { 
+      key: 'category', 
+      label: 'Category',
+      render: (item: Location) => (
+        <Badge variant="outline" className="border-primary text-primary">
+          {item.category || 'Jakarta Selatan'}
+        </Badge>
+      ),
+    },
     {
       key: 'is_coming_soon',
       label: 'Coming Soon',
@@ -183,11 +215,29 @@ const AdminLocations = () => {
             <p className="text-xs text-muted-foreground mt-1">Gambar pertama akan menjadi gambar utama</p>
           </div>
           <div>
+            <Label>Category *</Label>
+            <Select
+              value={formData.category}
+              onValueChange={(value) => setFormData({ ...formData, category: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih kategori" />
+              </SelectTrigger>
+              <SelectContent>
+                {LOCATION_CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
             <Label>Name *</Label>
             <Input
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Jakarta Selatan"
+              placeholder="Nama venue/lokasi"
             />
           </div>
           <div>
@@ -212,7 +262,7 @@ const AdminLocations = () => {
               <Input
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="jaksel@powergym.com"
+                placeholder="location@example.com"
               />
             </div>
           </div>
