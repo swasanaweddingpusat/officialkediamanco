@@ -10,6 +10,12 @@ import Trainers from "./pages/Trainers";
 import Locations from "./pages/Locations";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import AdminHero from "./pages/admin/AdminHero";
+import AdminFeatures from "./pages/admin/AdminFeatures";
+import AdminPrograms from "./pages/admin/AdminPrograms";
+import AdminTrainers from "./pages/admin/AdminTrainers";
+import AdminLocations from "./pages/admin/AdminLocations";
+import AdminSettings from "./pages/admin/AdminSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +34,12 @@ const App = () => (
             <Route path="/locations" element={<Locations />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/hero" element={<AdminHero />} />
+            <Route path="/admin/features" element={<AdminFeatures />} />
+            <Route path="/admin/programs" element={<AdminPrograms />} />
+            <Route path="/admin/trainers" element={<AdminTrainers />} />
+            <Route path="/admin/locations" element={<AdminLocations />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
