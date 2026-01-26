@@ -6,8 +6,6 @@ import { useLocations } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import gymInterior from '@/assets/gym-interior.jpg';
-
 const LOCATION_CATEGORIES = ['Semua', 'Jakarta Selatan', 'Jakarta Timur', 'Bintaro', 'Bandung'] as const;
 
 const Locations = () => {
@@ -38,7 +36,7 @@ const Locations = () => {
   const getImages = (location: typeof activeLocations[0]) => {
     if (location.images && location.images.length > 0) return location.images;
     if (location.image_url) return [location.image_url];
-    return [gymInterior];
+    return [];
   };
 
   return (
@@ -230,12 +228,18 @@ const LocationCard = ({
       className="group relative overflow-hidden rounded-2xl bg-card border border-border"
     >
       {/* Main Image */}
-      <div className="relative aspect-[4/3] overflow-hidden">
-        <img
-          src={images[0]}
-          alt={location.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        {images.length > 0 ? (
+          <img
+            src={images[0]}
+            alt={location.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+            <MapPin className="w-12 h-12 opacity-30" />
+          </div>
+        )}
         
         {/* View in Maps overlay */}
         {location.google_maps_url && !isComingSoon && (
