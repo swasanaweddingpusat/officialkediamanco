@@ -24,7 +24,7 @@ const Trainers = () => {
 
 OUR PORTFOLIO
 
-Find inspiration from several events that have been held
+Find inspiration from several events that have been held<p className="text-primary font-semibold tracking-widest uppercase mb-2">FTL CLUB</p>
             <h1 className="font-display text-5xl md:text-7xl mb-4">
               OUR <span className="text-gradient">PORTFOLIO</span>
             </h1>
