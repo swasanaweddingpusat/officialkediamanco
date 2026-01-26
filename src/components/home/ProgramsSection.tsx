@@ -33,7 +33,7 @@ export function ProgramsSection() {
           </div>
           <Link to="/classes">
             <Button variant="outline" className="mt-4 md:mt-0">
-              View All Classes
+              View Special Offers
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </Link>
