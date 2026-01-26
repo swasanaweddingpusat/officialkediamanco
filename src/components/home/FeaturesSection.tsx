@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Dumbbell, Users, Clock, Zap, Shield, Award } from 'lucide-react';
+import { Dumbbell, Users, Clock, Zap, Shield, Award, Heart, Target, Gem, Building2 } from 'lucide-react';
 import { useFeatures } from '@/hooks/useCMS';
 const iconMap: Record<string, React.ElementType> = {
   Dumbbell,
@@ -7,7 +7,11 @@ const iconMap: Record<string, React.ElementType> = {
   Clock,
   Zap,
   Shield,
-  Award
+  Award,
+  Heart,
+  Target,
+  Gem,
+  Building2
 };
 export function FeaturesSection() {
   const {

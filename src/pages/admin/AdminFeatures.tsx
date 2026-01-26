@@ -20,7 +20,7 @@ type Feature = {
   is_active: boolean | null;
 };
 
-const iconOptions = ['Dumbbell', 'Users', 'Clock', 'Zap', 'Shield', 'Award', 'Heart', 'Target'];
+const iconOptions = ['Dumbbell', 'Users', 'Clock', 'Zap', 'Shield', 'Award', 'Heart', 'Target', 'Gem', 'Building2'];
 
 const AdminFeatures = () => {
   const { data: features = [], isLoading } = useFeatures();
