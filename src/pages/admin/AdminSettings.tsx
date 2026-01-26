@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useSiteSettings, useUpdateSiteSettings } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 const AdminSettings = () => {
   const { data: settings, isLoading } = useSiteSettings();
@@ -20,6 +21,7 @@ const AdminSettings = () => {
     whatsapp_link: '',
     instagram_link: '',
     facebook_link: '',
+    logo_url: '',
   });
 
   useEffect(() => {
@@ -33,6 +35,7 @@ const AdminSettings = () => {
         whatsapp_link: settings.whatsapp_link || '',
         instagram_link: settings.instagram_link || '',
         facebook_link: settings.facebook_link || '',
+        logo_url: settings.logo_url || '',
       });
     }
   }, [settings]);
@@ -62,7 +65,23 @@ const AdminSettings = () => {
         <Card className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <h3 className="font-display text-xl mb-4">General</h3>
+              <h3 className="font-display text-xl mb-4">Branding</h3>
+            </div>
+
+            <div className="md:col-span-2">
+              <Label>Logo</Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Upload logo untuk ditampilkan di navbar (rekomendasi: PNG transparan, max 200x60px)
+              </p>
+              <ImageUpload
+                value={formData.logo_url}
+                onChange={(url) => setFormData({ ...formData, logo_url: url })}
+                folder="branding"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <h3 className="font-display text-xl mb-4 mt-4">General</h3>
             </div>
             
             <div>

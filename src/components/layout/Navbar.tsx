@@ -4,6 +4,7 @@ import { Menu, X, Dumbbell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useSiteSettings } from '@/hooks/useCMS';
 
 const navLinks = [
   { name: 'Home', href: '/' },
@@ -16,6 +17,7 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user, isAdmin, signOut } = useAuth();
+  const { data: siteSettings } = useSiteSettings();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -23,10 +25,22 @@ export function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="p-2 bg-primary rounded-lg group-hover:animate-pulse-glow transition-all">
-              <Dumbbell className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <span className="font-display text-2xl tracking-wider">POWER GYM</span>
+            {siteSettings?.logo_url ? (
+              <img 
+                src={siteSettings.logo_url} 
+                alt={siteSettings.site_name || 'Logo'} 
+                className="h-10 w-auto object-contain"
+              />
+            ) : (
+              <>
+                <div className="p-2 bg-primary rounded-lg group-hover:animate-pulse-glow transition-all">
+                  <Dumbbell className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <span className="font-display text-2xl tracking-wider">
+                  {siteSettings?.site_name || 'POWER GYM'}
+                </span>
+              </>
+            )}
           </Link>
 
           {/* Desktop Navigation */}
