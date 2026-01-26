@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Layout } from '@/components/layout/Layout';
 import { usePrograms } from '@/hooks/useCMS';
@@ -10,10 +11,14 @@ const fallbackImages = [pilatesImage, hiitImage, gymInterior];
 
 const Classes = () => {
   const { data: programs, isLoading } = usePrograms();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const activePrograms = programs?.filter(p => p.is_active) || [];
   const categories = [...new Set(activePrograms.map(p => p.category).filter(Boolean))];
-
+  
+  const filteredPrograms = selectedCategory
+    ? activePrograms.filter(p => p.category === selectedCategory)
+    : activePrograms;
   return (
     <Layout>
       {/* Hero */}
@@ -39,13 +44,28 @@ const Classes = () => {
         <section className="py-8 border-b border-border">
           <div className="container mx-auto px-4">
             <div className="flex flex-wrap justify-center gap-4">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  selectedCategory === null
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-secondary hover:bg-primary hover:text-primary-foreground'
+                }`}
+              >
+                All
+              </button>
               {categories.map((category) => (
-                <span
+                <button
                   key={category}
-                  className="px-4 py-2 bg-secondary rounded-full text-sm font-medium cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                  onClick={() => setSelectedCategory(category as string)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    selectedCategory === category
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary hover:bg-primary hover:text-primary-foreground'
+                  }`}
                 >
                   {category}
-                </span>
+                </button>
               ))}
             </div>
           </div>
@@ -63,7 +83,7 @@ const Classes = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {activePrograms.map((program, index) => (
+              {filteredPrograms.map((program, index) => (
                 <motion.div
                   key={program.id}
                   initial={{ opacity: 0, y: 30 }}
