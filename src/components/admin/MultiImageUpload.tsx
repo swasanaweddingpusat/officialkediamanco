@@ -35,26 +35,41 @@ export function MultiImageUpload({
     }
 
     try {
+      // Check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Anda harus login untuk upload gambar');
+        return null;
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
+      console.log('Uploading file:', fileName);
+
+      const { data, error: uploadError } = await supabase.storage
         .from('gym-images')
         .upload(fileName, file, {
           cacheControl: '3600',
           upsert: false,
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Supabase upload error:', uploadError);
+        toast.error(`Upload gagal: ${uploadError.message}`);
+        return null;
+      }
+
+      console.log('Upload success:', data);
 
       const { data: { publicUrl } } = supabase.storage
         .from('gym-images')
         .getPublicUrl(fileName);
 
       return publicUrl;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error('Failed to upload image');
+      toast.error(`Failed to upload: ${error?.message || 'Unknown error'}`);
       return null;
     }
   };
