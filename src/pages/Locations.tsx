@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, ChevronDown, Play, X } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
@@ -166,33 +167,52 @@ const LocationCard = ({
 }: LocationCardProps) => {
   const isGalleryExpanded = expandedGallery === location.id;
   const isFacilitiesExpanded = expandedFacilities === location.id;
-  return <motion.div initial={{
-    opacity: 0,
-    y: 30
-  }} whileInView={{
-    opacity: 1,
-    y: 0
-  }} viewport={{
-    once: true
-  }} transition={{
-    delay: index * 0.1
-  }} className="group relative overflow-hidden rounded-2xl bg-card border border-border">
-      {/* Main Image */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        {images.length > 0 ? <img src={images[0]} alt={location.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <MapPin className="w-12 h-12 opacity-30" />
-          </div>}
-        
-        {/* View in Maps overlay */}
-        {location.google_maps_url && !isComingSoon && <a href={location.google_maps_url} target="_blank" rel="noopener noreferrer" className="absolute top-4 right-4 px-4 py-2 bg-primary text-primary-foreground font-semibold text-sm rounded-full hover:bg-primary/90 transition-colors">
-            View in Maps
-          </a>}
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1 }}
+      className="group relative overflow-hidden rounded-2xl bg-card border border-border"
+    >
+      {/* Main Image - Clickable to detail */}
+      <Link to={`/locations/${location.id}`}>
+        <div className="relative aspect-[4/3] overflow-hidden bg-muted cursor-pointer">
+          {images.length > 0 ? (
+            <img
+              src={images[0]}
+              alt={location.name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+              <MapPin className="w-12 h-12 opacity-30" />
+            </div>
+          )}
 
-        {/* Coming Soon Badge */}
-        {isComingSoon && <div className="absolute top-4 right-4 px-4 py-2 bg-accent text-accent-foreground font-bold text-sm rounded-full">
-            Coming Soon
-          </div>}
-      </div>
+          {/* View in Maps overlay */}
+          {location.google_maps_url && !isComingSoon && (
+            <span
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(location.google_maps_url!, '_blank');
+              }}
+              className="absolute top-4 right-4 px-4 py-2 bg-primary text-primary-foreground font-semibold text-sm rounded-full hover:bg-primary/90 transition-colors"
+            >
+              View in Maps
+            </span>
+          )}
+
+          {/* Coming Soon Badge */}
+          {isComingSoon && (
+            <div className="absolute top-4 right-4 px-4 py-2 bg-accent text-accent-foreground font-bold text-sm rounded-full">
+              Coming Soon
+            </div>
+          )}
+        </div>
+      </Link>
 
       {/* Content */}
       <div className="p-5">
@@ -201,70 +221,98 @@ const LocationCard = ({
           {location.category || 'Jakarta Selatan'}
         </Badge>
 
-        {/* Name */}
-        <h3 className="font-display text-2xl mb-2">{location.name}</h3>
+        {/* Name - Clickable */}
+        <Link to={`/locations/${location.id}`}>
+          <h3 className="font-display text-2xl mb-2 hover:text-primary transition-colors">
+            {location.name}
+          </h3>
+        </Link>
 
         {/* Address */}
-        {location.address && <div className="flex items-start gap-2 text-muted-foreground text-sm mb-4">
+        {location.address && (
+          <div className="flex items-start gap-2 text-muted-foreground text-sm mb-4">
             <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
             <span className="line-clamp-2">{location.address}</span>
-          </div>}
+          </div>
+        )}
 
         {/* Gallery Toggle */}
-        {images.length > 1 && <div className="border-t border-border pt-3">
-            <button onClick={() => onToggleGallery(location.id)} className="flex items-center justify-between w-full py-2 text-left hover:text-primary transition-colors">
+        {images.length > 1 && (
+          <div className="border-t border-border pt-3">
+            <button
+              onClick={() => onToggleGallery(location.id)}
+              className="flex items-center justify-between w-full py-2 text-left hover:text-primary transition-colors"
+            >
               <span className="font-semibold flex items-center gap-2">
                 <Play className="w-4 h-4" />
                 Gallery
               </span>
-              <ChevronDown className={`w-5 h-5 transition-transform ${isGalleryExpanded ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`w-5 h-5 transition-transform ${isGalleryExpanded ? 'rotate-180' : ''}`}
+              />
             </button>
             <AnimatePresence>
-              {isGalleryExpanded && <motion.div initial={{
-            height: 0,
-            opacity: 0
-          }} animate={{
-            height: 'auto',
-            opacity: 1
-          }} exit={{
-            height: 0,
-            opacity: 0
-          }} className="overflow-hidden">
+              {isGalleryExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
+                >
                   <div className="grid grid-cols-3 gap-2 pt-2 pb-3">
-                    {images.map((img, i) => <button key={i} onClick={() => onImageClick(img)} className="aspect-square rounded-lg overflow-hidden hover:ring-2 ring-primary transition-all">
+                    {images.map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={() => onImageClick(img)}
+                        className="aspect-square rounded-lg overflow-hidden hover:ring-2 ring-primary transition-all"
+                      >
                         <img src={img} alt="" className="w-full h-full object-cover" />
-                      </button>)}
+                      </button>
+                    ))}
                   </div>
-                </motion.div>}
+                </motion.div>
+              )}
             </AnimatePresence>
-          </div>}
+          </div>
+        )}
 
         {/* Facilities Toggle */}
-        {location.facilities && location.facilities.length > 0 && <div className="border-t border-border pt-3">
-            <button onClick={() => onToggleFacilities(location.id)} className="flex items-center justify-between w-full py-2 text-left hover:text-primary transition-colors">
+        {location.facilities && location.facilities.length > 0 && (
+          <div className="border-t border-border pt-3">
+            <button
+              onClick={() => onToggleFacilities(location.id)}
+              className="flex items-center justify-between w-full py-2 text-left hover:text-primary transition-colors"
+            >
               <span className="font-semibold">Facilities</span>
-              <ChevronDown className={`w-5 h-5 transition-transform ${isFacilitiesExpanded ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`w-5 h-5 transition-transform ${isFacilitiesExpanded ? 'rotate-180' : ''}`}
+              />
             </button>
             <AnimatePresence>
-              {isFacilitiesExpanded && <motion.div initial={{
-            height: 0,
-            opacity: 0
-          }} animate={{
-            height: 'auto',
-            opacity: 1
-          }} exit={{
-            height: 0,
-            opacity: 0
-          }} className="overflow-hidden">
+              {isFacilitiesExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
+                >
                   <div className="flex flex-wrap gap-2 pt-2 pb-3">
-                    {location.facilities.map((facility, i) => <span key={i} className="px-3 py-1 bg-secondary text-secondary-foreground text-xs rounded-full">
+                    {location.facilities.map((facility, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 bg-secondary text-secondary-foreground text-xs rounded-full"
+                      >
                         {facility}
-                      </span>)}
+                      </span>
+                    ))}
                   </div>
-                </motion.div>}
+                </motion.div>
+              )}
             </AnimatePresence>
-          </div>}
+          </div>
+        )}
       </div>
-    </motion.div>;
+    </motion.div>
+  );
 };
 export default Locations;
