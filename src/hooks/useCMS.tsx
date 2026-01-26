@@ -1,0 +1,334 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+// Hero Slides
+export function useHeroSlides() {
+  return useQuery({
+    queryKey: ['hero-slides'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('hero_slides')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useUpdateHeroSlide() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from('hero_slides').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['hero-slides'] });
+      toast.success('Hero slide updated');
+    },
+    onError: () => toast.error('Failed to update hero slide'),
+  });
+}
+
+export function useCreateHeroSlide() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (slide: { title: string; subtitle?: string; image_url?: string; button_text?: string; button_link?: string }) => {
+      const { error } = await supabase.from('hero_slides').insert(slide);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['hero-slides'] });
+      toast.success('Hero slide created');
+    },
+    onError: () => toast.error('Failed to create hero slide'),
+  });
+}
+
+export function useDeleteHeroSlide() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('hero_slides').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['hero-slides'] });
+      toast.success('Hero slide deleted');
+    },
+    onError: () => toast.error('Failed to delete hero slide'),
+  });
+}
+
+// Features
+export function useFeatures() {
+  return useQuery({
+    queryKey: ['features'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('features')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useUpdateFeature() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from('features').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['features'] });
+      toast.success('Feature updated');
+    },
+    onError: () => toast.error('Failed to update feature'),
+  });
+}
+
+export function useCreateFeature() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (feature: { title: string; description?: string; icon?: string }) => {
+      const { error } = await supabase.from('features').insert(feature);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['features'] });
+      toast.success('Feature created');
+    },
+    onError: () => toast.error('Failed to create feature'),
+  });
+}
+
+export function useDeleteFeature() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('features').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['features'] });
+      toast.success('Feature deleted');
+    },
+    onError: () => toast.error('Failed to delete feature'),
+  });
+}
+
+// Programs
+export function usePrograms() {
+  return useQuery({
+    queryKey: ['programs'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('programs')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useUpdateProgram() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from('programs').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['programs'] });
+      toast.success('Program updated');
+    },
+    onError: () => toast.error('Failed to update program'),
+  });
+}
+
+export function useCreateProgram() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (program: { name: string; description?: string; image_url?: string; category?: string }) => {
+      const { error } = await supabase.from('programs').insert(program);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['programs'] });
+      toast.success('Program created');
+    },
+    onError: () => toast.error('Failed to create program'),
+  });
+}
+
+export function useDeleteProgram() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('programs').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['programs'] });
+      toast.success('Program deleted');
+    },
+    onError: () => toast.error('Failed to delete program'),
+  });
+}
+
+// Trainers
+export function useTrainers() {
+  return useQuery({
+    queryKey: ['trainers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('trainers')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useUpdateTrainer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from('trainers').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainers'] });
+      toast.success('Trainer updated');
+    },
+    onError: () => toast.error('Failed to update trainer'),
+  });
+}
+
+export function useCreateTrainer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (trainer: { name: string; specialization?: string; bio?: string; photo_url?: string }) => {
+      const { error } = await supabase.from('trainers').insert(trainer);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainers'] });
+      toast.success('Trainer created');
+    },
+    onError: () => toast.error('Failed to create trainer'),
+  });
+}
+
+export function useDeleteTrainer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('trainers').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainers'] });
+      toast.success('Trainer deleted');
+    },
+    onError: () => toast.error('Failed to delete trainer'),
+  });
+}
+
+// Locations
+export function useLocations() {
+  return useQuery({
+    queryKey: ['locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('locations')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useUpdateLocation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from('locations').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+      toast.success('Location updated');
+    },
+    onError: () => toast.error('Failed to update location'),
+  });
+}
+
+export function useCreateLocation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (location: { name: string; address?: string; phone?: string }) => {
+      const { error } = await supabase.from('locations').insert(location);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+      toast.success('Location created');
+    },
+    onError: () => toast.error('Failed to create location'),
+  });
+}
+
+export function useDeleteLocation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('locations').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+      toast.success('Location deleted');
+    },
+    onError: () => toast.error('Failed to delete location'),
+  });
+}
+
+// Site Settings
+export function useSiteSettings() {
+  return useQuery({
+    queryKey: ['site-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('*')
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useUpdateSiteSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from('site_settings').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['site-settings'] });
+      toast.success('Settings updated');
+    },
+    onError: () => toast.error('Failed to update settings'),
+  });
+}
