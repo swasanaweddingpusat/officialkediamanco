@@ -3,6 +3,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminTable } from '@/components/admin/AdminTable';
 import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -104,6 +105,13 @@ const AdminTrainers = () => {
   };
 
   const columns = [
+    {
+      key: 'photo_url',
+      label: 'Photo',
+      render: (item: Trainer) => item.photo_url ? (
+        <img src={item.photo_url} alt="" className="w-10 h-10 object-cover rounded-full" />
+      ) : <div className="w-10 h-10 bg-secondary rounded-full" />,
+    },
     { key: 'name', label: 'Name' },
     { key: 'specialization', label: 'Specialization' },
     { key: 'sort_order', label: 'Order' },
@@ -139,6 +147,14 @@ const AdminTrainers = () => {
       >
         <div className="space-y-4">
           <div>
+            <Label>Photo</Label>
+            <ImageUpload
+              value={formData.photo_url}
+              onChange={(url) => setFormData({ ...formData, photo_url: url })}
+              folder="trainers"
+            />
+          </div>
+          <div>
             <Label>Name *</Label>
             <Input
               value={formData.name}
@@ -160,14 +176,6 @@ const AdminTrainers = () => {
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
               placeholder="10+ years of experience..."
-            />
-          </div>
-          <div>
-            <Label>Photo URL</Label>
-            <Input
-              value={formData.photo_url}
-              onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-              placeholder="https://..."
             />
           </div>
           <div>
