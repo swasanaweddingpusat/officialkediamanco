@@ -6,11 +6,11 @@ import { useHeroSlides } from '@/hooks/useCMS';
 import heroImage from '@/assets/hero-gym.jpg';
 
 export function HeroSection() {
-  const { data: slides } = useHeroSlides();
+  const { data: slides, isLoading } = useHeroSlides();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const activeSlides = slides?.filter(s => s.is_active) || [];
-  const totalSlides = activeSlides.length || 1;
+  const totalSlides = activeSlides.length;
 
   useEffect(() => {
     if (totalSlides <= 1) return;
@@ -21,6 +21,9 @@ export function HeroSection() {
   }, [totalSlides]);
 
   const slide = activeSlides[currentSlide];
+
+  // Show loading state or fallback only when no data available
+  const currentImageUrl = slide?.image_url || (isLoading ? undefined : heroImage);
 
   // Size classes for title
   const titleSizeClasses = {
@@ -59,11 +62,15 @@ export function HeroSection() {
     <section className="relative h-screen overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
-        <img
-          src={slide?.image_url || heroImage}
-          alt="Hero"
-          className="w-full h-full object-cover"
-        />
+        {currentImageUrl ? (
+          <img
+            src={currentImageUrl}
+            alt="Hero"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-muted animate-pulse" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
         <div className="absolute inset-0 hero-overlay" />
       </div>
