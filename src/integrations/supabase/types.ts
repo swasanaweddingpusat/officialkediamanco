@@ -510,6 +510,7 @@ export type Database = {
           certifications: string[] | null
           created_at: string
           id: string
+          images: string[] | null
           instagram: string | null
           is_active: boolean | null
           name: string
@@ -523,6 +524,7 @@ export type Database = {
           certifications?: string[] | null
           created_at?: string
           id?: string
+          images?: string[] | null
           instagram?: string | null
           is_active?: boolean | null
           name: string
@@ -536,6 +538,7 @@ export type Database = {
           certifications?: string[] | null
           created_at?: string
           id?: string
+          images?: string[] | null
           instagram?: string | null
           is_active?: boolean | null
           name?: string

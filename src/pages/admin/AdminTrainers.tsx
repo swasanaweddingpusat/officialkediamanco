@@ -4,12 +4,29 @@ import { AdminTable } from '@/components/admin/AdminTable';
 import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTrainers, useCreateTrainer, useUpdateTrainer, useDeleteTrainer } from '@/hooks/useCMS';
 import { Badge } from '@/components/ui/badge';
+
+const eventCategories = [
+  'Wedding',
+  'Corporate Event',
+  'Birthday Party',
+  'Engagement',
+  'Anniversary',
+  'Gala Dinner',
+  'Exhibition',
+  'Conference',
+  'Seminar',
+  'Product Launch',
+  'Private Party',
+  'Other',
+];
 
 type Trainer = {
   id: string;
@@ -19,6 +36,7 @@ type Trainer = {
   photo_url: string | null;
   instagram: string | null;
   certifications: string[] | null;
+  images: string[] | null;
   sort_order: number | null;
   is_active: boolean | null;
 };
@@ -39,14 +57,21 @@ const AdminTrainers = () => {
     specialization: '',
     bio: '',
     photo_url: '',
-    instagram: '',
-    certifications: '',
+    images: [] as string[],
     sort_order: 0,
     is_active: true,
   });
 
   const resetForm = () => {
-    setFormData({ name: '', specialization: '', bio: '', photo_url: '', instagram: '', certifications: '', sort_order: 0, is_active: true });
+    setFormData({ 
+      name: '', 
+      specialization: '', 
+      bio: '', 
+      photo_url: '', 
+      images: [],
+      sort_order: 0, 
+      is_active: true 
+    });
     setEditingItem(null);
   };
 
@@ -62,8 +87,7 @@ const AdminTrainers = () => {
       specialization: item.specialization || '',
       bio: item.bio || '',
       photo_url: item.photo_url || '',
-      instagram: item.instagram || '',
-      certifications: item.certifications?.join(', ') || '',
+      images: item.images || [],
       sort_order: item.sort_order || 0,
       is_active: item.is_active ?? true,
     });
@@ -81,8 +105,7 @@ const AdminTrainers = () => {
       specialization: formData.specialization || undefined,
       bio: formData.bio || undefined,
       photo_url: formData.photo_url || undefined,
-      instagram: formData.instagram || undefined,
-      certifications: formData.certifications ? formData.certifications.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+      images: formData.images.length > 0 ? formData.images : undefined,
       sort_order: formData.sort_order,
       is_active: formData.is_active,
     };
@@ -109,11 +132,26 @@ const AdminTrainers = () => {
       key: 'photo_url',
       label: 'Photo',
       render: (item: Trainer) => item.photo_url ? (
-        <img src={item.photo_url} alt="" className="w-10 h-10 object-cover rounded-full" />
-      ) : <div className="w-10 h-10 bg-secondary rounded-full" />,
+        <img src={item.photo_url} alt="" className="w-12 h-12 object-cover rounded-lg" />
+      ) : <div className="w-12 h-12 bg-secondary rounded-lg" />,
     },
     { key: 'name', label: 'Name' },
-    { key: 'specialization', label: 'Specialization' },
+    { 
+      key: 'specialization', 
+      label: 'Category',
+      render: (item: Trainer) => item.specialization ? (
+        <Badge variant="outline">{item.specialization}</Badge>
+      ) : '-',
+    },
+    {
+      key: 'images',
+      label: 'Gallery',
+      render: (item: Trainer) => (
+        <span className="text-sm text-muted-foreground">
+          {item.images?.length || 0} foto
+        </span>
+      ),
+    },
     { key: 'sort_order', label: 'Order' },
     {
       key: 'is_active',
@@ -146,55 +184,68 @@ const AdminTrainers = () => {
         isSubmitting={createMutation.isPending || updateMutation.isPending}
       >
         <div className="space-y-4">
-          <div>
-            <Label>Photo</Label>
+          <div className="space-y-2">
+            <Label>Photo (Cover)</Label>
             <ImageUpload
               value={formData.photo_url}
               onChange={(url) => setFormData({ ...formData, photo_url: url })}
-              folder="trainers"
+              folder="portfolio"
             />
+            <p className="text-xs text-muted-foreground">
+              Foto utama yang ditampilkan di halaman portfolio
+            </p>
           </div>
-          <div>
+
+          <div className="space-y-2">
             <Label>Name *</Label>
             <Input
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="John Doe"
+              placeholder="Wedding Reception John & Jane"
             />
           </div>
-          <div>
-            <Label>Specialization</Label>
-            <Input
+
+          <div className="space-y-2">
+            <Label>Event Category</Label>
+            <Select
               value={formData.specialization}
-              onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
-              placeholder="Strength & Conditioning"
-            />
+              onValueChange={(value) => setFormData({ ...formData, specialization: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih kategori event" />
+              </SelectTrigger>
+              <SelectContent>
+                {eventCategories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div>
-            <Label>Bio</Label>
+
+          <div className="space-y-2">
+            <Label>Description</Label>
             <Textarea
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              placeholder="10+ years of experience..."
+              placeholder="Deskripsi singkat tentang event ini..."
+              rows={4}
             />
           </div>
-          <div>
-            <Label>Instagram Username</Label>
-            <Input
-              value={formData.instagram}
-              onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-              placeholder="johndoe_fitness"
+
+          <div className="space-y-2">
+            <Label>Gallery</Label>
+            <MultiImageUpload
+              value={formData.images}
+              onChange={(urls) => setFormData({ ...formData, images: urls })}
+              folder="portfolio"
+              maxImages={20}
             />
+            <p className="text-xs text-muted-foreground">
+              Upload foto-foto dokumentasi event (maksimal 20 foto)
+            </p>
           </div>
-          <div>
-            <Label>Certifications (comma separated)</Label>
-            <Input
-              value={formData.certifications}
-              onChange={(e) => setFormData({ ...formData, certifications: e.target.value })}
-              placeholder="ACE, NASM, CrossFit L1"
-            />
-          </div>
-          <div>
+
+          <div className="space-y-2">
             <Label>Sort Order</Label>
             <Input
               type="number"
@@ -202,6 +253,7 @@ const AdminTrainers = () => {
               onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
             />
           </div>
+
           <div className="flex items-center gap-2">
             <Switch
               checked={formData.is_active}
