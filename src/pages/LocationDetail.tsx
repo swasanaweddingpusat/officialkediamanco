@@ -1,49 +1,82 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, ChevronLeft, X, ExternalLink, Users, Ruler, CalendarDays } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ChevronLeft, MapPin } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useLocations, useBallroomSchedules } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { format, isBefore, startOfToday } from 'date-fns';
-import { id as idLocale } from 'date-fns/locale';
-import { BallroomBookingForm } from '@/components/booking/BallroomBookingForm';
+import { isBefore, startOfToday } from 'date-fns';
+
+// Location detail components
+import { LocationHeroGallery } from '@/components/location/LocationHeroGallery';
+import { LocationFacilities } from '@/components/location/LocationFacilities';
+import { LocationGalleryGrid } from '@/components/location/LocationGalleryGrid';
+import { LocationAreaSection } from '@/components/location/LocationAreaSection';
+import { LocationScheduleSection } from '@/components/location/LocationScheduleSection';
+import { LocationContactCard } from '@/components/location/LocationContactCard';
+import { LocationLightbox } from '@/components/location/LocationLightbox';
 
 const LocationDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { data: locations, isLoading } = useLocations();
   const { data: schedules = [] } = useBallroomSchedules(id);
+  
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [bookingOpen, setBookingOpen] = useState(false);
 
-  // Filter upcoming schedules (today and future)
-  const upcomingSchedules = schedules.filter(s => !isBefore(new Date(s.schedule_date), startOfToday()));
-
   const location = locations?.find(l => l.id === id);
 
-  const getImages = () => {
+  // Memoized values
+  const images = useMemo(() => {
     if (!location) return [];
     if (location.images && location.images.length > 0) return location.images;
     if (location.image_url) return [location.image_url];
     return [];
+  }, [location]);
+
+  const allImages = useMemo(() => {
+    const imgs = [...images];
+    if (location?.loading_area_images) imgs.push(...location.loading_area_images);
+    if (location?.ballroom_layout_images) imgs.push(...location.ballroom_layout_images);
+    return imgs;
+  }, [images, location]);
+
+  const upcomingSchedules = useMemo(() => 
+    schedules.filter(s => !isBefore(new Date(s.schedule_date), startOfToday())),
+    [schedules]
+  );
+
+  const handleLightboxNavigate = (direction: 'prev' | 'next') => {
+    if (!lightboxImage) return;
+    const currentIndex = allImages.indexOf(lightboxImage);
+    if (currentIndex === -1) return;
+    
+    let newIndex: number;
+    if (direction === 'prev') {
+      newIndex = currentIndex === 0 ? allImages.length - 1 : currentIndex - 1;
+    } else {
+      newIndex = currentIndex === allImages.length - 1 ? 0 : currentIndex + 1;
+    }
+    setLightboxImage(allImages[newIndex]);
   };
 
-  const images = getImages();
-
+  // Loading state
   if (isLoading) {
     return (
       <Layout>
-        <section className="pt-16 sm:pt-20 md:pt-24 pb-12 md:pb-20">
+        <section className="pt-20 md:pt-24 pb-16 md:pb-20">
           <div className="container mx-auto px-4 sm:px-6">
-            <Skeleton className="h-8 w-32 mb-4 sm:mb-6" />
-            <Skeleton className="h-[200px] sm:h-[300px] md:h-[400px] rounded-xl sm:rounded-2xl mb-6 sm:mb-8" />
-            <div className="grid md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-              <Skeleton className="h-48 sm:h-64" />
-              <Skeleton className="h-48 sm:h-64" />
+            <Skeleton className="h-8 w-40 mb-6" />
+            <Skeleton className="h-[300px] md:h-[400px] rounded-2xl mb-6" />
+            <div className="grid lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-6">
+                <Skeleton className="h-32" />
+                <Skeleton className="h-64" />
+              </div>
+              <Skeleton className="h-80" />
             </div>
           </div>
         </section>
@@ -51,21 +84,27 @@ const LocationDetail = () => {
     );
   }
 
+  // Not found state
   if (!location) {
     return (
       <Layout>
-        <section className="pt-16 sm:pt-20 md:pt-24 pb-12 md:pb-20">
+        <section className="pt-20 md:pt-24 pb-16 md:pb-20">
           <div className="container mx-auto px-4 sm:px-6 text-center">
-            <h1 className="font-display text-3xl sm:text-4xl mb-4">Location Not Found</h1>
-            <p className="text-muted-foreground mb-6 sm:mb-8">
-              The location you're looking for doesn't exist.
-            </p>
-            <Link to="/locations">
-              <Button>
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Back to Locations
-              </Button>
-            </Link>
+            <div className="max-w-md mx-auto">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
+                <MapPin className="w-10 h-10 text-muted-foreground" />
+              </div>
+              <h1 className="font-display text-3xl md:text-4xl mb-4">Lokasi Tidak Ditemukan</h1>
+              <p className="text-muted-foreground mb-8">
+                Lokasi yang Anda cari tidak tersedia atau telah dihapus.
+              </p>
+              <Link to="/locations">
+                <Button size="lg">
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Kembali ke Lokasi
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
       </Layout>
@@ -75,403 +114,114 @@ const LocationDetail = () => {
   return (
     <Layout>
       {/* Back Button */}
-      <section className="pt-16 sm:pt-20 md:pt-24 pb-2 sm:pb-4">
+      <section className="pt-20 md:pt-24 pb-4">
         <div className="container mx-auto px-4 sm:px-6">
           <Link to="/locations">
-            <Button variant="ghost" className="gap-2 -ml-2 sm:ml-0 text-sm sm:text-base">
+            <Button variant="ghost" className="gap-2 -ml-3 text-muted-foreground hover:text-foreground">
               <ChevronLeft className="w-4 h-4" />
-              Back to Locations
+              Kembali ke Lokasi
             </Button>
           </Link>
         </div>
       </section>
 
-      {/* Hero Image Gallery */}
-      <section className="pb-4 sm:pb-6 md:pb-8">
+      {/* Hero Gallery */}
+      <section className="pb-6 md:pb-8">
         <div className="container mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-3 sm:space-y-4"
-          >
-            {/* Main Image */}
-            <div className="relative aspect-[16/10] sm:aspect-[16/9] md:aspect-[21/9] overflow-hidden rounded-xl sm:rounded-2xl bg-muted">
-              {images.length > 0 ? (
-                <img
-                  src={images[selectedImageIndex]}
-                  alt={location.name}
-                  className="w-full h-full object-cover cursor-pointer"
-                  onClick={() => setLightboxImage(images[selectedImageIndex])}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  <MapPin className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 opacity-30" />
-                </div>
-              )}
-
-              {/* Coming Soon Badge */}
-              {location.is_coming_soon && (
-                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 px-4 py-2 sm:px-6 sm:py-3 bg-accent text-accent-foreground font-bold text-xs sm:text-sm rounded-full">
-                  Coming Soon
-                </div>
-              )}
-            </div>
-
-            {/* Thumbnail Gallery */}
-            {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
-                {images.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedImageIndex(i)}
-                    className={`flex-shrink-0 w-16 h-12 sm:w-20 sm:h-14 md:w-24 md:h-16 rounded-md sm:rounded-lg overflow-hidden transition-all ${
-                      selectedImageIndex === i
-                        ? 'ring-2 ring-primary ring-offset-1 sm:ring-offset-2 ring-offset-background'
-                        : 'opacity-60 hover:opacity-100'
-                    }`}
-                  >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </motion.div>
+          <LocationHeroGallery
+            images={images}
+            locationName={location.name}
+            selectedImageIndex={selectedImageIndex}
+            isComingSoon={location.is_coming_soon || false}
+            onSelectImage={setSelectedImageIndex}
+            onOpenLightbox={setLightboxImage}
+          />
         </div>
       </section>
 
-      {/* Location Info */}
-      <section className="pb-12 sm:pb-16 md:pb-20">
+      {/* Content */}
+      <section className="pb-16 md:pb-24">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid lg:grid-cols-3 gap-8">
             {/* Main Content */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="lg:col-span-2 space-y-6 md:space-y-8"
-            >
+            <div className="lg:col-span-2 space-y-6">
               {/* Header */}
-              <div>
-                <Badge variant="outline" className="mb-3 sm:mb-4 border-primary text-primary text-xs sm:text-sm">
-                  {location.category || 'Jakarta Selatan'}
-                </Badge>
-                <h1 className="font-display text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4">{location.name}</h1>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  <Badge variant="outline" className="border-primary/50 text-primary">
+                    {location.category || 'Jakarta Selatan'}
+                  </Badge>
+                  {location.is_coming_soon && (
+                    <Badge variant="secondary">Coming Soon</Badge>
+                  )}
+                </div>
+                <h1 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight">
+                  {location.name}
+                </h1>
                 {location.address && (
-                  <div className="flex items-start gap-2 sm:gap-3 text-muted-foreground">
-                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0 mt-0.5 sm:mt-1" />
-                    <span className="text-sm sm:text-base md:text-lg">{location.address}</span>
+                  <div className="flex items-start gap-3 text-muted-foreground">
+                    <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span className="text-lg">{location.address}</span>
                   </div>
                 )}
-              </div>
+              </motion.div>
 
               {/* Facilities */}
-              {location.facilities && location.facilities.length > 0 && (
-                <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6">
-                  <h2 className="font-display text-xl sm:text-2xl mb-3 sm:mb-4">Facilities</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
-                    {location.facilities.map((facility, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3 bg-secondary rounded-lg"
-                      >
-                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full flex-shrink-0" />
-                        <span className="text-xs sm:text-sm font-medium line-clamp-1">{facility}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <LocationFacilities facilities={location.facilities || []} />
 
-              {/* Gallery Grid */}
-              {images.length > 1 && (
-                <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6">
-                  <h2 className="font-display text-xl sm:text-2xl mb-3 sm:mb-4">Gallery</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
-                    {images.map((img, i) => (
-                      <motion.button
-                        key={i}
-                        whileHover={{ scale: 1.02 }}
-                        onClick={() => setLightboxImage(img)}
-                        className="aspect-square rounded-lg sm:rounded-xl overflow-hidden hover:ring-2 ring-primary transition-all"
-                      >
-                        <img src={img} alt="" className="w-full h-full object-cover" />
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Main Gallery */}
+              <LocationGalleryGrid 
+                images={images} 
+                onOpenLightbox={setLightboxImage} 
+              />
 
-              {/* Loading Area Section */}
-              {(location.loading_area_images?.length > 0 || location.loading_area_description || location.loading_area_capacity || location.loading_area_dimensions) && (
-                <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6">
-                  <h2 className="font-display text-xl sm:text-2xl mb-3 sm:mb-4">Loading Area</h2>
-                  
-                  {/* Capacity & Dimensions */}
-                  {(location.loading_area_capacity || location.loading_area_dimensions) && (
-                    <div className="flex flex-wrap gap-3 sm:gap-4 mb-4">
-                      {location.loading_area_capacity && (
-                        <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-lg">
-                          <Users className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-medium">{location.loading_area_capacity}</span>
-                        </div>
-                      )}
-                      {location.loading_area_dimensions && (
-                        <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-lg">
-                          <Ruler className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-medium">{location.loading_area_dimensions}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  
-                  {location.loading_area_description && (
-                    <p className="text-muted-foreground mb-4 text-sm sm:text-base">
-                      {location.loading_area_description}
-                    </p>
-                  )}
-                  {location.loading_area_images && location.loading_area_images.length > 0 && (
-                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
-                      {location.loading_area_images.map((img, i) => (
-                        <motion.button
-                          key={i}
-                          whileHover={{ scale: 1.02 }}
-                          onClick={() => setLightboxImage(img)}
-                          className="aspect-square rounded-lg sm:rounded-xl overflow-hidden hover:ring-2 ring-primary transition-all"
-                        >
-                          <img src={img} alt={`Loading Area ${i + 1}`} className="w-full h-full object-cover" />
-                        </motion.button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Loading Area */}
+              <LocationAreaSection
+                title="Loading Area"
+                description={location.loading_area_description}
+                capacity={location.loading_area_capacity}
+                dimensions={location.loading_area_dimensions}
+                images={location.loading_area_images}
+                onOpenLightbox={setLightboxImage}
+              />
 
-              {/* Ballroom Layout Section */}
-              {(location.ballroom_layout_images?.length > 0 || location.ballroom_layout_description || location.ballroom_layout_capacity || location.ballroom_layout_dimensions) && (
-                <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6">
-                  <h2 className="font-display text-xl sm:text-2xl mb-3 sm:mb-4">Ballroom Layout</h2>
-                  
-                  {/* Capacity & Dimensions */}
-                  {(location.ballroom_layout_capacity || location.ballroom_layout_dimensions) && (
-                    <div className="flex flex-wrap gap-3 sm:gap-4 mb-4">
-                      {location.ballroom_layout_capacity && (
-                        <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-lg">
-                          <Users className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-medium">{location.ballroom_layout_capacity}</span>
-                        </div>
-                      )}
-                      {location.ballroom_layout_dimensions && (
-                        <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-lg">
-                          <Ruler className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-medium">{location.ballroom_layout_dimensions}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  
-                  {location.ballroom_layout_description && (
-                    <p className="text-muted-foreground mb-4 text-sm sm:text-base">
-                      {location.ballroom_layout_description}
-                    </p>
-                  )}
-                  {location.ballroom_layout_images && location.ballroom_layout_images.length > 0 && (
-                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
-                      {location.ballroom_layout_images.map((img, i) => (
-                        <motion.button
-                          key={i}
-                          whileHover={{ scale: 1.02 }}
-                          onClick={() => setLightboxImage(img)}
-                          className="aspect-square rounded-lg sm:rounded-xl overflow-hidden hover:ring-2 ring-primary transition-all"
-                        >
-                          <img src={img} alt={`Ballroom Layout ${i + 1}`} className="w-full h-full object-cover" />
-                        </motion.button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Ballroom Layout */}
+              <LocationAreaSection
+                title="Ballroom Layout"
+                description={location.ballroom_layout_description}
+                capacity={location.ballroom_layout_capacity}
+                dimensions={location.ballroom_layout_dimensions}
+                images={location.ballroom_layout_images}
+                onOpenLightbox={setLightboxImage}
+              />
 
-              {/* Ballroom Schedule Section */}
-              {upcomingSchedules.length > 0 && (
-                <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <CalendarDays className="w-5 h-5 text-primary" />
-                    <h2 className="font-display text-xl sm:text-2xl">Jadwal Ballroom</h2>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {upcomingSchedules.slice(0, 10).map((schedule) => (
-                      <div
-                        key={schedule.id}
-                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-secondary rounded-lg gap-2"
-                      >
-                        <div className="flex-1">
-                          <div className="font-medium">
-                            {format(new Date(schedule.schedule_date), 'EEEE, dd MMMM yyyy', { locale: idLocale })}
-                          </div>
-                          {(schedule.start_time || schedule.end_time) && (
-                            <div className="text-sm text-muted-foreground">
-                              {schedule.start_time?.slice(0, 5)}
-                              {schedule.start_time && schedule.end_time && ' - '}
-                              {schedule.end_time?.slice(0, 5)}
-                            </div>
-                          )}
-                          {schedule.event_name && schedule.status === 'booked' && (
-                            <div className="text-sm text-muted-foreground mt-1">
-                              {schedule.event_name}
-                            </div>
-                          )}
-                          {schedule.notes && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              {schedule.notes}
-                            </div>
-                          )}
-                        </div>
-                        <Badge 
-                          variant={
-                            schedule.status === 'available' ? 'default' : 
-                            schedule.status === 'booked' ? 'destructive' : 'secondary'
-                          }
-                          className="self-start sm:self-center"
-                        >
-                          {schedule.status === 'available' ? 'Tersedia' : 
-                           schedule.status === 'booked' ? 'Dipesan' : 'Tidak Tersedia'}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {upcomingSchedules.length > 10 && (
-                    <p className="text-sm text-muted-foreground mt-3 text-center">
-                      + {upcomingSchedules.length - 10} jadwal lainnya
-                    </p>
-                  )}
-                </div>
-              )}
-            </motion.div>
+              {/* Schedule */}
+              <LocationScheduleSection schedules={upcomingSchedules} />
+            </div>
 
             {/* Sidebar */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-4 sm:space-y-6"
-            >
-              {/* Contact Card */}
-              <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:sticky lg:top-24">
-                <h3 className="font-display text-lg sm:text-xl mb-3 sm:mb-4">Contact Information</h3>
-
-                <div className="space-y-3 sm:space-y-4">
-                  {location.phone && (
-                    <a
-                      href={`tel:${location.phone}`}
-                      className="flex items-center gap-2 sm:gap-3 text-muted-foreground hover:text-primary transition-colors text-sm sm:text-base"
-                    >
-                      <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
-                      <span className="break-all">{location.phone}</span>
-                    </a>
-                  )}
-
-                  {location.email && (
-                    <a
-                      href={`mailto:${location.email}`}
-                      className="flex items-center gap-2 sm:gap-3 text-muted-foreground hover:text-primary transition-colors text-sm sm:text-base"
-                    >
-                      <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
-                      <span className="break-all">{location.email}</span>
-                    </a>
-                  )}
-
-                  {location.operating_hours && (
-                    <div className="flex items-start gap-2 sm:gap-3 text-muted-foreground text-sm sm:text-base">
-                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <div className="min-w-0">
-                        {typeof location.operating_hours === 'object' ? (
-                          <pre className="text-xs sm:text-sm whitespace-pre-wrap break-words">
-                            {JSON.stringify(location.operating_hours, null, 2)}
-                          </pre>
-                        ) : (
-                          <span>{String(location.operating_hours)}</span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Map Link */}
-                {location.google_maps_url && !location.is_coming_soon && (
-                  <a
-                    href={location.google_maps_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-4 sm:mt-6 block"
-                  >
-                    <Button className="w-full gap-2 text-sm sm:text-base">
-                      <ExternalLink className="w-4 h-4" />
-                      View in Google Maps
-                    </Button>
-                  </a>
-                )}
-
-                {location.is_coming_soon && (
-                  <div className="mt-4 sm:mt-6 text-center">
-                    <Badge variant="secondary" className="text-xs sm:text-sm">
-                      This location is coming soon
-                    </Badge>
-                  </div>
-                )}
-
-                {/* Booking Button */}
-                {!location.is_coming_soon && (
-                  <Dialog open={bookingOpen} onOpenChange={setBookingOpen}>
-                    <DialogTrigger asChild>
-                      <Button className="w-full mt-4 gap-2" size="lg">
-                        <CalendarDays className="w-4 h-4" />
-                        Booking Ballroom
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-                      <BallroomBookingForm 
-                        locationId={location.id}
-                        locationName={location.name}
-                        onClose={() => setBookingOpen(false)}
-                      />
-                    </DialogContent>
-                  </Dialog>
-                )}
-              </div>
-            </motion.div>
+            <div>
+              <LocationContactCard
+                location={location}
+                bookingOpen={bookingOpen}
+                onBookingChange={setBookingOpen}
+              />
+            </div>
           </div>
         </div>
       </section>
 
       {/* Lightbox */}
-      <AnimatePresence>
-        {lightboxImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/95 flex items-center justify-center p-2 sm:p-4"
-            onClick={() => setLightboxImage(null)}
-          >
-            <button
-              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 bg-secondary rounded-full z-10"
-              onClick={() => setLightboxImage(null)}
-            >
-              <X className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
-            <motion.img
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              src={lightboxImage}
-              alt="Gallery"
-              className="max-w-full max-h-[85vh] sm:max-h-[90vh] rounded-lg object-contain"
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <LocationLightbox
+        image={lightboxImage}
+        images={allImages}
+        onClose={() => setLightboxImage(null)}
+        onNavigate={handleLightboxNavigate}
+      />
     </Layout>
   );
 };
