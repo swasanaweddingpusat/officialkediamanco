@@ -11,6 +11,7 @@ interface AdminFormDialogProps {
   isSubmitting?: boolean;
   submitLabel?: string;
   hideSubmit?: boolean;
+  extraActions?: ReactNode;
 }
 
 export function AdminFormDialog({
@@ -22,6 +23,7 @@ export function AdminFormDialog({
   isSubmitting,
   submitLabel = 'Save',
   hideSubmit = false,
+  extraActions,
 }: AdminFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -31,13 +33,18 @@ export function AdminFormDialog({
         </DialogHeader>
         <div className="space-y-4 py-4">{children}</div>
         {!hideSubmit && (
-          <DialogFooter>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button onClick={onSubmit} disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : submitLabel}
-            </Button>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
+              {extraActions}
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button onClick={onSubmit} disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : submitLabel}
+              </Button>
+            </div>
           </DialogFooter>
         )}
       </DialogContent>
