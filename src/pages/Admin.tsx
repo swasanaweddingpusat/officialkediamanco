@@ -1,7 +1,7 @@
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card } from '@/components/ui/card';
-import { useHeroSlides, useFeatures, usePrograms, useTrainers, useLocations } from '@/hooks/useCMS';
-import { Image, Zap, Dumbbell, Users, MapPin, ArrowRight } from 'lucide-react';
+import { useHeroSlides, useFeatures, usePrograms, useTrainers, useLocations, useArticles } from '@/hooks/useCMS';
+import { Image, Zap, Dumbbell, Users, MapPin, ArrowRight, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Admin = () => {
@@ -10,6 +10,7 @@ const Admin = () => {
   const { data: programs } = usePrograms();
   const { data: trainers } = useTrainers();
   const { data: locations } = useLocations();
+  const { data: articles } = useArticles();
 
   const stats = [
     { name: 'Hero Slides', count: slides?.length || 0, icon: Image, href: '/admin/hero', color: 'bg-blue-500/10 text-blue-500' },
@@ -17,11 +18,12 @@ const Admin = () => {
     { name: 'Programs', count: programs?.length || 0, icon: Dumbbell, href: '/admin/programs', color: 'bg-green-500/10 text-green-500' },
     { name: 'Portfolio', count: trainers?.length || 0, icon: Users, href: '/admin/trainers', color: 'bg-purple-500/10 text-purple-500' },
     { name: 'Locations', count: locations?.length || 0, icon: MapPin, href: '/admin/locations', color: 'bg-red-500/10 text-red-500' },
+    { name: 'Articles', count: articles?.length || 0, icon: FileText, href: '/admin/articles', color: 'bg-cyan-500/10 text-cyan-500' },
   ];
 
   return (
     <AdminLayout title="Dashboard">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         {stats.map((stat) => (
           <Link key={stat.name} to={stat.href}>
             <Card className="p-6 hover:border-primary/50 transition-colors cursor-pointer group">
