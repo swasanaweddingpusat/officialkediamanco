@@ -98,6 +98,8 @@ export type Database = {
       locations: {
         Row: {
           address: string | null
+          ballroom_layout_description: string | null
+          ballroom_layout_images: string[] | null
           category: string | null
           created_at: string
           email: string | null
@@ -108,6 +110,8 @@ export type Database = {
           images: string[] | null
           is_active: boolean | null
           is_coming_soon: boolean | null
+          loading_area_description: string | null
+          loading_area_images: string[] | null
           name: string
           operating_hours: Json | null
           phone: string | null
@@ -116,6 +120,8 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          ballroom_layout_description?: string | null
+          ballroom_layout_images?: string[] | null
           category?: string | null
           created_at?: string
           email?: string | null
@@ -126,6 +132,8 @@ export type Database = {
           images?: string[] | null
           is_active?: boolean | null
           is_coming_soon?: boolean | null
+          loading_area_description?: string | null
+          loading_area_images?: string[] | null
           name: string
           operating_hours?: Json | null
           phone?: string | null
@@ -134,6 +142,8 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          ballroom_layout_description?: string | null
+          ballroom_layout_images?: string[] | null
           category?: string | null
           created_at?: string
           email?: string | null
@@ -144,6 +154,8 @@ export type Database = {
           images?: string[] | null
           is_active?: boolean | null
           is_coming_soon?: boolean | null
+          loading_area_description?: string | null
+          loading_area_images?: string[] | null
           name?: string
           operating_hours?: Json | null
           phone?: string | null

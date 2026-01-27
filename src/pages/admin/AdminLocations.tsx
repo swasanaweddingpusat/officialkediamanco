@@ -33,6 +33,10 @@ type Location = {
   sort_order: number | null;
   is_active: boolean | null;
   category: string | null;
+  loading_area_images: string[] | null;
+  loading_area_description: string | null;
+  ballroom_layout_images: string[] | null;
+  ballroom_layout_description: string | null;
 };
 
 const AdminLocations = () => {
@@ -58,6 +62,10 @@ const AdminLocations = () => {
     sort_order: 0,
     is_active: true,
     category: 'Jakarta Selatan',
+    loading_area_images: [] as string[],
+    loading_area_description: '',
+    ballroom_layout_images: [] as string[],
+    ballroom_layout_description: '',
   });
 
   const resetForm = () => {
@@ -73,6 +81,10 @@ const AdminLocations = () => {
       sort_order: 0, 
       is_active: true,
       category: 'Jakarta Selatan',
+      loading_area_images: [],
+      loading_area_description: '',
+      ballroom_layout_images: [],
+      ballroom_layout_description: '',
     });
     setEditingItem(null);
   };
@@ -96,6 +108,10 @@ const AdminLocations = () => {
       sort_order: item.sort_order || 0,
       is_active: item.is_active ?? true,
       category: item.category || 'Jakarta Selatan',
+      loading_area_images: item.loading_area_images || [],
+      loading_area_description: item.loading_area_description || '',
+      ballroom_layout_images: item.ballroom_layout_images || [],
+      ballroom_layout_description: item.ballroom_layout_description || '',
     });
     setFormOpen(true);
   };
@@ -119,6 +135,10 @@ const AdminLocations = () => {
       sort_order: formData.sort_order,
       is_active: formData.is_active,
       category: formData.category,
+      loading_area_images: formData.loading_area_images.length > 0 ? formData.loading_area_images : undefined,
+      loading_area_description: formData.loading_area_description || undefined,
+      ballroom_layout_images: formData.ballroom_layout_images.length > 0 ? formData.ballroom_layout_images : undefined,
+      ballroom_layout_description: formData.ballroom_layout_description || undefined,
     };
 
     if (editingItem) {
@@ -282,6 +302,57 @@ const AdminLocations = () => {
               placeholder="Sauna, Swimming Pool, Parking"
             />
           </div>
+
+          {/* Loading Area Section */}
+          <div className="border-t pt-4 mt-4">
+            <h3 className="font-semibold text-lg mb-3">Loading Area</h3>
+            <div className="space-y-3">
+              <div>
+                <Label>Loading Area Images</Label>
+                <MultiImageUpload
+                  value={formData.loading_area_images}
+                  onChange={(urls) => setFormData({ ...formData, loading_area_images: urls })}
+                  folder="locations"
+                  maxImages={10}
+                />
+              </div>
+              <div>
+                <Label>Loading Area Description</Label>
+                <Textarea
+                  value={formData.loading_area_description}
+                  onChange={(e) => setFormData({ ...formData, loading_area_description: e.target.value })}
+                  placeholder="Deskripsi area loading..."
+                  rows={3}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Ballroom Layout Section */}
+          <div className="border-t pt-4 mt-4">
+            <h3 className="font-semibold text-lg mb-3">Ballroom Layout</h3>
+            <div className="space-y-3">
+              <div>
+                <Label>Ballroom Layout Images</Label>
+                <MultiImageUpload
+                  value={formData.ballroom_layout_images}
+                  onChange={(urls) => setFormData({ ...formData, ballroom_layout_images: urls })}
+                  folder="locations"
+                  maxImages={10}
+                />
+              </div>
+              <div>
+                <Label>Ballroom Layout Description</Label>
+                <Textarea
+                  value={formData.ballroom_layout_description}
+                  onChange={(e) => setFormData({ ...formData, ballroom_layout_description: e.target.value })}
+                  placeholder="Deskripsi layout ballroom..."
+                  rows={3}
+                />
+              </div>
+            </div>
+          </div>
+
           <div>
             <Label>Sort Order</Label>
             <Input
