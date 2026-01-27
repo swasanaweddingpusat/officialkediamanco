@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, ChevronLeft, X, ExternalLink } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, ChevronLeft, X, ExternalLink, Users, Ruler } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useLocations } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -193,9 +193,28 @@ const LocationDetail = () => {
               )}
 
               {/* Loading Area Section */}
-              {(location.loading_area_images?.length > 0 || location.loading_area_description) && (
+              {(location.loading_area_images?.length > 0 || location.loading_area_description || location.loading_area_capacity || location.loading_area_dimensions) && (
                 <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6">
                   <h2 className="font-display text-xl sm:text-2xl mb-3 sm:mb-4">Loading Area</h2>
+                  
+                  {/* Capacity & Dimensions */}
+                  {(location.loading_area_capacity || location.loading_area_dimensions) && (
+                    <div className="flex flex-wrap gap-3 sm:gap-4 mb-4">
+                      {location.loading_area_capacity && (
+                        <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-lg">
+                          <Users className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium">{location.loading_area_capacity}</span>
+                        </div>
+                      )}
+                      {location.loading_area_dimensions && (
+                        <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-lg">
+                          <Ruler className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium">{location.loading_area_dimensions}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   {location.loading_area_description && (
                     <p className="text-muted-foreground mb-4 text-sm sm:text-base">
                       {location.loading_area_description}
@@ -219,9 +238,28 @@ const LocationDetail = () => {
               )}
 
               {/* Ballroom Layout Section */}
-              {(location.ballroom_layout_images?.length > 0 || location.ballroom_layout_description) && (
+              {(location.ballroom_layout_images?.length > 0 || location.ballroom_layout_description || location.ballroom_layout_capacity || location.ballroom_layout_dimensions) && (
                 <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6">
                   <h2 className="font-display text-xl sm:text-2xl mb-3 sm:mb-4">Ballroom Layout</h2>
+                  
+                  {/* Capacity & Dimensions */}
+                  {(location.ballroom_layout_capacity || location.ballroom_layout_dimensions) && (
+                    <div className="flex flex-wrap gap-3 sm:gap-4 mb-4">
+                      {location.ballroom_layout_capacity && (
+                        <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-lg">
+                          <Users className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium">{location.ballroom_layout_capacity}</span>
+                        </div>
+                      )}
+                      {location.ballroom_layout_dimensions && (
+                        <div className="flex items-center gap-2 px-3 py-2 bg-secondary rounded-lg">
+                          <Ruler className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-medium">{location.ballroom_layout_dimensions}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   {location.ballroom_layout_description && (
                     <p className="text-muted-foreground mb-4 text-sm sm:text-base">
                       {location.ballroom_layout_description}

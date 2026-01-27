@@ -35,8 +35,12 @@ type Location = {
   category: string | null;
   loading_area_images: string[] | null;
   loading_area_description: string | null;
+  loading_area_capacity: string | null;
+  loading_area_dimensions: string | null;
   ballroom_layout_images: string[] | null;
   ballroom_layout_description: string | null;
+  ballroom_layout_capacity: string | null;
+  ballroom_layout_dimensions: string | null;
 };
 
 const AdminLocations = () => {
@@ -64,8 +68,12 @@ const AdminLocations = () => {
     category: 'Jakarta Selatan',
     loading_area_images: [] as string[],
     loading_area_description: '',
+    loading_area_capacity: '',
+    loading_area_dimensions: '',
     ballroom_layout_images: [] as string[],
     ballroom_layout_description: '',
+    ballroom_layout_capacity: '',
+    ballroom_layout_dimensions: '',
   });
 
   const resetForm = () => {
@@ -83,8 +91,12 @@ const AdminLocations = () => {
       category: 'Jakarta Selatan',
       loading_area_images: [],
       loading_area_description: '',
+      loading_area_capacity: '',
+      loading_area_dimensions: '',
       ballroom_layout_images: [],
       ballroom_layout_description: '',
+      ballroom_layout_capacity: '',
+      ballroom_layout_dimensions: '',
     });
     setEditingItem(null);
   };
@@ -110,8 +122,12 @@ const AdminLocations = () => {
       category: item.category || 'Jakarta Selatan',
       loading_area_images: item.loading_area_images || [],
       loading_area_description: item.loading_area_description || '',
+      loading_area_capacity: item.loading_area_capacity || '',
+      loading_area_dimensions: item.loading_area_dimensions || '',
       ballroom_layout_images: item.ballroom_layout_images || [],
       ballroom_layout_description: item.ballroom_layout_description || '',
+      ballroom_layout_capacity: item.ballroom_layout_capacity || '',
+      ballroom_layout_dimensions: item.ballroom_layout_dimensions || '',
     });
     setFormOpen(true);
   };
@@ -137,8 +153,12 @@ const AdminLocations = () => {
       category: formData.category,
       loading_area_images: formData.loading_area_images.length > 0 ? formData.loading_area_images : undefined,
       loading_area_description: formData.loading_area_description || undefined,
+      loading_area_capacity: formData.loading_area_capacity || undefined,
+      loading_area_dimensions: formData.loading_area_dimensions || undefined,
       ballroom_layout_images: formData.ballroom_layout_images.length > 0 ? formData.ballroom_layout_images : undefined,
       ballroom_layout_description: formData.ballroom_layout_description || undefined,
+      ballroom_layout_capacity: formData.ballroom_layout_capacity || undefined,
+      ballroom_layout_dimensions: formData.ballroom_layout_dimensions || undefined,
     };
 
     if (editingItem) {
@@ -325,6 +345,24 @@ const AdminLocations = () => {
                   rows={3}
                 />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Kapasitas</Label>
+                  <Input
+                    value={formData.loading_area_capacity}
+                    onChange={(e) => setFormData({ ...formData, loading_area_capacity: e.target.value })}
+                    placeholder="Contoh: 50 orang"
+                  />
+                </div>
+                <div>
+                  <Label>Dimensi</Label>
+                  <Input
+                    value={formData.loading_area_dimensions}
+                    onChange={(e) => setFormData({ ...formData, loading_area_dimensions: e.target.value })}
+                    placeholder="Contoh: 10m x 15m"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -349,6 +387,24 @@ const AdminLocations = () => {
                   placeholder="Deskripsi layout ballroom..."
                   rows={3}
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Kapasitas</Label>
+                  <Input
+                    value={formData.ballroom_layout_capacity}
+                    onChange={(e) => setFormData({ ...formData, ballroom_layout_capacity: e.target.value })}
+                    placeholder="Contoh: 500 orang"
+                  />
+                </div>
+                <div>
+                  <Label>Dimensi</Label>
+                  <Input
+                    value={formData.ballroom_layout_dimensions}
+                    onChange={(e) => setFormData({ ...formData, ballroom_layout_dimensions: e.target.value })}
+                    placeholder="Contoh: 30m x 40m"
+                  />
+                </div>
               </div>
             </div>
           </div>
