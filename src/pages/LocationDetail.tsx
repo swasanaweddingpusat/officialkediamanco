@@ -1,18 +1,24 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, ChevronLeft, X, ExternalLink, Users, Ruler } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, ChevronLeft, X, ExternalLink, Users, Ruler, CalendarDays } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
-import { useLocations } from '@/hooks/useCMS';
+import { useLocations, useBallroomSchedules } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { format, isBefore, startOfToday } from 'date-fns';
+import { id as idLocale } from 'date-fns/locale';
 
 const LocationDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { data: locations, isLoading } = useLocations();
+  const { data: schedules = [] } = useBallroomSchedules(id);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  // Filter upcoming schedules (today and future)
+  const upcomingSchedules = schedules.filter(s => !isBefore(new Date(s.schedule_date), startOfToday()));
 
   const location = locations?.find(l => l.id === id);
 
@@ -278,6 +284,64 @@ const LocationDetail = () => {
                         </motion.button>
                       ))}
                     </div>
+                  )}
+                </div>
+              )}
+
+              {/* Ballroom Schedule Section */}
+              {upcomingSchedules.length > 0 && (
+                <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <CalendarDays className="w-5 h-5 text-primary" />
+                    <h2 className="font-display text-xl sm:text-2xl">Jadwal Ballroom</h2>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {upcomingSchedules.slice(0, 10).map((schedule) => (
+                      <div
+                        key={schedule.id}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-secondary rounded-lg gap-2"
+                      >
+                        <div className="flex-1">
+                          <div className="font-medium">
+                            {format(new Date(schedule.schedule_date), 'EEEE, dd MMMM yyyy', { locale: idLocale })}
+                          </div>
+                          {(schedule.start_time || schedule.end_time) && (
+                            <div className="text-sm text-muted-foreground">
+                              {schedule.start_time?.slice(0, 5)}
+                              {schedule.start_time && schedule.end_time && ' - '}
+                              {schedule.end_time?.slice(0, 5)}
+                            </div>
+                          )}
+                          {schedule.event_name && schedule.status === 'booked' && (
+                            <div className="text-sm text-muted-foreground mt-1">
+                              {schedule.event_name}
+                            </div>
+                          )}
+                          {schedule.notes && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {schedule.notes}
+                            </div>
+                          )}
+                        </div>
+                        <Badge 
+                          variant={
+                            schedule.status === 'available' ? 'default' : 
+                            schedule.status === 'booked' ? 'destructive' : 'secondary'
+                          }
+                          className="self-start sm:self-center"
+                        >
+                          {schedule.status === 'available' ? 'Tersedia' : 
+                           schedule.status === 'booked' ? 'Dipesan' : 'Tidak Tersedia'}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {upcomingSchedules.length > 10 && (
+                    <p className="text-sm text-muted-foreground mt-3 text-center">
+                      + {upcomingSchedules.length - 10} jadwal lainnya
+                    </p>
                   )}
                 </div>
               )}
