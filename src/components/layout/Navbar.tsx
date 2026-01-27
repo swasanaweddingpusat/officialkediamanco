@@ -11,6 +11,7 @@ const navLinks = [
   { name: 'Special Offers', href: '/classes' },
   { name: 'Our Portfolio', href: '/trainers' },
   { name: 'Locations', href: '/locations' },
+  { name: 'Blog', href: '/blog' },
 ];
 
 export function Navbar() {

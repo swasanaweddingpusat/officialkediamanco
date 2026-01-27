@@ -486,3 +486,95 @@ export function useDeleteBallroomBooking() {
     onError: () => toast.error('Failed to delete booking'),
   });
 }
+
+// Articles
+export function useArticles() {
+  return useQuery({
+    queryKey: ['articles'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .order('published_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useArticleBySlug(slug: string) {
+  return useQuery({
+    queryKey: ['article', slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('slug', slug)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!slug,
+  });
+}
+
+export function useCreateArticle() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (article: {
+      title: string;
+      slug: string;
+      excerpt?: string | null;
+      content?: string | null;
+      featured_image?: string | null;
+      author_name?: string | null;
+      category?: string | null;
+      tags?: string[] | null;
+      meta_title?: string | null;
+      meta_description?: string | null;
+      meta_keywords?: string | null;
+      reading_time?: number;
+      is_published?: boolean;
+      published_at?: string | null;
+      sort_order?: number;
+    }) => {
+      const { error } = await supabase.from('articles').insert(article);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
+      toast.success('Article created');
+    },
+    onError: () => toast.error('Failed to create article'),
+  });
+}
+
+export function useUpdateArticle() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from('articles').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
+      toast.success('Article updated');
+    },
+    onError: () => toast.error('Failed to update article'),
+  });
+}
+
+export function useDeleteArticle() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('articles').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
+      toast.success('Article deleted');
+    },
+    onError: () => toast.error('Failed to delete article'),
+  });
+}

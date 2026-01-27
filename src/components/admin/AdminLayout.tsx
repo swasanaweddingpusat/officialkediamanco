@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Image, Zap, Dumbbell, Users, MapPin, Settings, LogOut, Home, CalendarDays, CalendarCheck } from 'lucide-react';
+import { LayoutDashboard, Image, Zap, Dumbbell, Users, MapPin, Settings, LogOut, Home, CalendarDays, CalendarCheck, FileText } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -17,6 +17,7 @@ const navItems = [
   { name: 'Programs', href: '/admin/programs', icon: Dumbbell },
   { name: 'Portfolio', href: '/admin/trainers', icon: Users },
   { name: 'Locations', href: '/admin/locations', icon: MapPin },
+  { name: 'Articles', href: '/admin/articles', icon: FileText },
   { name: 'Jadwal Ballroom', href: '/admin/ballroom-schedules', icon: CalendarDays },
   { name: 'Booking Requests', href: '/admin/ballroom-bookings', icon: CalendarCheck },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
