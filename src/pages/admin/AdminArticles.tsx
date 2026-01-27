@@ -5,15 +5,19 @@ import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
+import { ArticlePreview } from '@/components/admin/ArticlePreview';
 import { useArticles, useCreateArticle, useUpdateArticle, useDeleteArticle } from '@/hooks/useCMS';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { format } from 'date-fns';
+import { Eye } from 'lucide-react';
 
 const categories = [
   'Tips & Trik',
@@ -35,6 +39,7 @@ const AdminArticles = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Article | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -198,6 +203,17 @@ const AdminArticles = () => {
         onSubmit={handleSubmit}
         title={editingItem ? 'Edit Article' : 'Create Article'}
         isSubmitting={createMutation.isPending || updateMutation.isPending}
+        extraActions={
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => setIsPreviewOpen(true)}
+            className="gap-2"
+          >
+            <Eye className="w-4 h-4" />
+            Preview
+          </Button>
+        }
       >
         <Tabs defaultValue="content" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
@@ -415,6 +431,23 @@ const AdminArticles = () => {
           </TabsContent>
         </Tabs>
       </AdminFormDialog>
+
+      {/* Preview Dialog */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-5xl h-[90vh] p-0">
+          <ArticlePreview
+            title={formData.title}
+            excerpt={formData.excerpt}
+            content={formData.content}
+            featured_image={formData.featured_image}
+            author_name={formData.author_name}
+            category={formData.category}
+            tags={formData.tags}
+            reading_time={formData.reading_time}
+            onClose={() => setIsPreviewOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       <DeleteConfirmDialog
         open={isDeleteDialogOpen}
