@@ -50,6 +50,11 @@ export function Footer() {
                   Locations
                 </Link>
               </li>
+              <li>
+                <Link to="/booking/track" className="text-muted-foreground hover:text-primary transition-colors">
+                  Cek Status Booking
+                </Link>
+              </li>
             </ul>
           </div>
 
