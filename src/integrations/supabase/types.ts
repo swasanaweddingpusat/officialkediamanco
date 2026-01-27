@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      ballroom_schedules: {
+        Row: {
+          created_at: string
+          end_time: string | null
+          event_name: string | null
+          id: string
+          location_id: string
+          notes: string | null
+          schedule_date: string
+          start_time: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_time?: string | null
+          event_name?: string | null
+          id?: string
+          location_id: string
+          notes?: string | null
+          schedule_date: string
+          start_time?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string | null
+          event_name?: string | null
+          id?: string
+          location_id?: string
+          notes?: string | null
+          schedule_date?: string
+          start_time?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ballroom_schedules_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       features: {
         Row: {
           created_at: string

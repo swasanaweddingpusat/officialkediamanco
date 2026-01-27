@@ -332,3 +332,78 @@ export function useUpdateSiteSettings() {
     onError: () => toast.error('Failed to update settings'),
   });
 }
+
+// Ballroom Schedules
+export function useBallroomSchedules(locationId?: string) {
+  return useQuery({
+    queryKey: ['ballroom-schedules', locationId],
+    queryFn: async () => {
+      let query = supabase
+        .from('ballroom_schedules')
+        .select('*')
+        .order('schedule_date', { ascending: true });
+      
+      if (locationId) {
+        query = query.eq('location_id', locationId);
+      }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+    enabled: locationId !== undefined,
+  });
+}
+
+export function useCreateBallroomSchedule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (schedule: { 
+      location_id: string; 
+      schedule_date: string; 
+      start_time?: string; 
+      end_time?: string; 
+      status?: string; 
+      event_name?: string; 
+      notes?: string;
+    }) => {
+      const { error } = await supabase.from('ballroom_schedules').insert(schedule);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ballroom-schedules'] });
+      toast.success('Schedule created');
+    },
+    onError: () => toast.error('Failed to create schedule'),
+  });
+}
+
+export function useUpdateBallroomSchedule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from('ballroom_schedules').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ballroom-schedules'] });
+      toast.success('Schedule updated');
+    },
+    onError: () => toast.error('Failed to update schedule'),
+  });
+}
+
+export function useDeleteBallroomSchedule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('ballroom_schedules').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ballroom-schedules'] });
+      toast.success('Schedule deleted');
+    },
+    onError: () => toast.error('Failed to delete schedule'),
+  });
+}
