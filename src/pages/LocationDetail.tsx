@@ -191,6 +191,58 @@ const LocationDetail = () => {
                   </div>
                 </div>
               )}
+
+              {/* Loading Area Section */}
+              {(location.loading_area_images?.length > 0 || location.loading_area_description) && (
+                <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6">
+                  <h2 className="font-display text-xl sm:text-2xl mb-3 sm:mb-4">Loading Area</h2>
+                  {location.loading_area_description && (
+                    <p className="text-muted-foreground mb-4 text-sm sm:text-base">
+                      {location.loading_area_description}
+                    </p>
+                  )}
+                  {location.loading_area_images && location.loading_area_images.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+                      {location.loading_area_images.map((img, i) => (
+                        <motion.button
+                          key={i}
+                          whileHover={{ scale: 1.02 }}
+                          onClick={() => setLightboxImage(img)}
+                          className="aspect-square rounded-lg sm:rounded-xl overflow-hidden hover:ring-2 ring-primary transition-all"
+                        >
+                          <img src={img} alt={`Loading Area ${i + 1}`} className="w-full h-full object-cover" />
+                        </motion.button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Ballroom Layout Section */}
+              {(location.ballroom_layout_images?.length > 0 || location.ballroom_layout_description) && (
+                <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6">
+                  <h2 className="font-display text-xl sm:text-2xl mb-3 sm:mb-4">Ballroom Layout</h2>
+                  {location.ballroom_layout_description && (
+                    <p className="text-muted-foreground mb-4 text-sm sm:text-base">
+                      {location.ballroom_layout_description}
+                    </p>
+                  )}
+                  {location.ballroom_layout_images && location.ballroom_layout_images.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+                      {location.ballroom_layout_images.map((img, i) => (
+                        <motion.button
+                          key={i}
+                          whileHover={{ scale: 1.02 }}
+                          onClick={() => setLightboxImage(img)}
+                          className="aspect-square rounded-lg sm:rounded-xl overflow-hidden hover:ring-2 ring-primary transition-all"
+                        >
+                          <img src={img} alt={`Ballroom Layout ${i + 1}`} className="w-full h-full object-cover" />
+                        </motion.button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
 
             {/* Sidebar */}
