@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTrainers, useCreateTrainer, useUpdateTrainer, useDeleteTrainer } from '@/hooks/useCMS';
+import { useTrainers, useCreateTrainer, useUpdateTrainer, useDeleteTrainer, useLocations } from '@/hooks/useCMS';
 import { Badge } from '@/components/ui/badge';
 
 const eventCategories = [
@@ -37,12 +37,14 @@ type Trainer = {
   instagram: string | null;
   certifications: string[] | null;
   images: string[] | null;
+  location_id: string | null;
   sort_order: number | null;
   is_active: boolean | null;
 };
 
 const AdminTrainers = () => {
   const { data: trainers = [], isLoading } = useTrainers();
+  const { data: locations = [] } = useLocations();
   const createMutation = useCreateTrainer();
   const updateMutation = useUpdateTrainer();
   const deleteMutation = useDeleteTrainer();
@@ -58,6 +60,7 @@ const AdminTrainers = () => {
     bio: '',
     photo_url: '',
     images: [] as string[],
+    location_id: '',
     sort_order: 0,
     is_active: true,
   });
@@ -69,6 +72,7 @@ const AdminTrainers = () => {
       bio: '', 
       photo_url: '', 
       images: [],
+      location_id: '',
       sort_order: 0, 
       is_active: true 
     });
@@ -88,6 +92,7 @@ const AdminTrainers = () => {
       bio: item.bio || '',
       photo_url: item.photo_url || '',
       images: item.images || [],
+      location_id: item.location_id || '',
       sort_order: item.sort_order || 0,
       is_active: item.is_active ?? true,
     });
@@ -106,6 +111,7 @@ const AdminTrainers = () => {
       bio: formData.bio || undefined,
       photo_url: formData.photo_url || undefined,
       images: formData.images.length > 0 ? formData.images : undefined,
+      location_id: formData.location_id || null,
       sort_order: formData.sort_order,
       is_active: formData.is_active,
     };
@@ -127,6 +133,12 @@ const AdminTrainers = () => {
     }
   };
 
+  const getLocationName = (locationId: string | null) => {
+    if (!locationId) return '-';
+    const location = locations.find(l => l.id === locationId);
+    return location?.name || '-';
+  };
+
   const columns = [
     {
       key: 'photo_url',
@@ -144,6 +156,13 @@ const AdminTrainers = () => {
       ) : '-',
     },
     {
+      key: 'location_id',
+      label: 'Venue',
+      render: (item: Trainer) => (
+        <span className="text-sm">{getLocationName(item.location_id)}</span>
+      ),
+    },
+    {
       key: 'images',
       label: 'Gallery',
       render: (item: Trainer) => (
@@ -152,7 +171,6 @@ const AdminTrainers = () => {
         </span>
       ),
     },
-    { key: 'sort_order', label: 'Order' },
     {
       key: 'is_active',
       label: 'Status',
@@ -203,6 +221,26 @@ const AdminTrainers = () => {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Wedding Reception John & Jane"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Venue / Location</Label>
+            <Select
+              value={formData.location_id}
+              onValueChange={(value) => setFormData({ ...formData, location_id: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih venue" />
+              </SelectTrigger>
+              <SelectContent>
+                {locations.map((loc) => (
+                  <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Portfolio ini akan ditampilkan di halaman detail venue yang dipilih
+            </p>
           </div>
 
           <div className="space-y-2">

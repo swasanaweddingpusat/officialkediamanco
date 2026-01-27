@@ -513,6 +513,7 @@ export type Database = {
           images: string[] | null
           instagram: string | null
           is_active: boolean | null
+          location_id: string | null
           name: string
           photo_url: string | null
           sort_order: number | null
@@ -527,6 +528,7 @@ export type Database = {
           images?: string[] | null
           instagram?: string | null
           is_active?: boolean | null
+          location_id?: string | null
           name: string
           photo_url?: string | null
           sort_order?: number | null
@@ -541,13 +543,22 @@ export type Database = {
           images?: string[] | null
           instagram?: string | null
           is_active?: boolean | null
+          location_id?: string | null
           name?: string
           photo_url?: string | null
           sort_order?: number | null
           specialization?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "trainers_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
