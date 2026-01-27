@@ -27,6 +27,8 @@ import {
   Minus,
   RemoveFormatting,
   Pilcrow,
+  Upload,
+  Loader2,
 } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { Separator } from '@/components/ui/separator';
@@ -38,7 +40,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { useState, useCallback, useEffect } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface RichTextEditorProps {
   value: string;
@@ -51,6 +57,50 @@ export const RichTextEditor = ({ value, onChange, placeholder = 'Mulai menulis..
   const [linkOpen, setLinkOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [imageOpen, setImageOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadImage = useCallback(async (file: File): Promise<string | null> => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return null;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return null;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `articles/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('gym-images')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('gym-images')
+        .getPublicUrl(fileName);
+
+      toast.success('Image uploaded successfully');
+      return publicUrl;
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image');
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  }, []);
 
   const editor = useEditor({
     extensions: [
@@ -83,6 +133,41 @@ export const RichTextEditor = ({ value, onChange, placeholder = 'Mulai menulis..
       attributes: {
         class: 'prose prose-invert max-w-none min-h-[300px] p-4 focus:outline-none',
       },
+      handleDrop: (view, event, slice, moved) => {
+        if (!moved && event.dataTransfer?.files?.length) {
+          const file = event.dataTransfer.files[0];
+          if (file.type.startsWith('image/')) {
+            event.preventDefault();
+            uploadImage(file).then((url) => {
+              if (url && editor) {
+                editor.chain().focus().setImage({ src: url }).run();
+              }
+            });
+            return true;
+          }
+        }
+        return false;
+      },
+      handlePaste: (view, event) => {
+        const items = event.clipboardData?.items;
+        if (items) {
+          for (const item of items) {
+            if (item.type.startsWith('image/')) {
+              event.preventDefault();
+              const file = item.getAsFile();
+              if (file) {
+                uploadImage(file).then((url) => {
+                  if (url && editor) {
+                    editor.chain().focus().setImage({ src: url }).run();
+                  }
+                });
+              }
+              return true;
+            }
+          }
+        }
+        return false;
+      },
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
@@ -108,12 +193,44 @@ export const RichTextEditor = ({ value, onChange, placeholder = 'Mulai menulis..
     setLinkOpen(false);
   }, [editor, linkUrl]);
 
-  const addImage = useCallback(() => {
+  const addImageByUrl = useCallback(() => {
     if (!editor || !imageUrl) return;
     editor.chain().focus().setImage({ src: imageUrl }).run();
     setImageUrl('');
     setImageOpen(false);
   }, [editor, imageUrl]);
+
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && editor) {
+      const url = await uploadImage(file);
+      if (url) {
+        editor.chain().focus().setImage({ src: url }).run();
+        setImageOpen(false);
+      }
+    }
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, [editor, uploadImage]);
+
+  const handleEditorDragOver = useCallback((e: React.DragEvent) => {
+    const hasFiles = e.dataTransfer.types.includes('Files');
+    if (hasFiles) {
+      e.preventDefault();
+      setIsDraggingFile(true);
+    }
+  }, []);
+
+  const handleEditorDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+  }, []);
+
+  const handleEditorDrop = useCallback((e: React.DragEvent) => {
+    setIsDraggingFile(false);
+  }, []);
 
   if (!editor) return null;
 
@@ -144,6 +261,15 @@ export const RichTextEditor = ({ value, onChange, placeholder = 'Mulai menulis..
 
   return (
     <div className="border border-border rounded-lg overflow-hidden bg-background">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 p-2 border-b border-border bg-muted/50">
         {/* History */}
@@ -323,24 +449,69 @@ export const RichTextEditor = ({ value, onChange, placeholder = 'Mulai menulis..
           </PopoverContent>
         </Popover>
 
-        {/* Image */}
+        {/* Image with Upload */}
         <Popover open={imageOpen} onOpenChange={setImageOpen}>
           <PopoverTrigger asChild>
             <Toggle size="sm" className="h-8 w-8 p-0" title="Add Image">
-              <ImageIcon className="h-4 w-4" />
+              {isUploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <ImageIcon className="h-4 w-4" />
+              )}
             </Toggle>
           </PopoverTrigger>
           <PopoverContent className="w-80">
-            <div className="space-y-3">
-              <Label>URL Gambar</Label>
-              <Input
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://example.com/image.jpg"
-                onKeyDown={(e) => e.key === 'Enter' && addImage()}
-              />
-              <Button size="sm" onClick={addImage}>Add Image</Button>
-            </div>
+            <Tabs defaultValue="upload" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="upload">Upload</TabsTrigger>
+                <TabsTrigger value="url">URL</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="upload" className="space-y-3 mt-3">
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn(
+                    "border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors text-center",
+                    isUploading 
+                      ? "pointer-events-none opacity-50" 
+                      : "hover:border-primary hover:bg-primary/5"
+                  )}
+                >
+                  {isUploading ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      <span className="text-sm text-muted-foreground">Uploading...</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="p-2 bg-primary/10 rounded-full">
+                        <Upload className="h-5 w-5 text-primary" />
+                      </div>
+                      <span className="text-sm font-medium">Click to upload</span>
+                      <span className="text-xs text-muted-foreground">Max 5MB</span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  💡 Tip: You can also drag & drop or paste images directly in the editor
+                </p>
+              </TabsContent>
+              
+              <TabsContent value="url" className="space-y-3 mt-3">
+                <div className="space-y-2">
+                  <Label>URL Gambar</Label>
+                  <Input
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                    onKeyDown={(e) => e.key === 'Enter' && addImageByUrl()}
+                  />
+                </div>
+                <Button size="sm" onClick={addImageByUrl} className="w-full">
+                  Add Image
+                </Button>
+              </TabsContent>
+            </Tabs>
           </PopoverContent>
         </Popover>
 
@@ -355,8 +526,35 @@ export const RichTextEditor = ({ value, onChange, placeholder = 'Mulai menulis..
         </ToolbarButton>
       </div>
 
-      {/* Editor content */}
-      <EditorContent editor={editor} />
+      {/* Editor content with drag overlay */}
+      <div 
+        className="relative"
+        onDragOver={handleEditorDragOver}
+        onDragLeave={handleEditorDragLeave}
+        onDrop={handleEditorDrop}
+      >
+        <EditorContent editor={editor} />
+        
+        {/* Drag overlay */}
+        {isDraggingFile && (
+          <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded flex items-center justify-center pointer-events-none z-10">
+            <div className="bg-background/90 backdrop-blur-sm px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
+              <ImageIcon className="h-6 w-6 text-primary" />
+              <span className="font-medium">Drop image here</span>
+            </div>
+          </div>
+        )}
+        
+        {/* Upload indicator */}
+        {isUploading && (
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-20">
+            <div className="bg-card px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <span>Uploading image...</span>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Character/word count */}
       <div className="flex items-center justify-between px-4 py-2 border-t border-border bg-muted/30 text-xs text-muted-foreground">
