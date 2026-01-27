@@ -206,24 +206,44 @@ export function useUpdateTrainer() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainers'] });
-      toast.success('Trainer updated');
+      queryClient.invalidateQueries({ queryKey: ['portfolios-by-location'] });
+      toast.success('Portfolio updated');
     },
-    onError: () => toast.error('Failed to update trainer'),
+    onError: () => toast.error('Failed to update portfolio'),
   });
 }
 
 export function useCreateTrainer() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (trainer: { name: string; specialization?: string; bio?: string; photo_url?: string; instagram?: string; certifications?: string[]; sort_order?: number; is_active?: boolean }) => {
+    mutationFn: async (trainer: { name: string; specialization?: string; bio?: string; photo_url?: string; instagram?: string; certifications?: string[]; images?: string[]; location_id?: string | null; sort_order?: number; is_active?: boolean }) => {
       const { error } = await supabase.from('trainers').insert(trainer);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainers'] });
-      toast.success('Trainer created');
+      queryClient.invalidateQueries({ queryKey: ['portfolios-by-location'] });
+      toast.success('Portfolio created');
     },
-    onError: () => toast.error('Failed to create trainer'),
+    onError: () => toast.error('Failed to create portfolio'),
+  });
+}
+
+// Portfolios by Location
+export function usePortfoliosByLocation(locationId?: string) {
+  return useQuery({
+    queryKey: ['portfolios-by-location', locationId],
+    enabled: !!locationId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('trainers')
+        .select('*')
+        .eq('location_id', locationId)
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
   });
 }
 

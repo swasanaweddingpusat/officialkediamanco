@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, MapPin } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
-import { useLocations, useBallroomSchedules } from '@/hooks/useCMS';
+import { useLocations, useBallroomSchedules, usePortfoliosByLocation } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,11 +17,13 @@ import { LocationAreaSection } from '@/components/location/LocationAreaSection';
 import { LocationScheduleSection } from '@/components/location/LocationScheduleSection';
 import { LocationContactCard } from '@/components/location/LocationContactCard';
 import { LocationLightbox } from '@/components/location/LocationLightbox';
+import { LocationPortfolioSection } from '@/components/location/LocationPortfolioSection';
 
 const LocationDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { data: locations, isLoading } = useLocations();
   const { data: schedules = [] } = useBallroomSchedules(id);
+  const { data: portfolios = [] } = usePortfoliosByLocation(id);
   
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -41,8 +43,12 @@ const LocationDetail = () => {
     const imgs = [...images];
     if (location?.loading_area_images) imgs.push(...location.loading_area_images);
     if (location?.ballroom_layout_images) imgs.push(...location.ballroom_layout_images);
+    // Add portfolio images for lightbox navigation
+    portfolios.forEach(p => {
+      if (p.images) imgs.push(...p.images);
+    });
     return imgs;
-  }, [images, location]);
+  }, [images, location, portfolios]);
 
   const upcomingSchedules = useMemo(() => 
     schedules.filter(s => !isBefore(new Date(s.schedule_date), startOfToday())),
@@ -201,6 +207,12 @@ const LocationDetail = () => {
 
               {/* Schedule */}
               <LocationScheduleSection schedules={upcomingSchedules} />
+
+              {/* Portfolio Section */}
+              <LocationPortfolioSection 
+                portfolios={portfolios}
+                onOpenLightbox={setLightboxImage}
+              />
             </div>
 
             {/* Sidebar */}
