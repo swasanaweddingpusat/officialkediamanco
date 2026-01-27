@@ -21,6 +21,7 @@ import AdminLocations from "./pages/admin/AdminLocations";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminBallroomSchedules from "./pages/admin/AdminBallroomSchedules";
 import AdminBallroomBookings from "./pages/admin/AdminBallroomBookings";
+import BookingTrack from "./pages/BookingTrack";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/trainers" element={<Trainers />} />
             <Route path="/locations" element={<Locations />} />
             <Route path="/locations/:id" element={<LocationDetail />} />
+            <Route path="/booking/track" element={<BookingTrack />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/hero" element={<AdminHero />} />

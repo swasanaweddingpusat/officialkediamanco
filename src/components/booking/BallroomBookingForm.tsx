@@ -119,8 +119,14 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
       >
         <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
         <h3 className="font-display text-2xl mb-2">Permintaan Booking Terkirim!</h3>
-        <p className="text-muted-foreground mb-6">
+        <p className="text-muted-foreground mb-4">
           Terima kasih! Tim kami akan menghubungi Anda dalam 1x24 jam untuk konfirmasi.
+        </p>
+        <p className="text-sm text-muted-foreground mb-6">
+          Anda dapat mengecek status booking kapan saja di{' '}
+          <a href="/booking/track" className="text-primary hover:underline font-medium">
+            halaman tracking
+          </a>
         </p>
         <Button onClick={onClose} variant="outline">
           Tutup
