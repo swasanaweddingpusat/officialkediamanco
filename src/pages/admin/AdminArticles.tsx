@@ -4,6 +4,7 @@ import { AdminTable } from '@/components/admin/AdminTable';
 import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { useArticles, useCreateArticle, useUpdateArticle, useDeleteArticle } from '@/hooks/useCMS';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -259,14 +260,11 @@ const AdminArticles = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="content">Konten Artikel (HTML)</Label>
-              <Textarea
-                id="content"
+              <Label>Konten Artikel</Label>
+              <RichTextEditor
                 value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="<p>Tulis konten artikel di sini...</p>"
-                rows={12}
-                className="font-mono text-sm"
+                onChange={(content) => setFormData({ ...formData, content })}
+                placeholder="Mulai menulis konten artikel..."
               />
             </div>
 
