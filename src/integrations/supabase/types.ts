@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      ballroom_bookings: {
+        Row: {
+          admin_notes: string | null
+          booking_date: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          end_time: string | null
+          event_name: string
+          event_type: string | null
+          guest_count: number | null
+          id: string
+          location_id: string
+          notes: string | null
+          start_time: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          booking_date: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at?: string
+          end_time?: string | null
+          event_name: string
+          event_type?: string | null
+          guest_count?: number | null
+          id?: string
+          location_id: string
+          notes?: string | null
+          start_time?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          booking_date?: string
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          end_time?: string | null
+          event_name?: string
+          event_type?: string | null
+          guest_count?: number | null
+          id?: string
+          location_id?: string
+          notes?: string | null
+          start_time?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ballroom_bookings_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ballroom_schedules: {
         Row: {
           created_at: string
