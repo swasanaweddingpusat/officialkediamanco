@@ -189,8 +189,24 @@ export function useTrainers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('trainers')
-        .select('*')
+        .select('*, locations(name)')
         .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useTrainerById(id?: string) {
+  return useQuery({
+    queryKey: ['trainer', id],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('trainers')
+        .select('*, locations(id, name)')
+        .eq('id', id)
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
