@@ -7,8 +7,10 @@ import { useLocations, useBallroomSchedules } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { format, isBefore, startOfToday } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
+import { BallroomBookingForm } from '@/components/booking/BallroomBookingForm';
 
 const LocationDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +18,7 @@ const LocationDetail = () => {
   const { data: schedules = [] } = useBallroomSchedules(id);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   // Filter upcoming schedules (today and future)
   const upcomingSchedules = schedules.filter(s => !isBefore(new Date(s.schedule_date), startOfToday()));
@@ -416,6 +419,25 @@ const LocationDetail = () => {
                       This location is coming soon
                     </Badge>
                   </div>
+                )}
+
+                {/* Booking Button */}
+                {!location.is_coming_soon && (
+                  <Dialog open={bookingOpen} onOpenChange={setBookingOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full mt-4 gap-2" size="lg">
+                        <CalendarDays className="w-4 h-4" />
+                        Booking Ballroom
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                      <BallroomBookingForm 
+                        locationId={location.id}
+                        locationName={location.name}
+                        onClose={() => setBookingOpen(false)}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 )}
               </div>
             </motion.div>

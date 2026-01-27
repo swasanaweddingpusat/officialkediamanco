@@ -10,6 +10,7 @@ interface AdminFormDialogProps {
   onSubmit: () => void;
   isSubmitting?: boolean;
   submitLabel?: string;
+  hideSubmit?: boolean;
 }
 
 export function AdminFormDialog({
@@ -20,6 +21,7 @@ export function AdminFormDialog({
   onSubmit,
   isSubmitting,
   submitLabel = 'Save',
+  hideSubmit = false,
 }: AdminFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -28,14 +30,16 @@ export function AdminFormDialog({
           <DialogTitle className="font-display text-2xl">{title}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">{children}</div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={onSubmit} disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : submitLabel}
-          </Button>
-        </DialogFooter>
+        {!hideSubmit && (
+          <DialogFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={onSubmit} disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : submitLabel}
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
