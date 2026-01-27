@@ -1,17 +1,19 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Images, Filter } from 'lucide-react';
+import { Images, Filter, Search, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useTrainers } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import trainerImage from '@/assets/trainer-1.jpg';
 
 const Trainers = () => {
   const { data: trainers, isLoading } = useTrainers();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const activeTrainers = trainers?.filter(t => t.is_active) || [];
 
@@ -24,11 +26,32 @@ const Trainers = () => {
     return Array.from(cats).sort();
   }, [activeTrainers]);
 
-  // Filter portfolios by category
+  // Filter portfolios by category and search
   const filteredPortfolios = useMemo(() => {
-    if (!selectedCategory) return activeTrainers;
-    return activeTrainers.filter(t => t.specialization === selectedCategory);
-  }, [activeTrainers, selectedCategory]);
+    let filtered = activeTrainers;
+    
+    if (selectedCategory) {
+      filtered = filtered.filter(t => t.specialization === selectedCategory);
+    }
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(t => 
+        t.name.toLowerCase().includes(query) ||
+        t.bio?.toLowerCase().includes(query) ||
+        t.specialization?.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [activeTrainers, selectedCategory, searchQuery]);
+
+  const clearFilters = () => {
+    setSelectedCategory(null);
+    setSearchQuery('');
+  };
+
+  const hasActiveFilters = selectedCategory !== null || searchQuery.trim() !== '';
 
   return (
     <Layout>
@@ -51,57 +74,92 @@ const Trainers = () => {
       </section>
 
       {/* Filter Section */}
-      {categories.length > 0 && (
-        <section className="py-6 border-b border-border bg-background sticky top-16 z-30">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-wrap items-center gap-3"
-            >
-              <div className="flex items-center gap-2 text-muted-foreground mr-2">
-                <Filter className="w-4 h-4" />
-                <span className="text-sm font-medium">Kategori:</span>
-              </div>
-              
-              <Button
-                variant={selectedCategory === null ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(null)}
-                className="rounded-full"
-              >
-                Semua
-                <Badge variant="secondary" className="ml-2 px-1.5 py-0 text-xs bg-background/20">
-                  {activeTrainers.length}
-                </Badge>
-              </Button>
+      <section className="py-6 border-b border-border bg-background sticky top-16 z-30">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-4"
+          >
+            {/* Search Input */}
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Cari portfolio berdasarkan nama event..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-10"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
 
-              {categories.map((category) => {
-                const count = activeTrainers.filter(t => t.specialization === category).length;
-                return (
-                  <Button
-                    key={category}
-                    variant={selectedCategory === category ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category)}
-                    className="rounded-full"
-                  >
-                    {category}
-                    <Badge 
-                      variant="secondary" 
-                      className={`ml-2 px-1.5 py-0 text-xs ${
-                        selectedCategory === category ? 'bg-background/20' : ''
-                      }`}
+            {/* Category Filter */}
+            {categories.length > 0 && (
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 text-muted-foreground mr-2">
+                  <Filter className="w-4 h-4" />
+                  <span className="text-sm font-medium">Kategori:</span>
+                </div>
+                
+                <Button
+                  variant={selectedCategory === null ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(null)}
+                  className="rounded-full"
+                >
+                  Semua
+                  <Badge variant="secondary" className="ml-2 px-1.5 py-0 text-xs bg-background/20">
+                    {activeTrainers.length}
+                  </Badge>
+                </Button>
+
+                {categories.map((category) => {
+                  const count = activeTrainers.filter(t => t.specialization === category).length;
+                  return (
+                    <Button
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedCategory(category)}
+                      className="rounded-full"
                     >
-                      {count}
-                    </Badge>
+                      {category}
+                      <Badge 
+                        variant="secondary" 
+                        className={`ml-2 px-1.5 py-0 text-xs ${
+                          selectedCategory === category ? 'bg-background/20' : ''
+                        }`}
+                      >
+                        {count}
+                      </Badge>
+                    </Button>
+                  );
+                })}
+
+                {hasActiveFilters && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Reset
                   </Button>
-                );
-              })}
-            </motion.div>
-          </div>
-        </section>
-      )}
+                )}
+              </div>
+            )}
+          </motion.div>
+        </div>
+      </section>
 
       {/* Portfolio Grid */}
       <section className="py-16">
@@ -115,13 +173,15 @@ const Trainers = () => {
           ) : filteredPortfolios.length > 0 ? (
             <>
               {/* Results count */}
-              {selectedCategory && (
+              {hasActiveFilters && (
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="text-muted-foreground mb-6"
                 >
-                  Menampilkan {filteredPortfolios.length} portfolio untuk kategori "{selectedCategory}"
+                  Menampilkan {filteredPortfolios.length} portfolio
+                  {searchQuery && ` untuk "${searchQuery}"`}
+                  {selectedCategory && ` dalam kategori "${selectedCategory}"`}
                 </motion.p>
               )}
 
@@ -189,13 +249,16 @@ const Trainers = () => {
             </>
           ) : (
             <div className="text-center py-16">
-              {selectedCategory ? (
+              {hasActiveFilters ? (
                 <div>
                   <p className="text-muted-foreground text-lg mb-4">
-                    Tidak ada portfolio untuk kategori "{selectedCategory}"
+                    {searchQuery 
+                      ? `Tidak ada portfolio yang cocok dengan "${searchQuery}"${selectedCategory ? ` dalam kategori "${selectedCategory}"` : ''}`
+                      : `Tidak ada portfolio untuk kategori "${selectedCategory}"`
+                    }
                   </p>
-                  <Button variant="outline" onClick={() => setSelectedCategory(null)}>
-                    Tampilkan Semua
+                  <Button variant="outline" onClick={clearFilters}>
+                    Reset Filter
                   </Button>
                 </div>
               ) : (
