@@ -25,12 +25,12 @@ export function HeroSection() {
   // Show loading state or fallback only when no data available
   const currentImageUrl = slide?.image_url || (isLoading ? undefined : heroImage);
 
-  // Size classes for title
+  // Size classes for title - mobile responsive
   const titleSizeClasses = {
-    small: 'text-3xl md:text-4xl lg:text-5xl',
-    medium: 'text-4xl md:text-5xl lg:text-6xl',
-    large: 'text-5xl md:text-7xl lg:text-8xl',
-    xlarge: 'text-6xl md:text-8xl lg:text-9xl',
+    small: 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl',
+    medium: 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl',
+    large: 'text-4xl sm:text-5xl md:text-6xl lg:text-8xl',
+    xlarge: 'text-5xl sm:text-6xl md:text-7xl lg:text-9xl',
   };
 
   // Size classes for button
@@ -59,7 +59,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative h-screen overflow-hidden">
+    <section className="relative h-[100svh] min-h-[500px] overflow-hidden pt-14 sm:pt-16">
       {/* Background Image */}
       <div className="absolute inset-0">
         {currentImageUrl ? (
@@ -76,7 +76,7 @@ export function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className={`relative container mx-auto px-6 md:px-12 lg:px-16 h-full flex items-center ${positionClasses[currentPosition]}`}>
+      <div className={`relative container mx-auto px-4 sm:px-6 md:px-12 lg:px-16 h-full flex items-center ${positionClasses[currentPosition]}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -86,20 +86,20 @@ export function HeroSection() {
             transition={{ duration: 0.5 }}
             className={`max-w-2xl ${currentPosition === 'center' ? 'mx-auto' : ''}`}
           >
-            <h1 className={`font-display ${titleSizeClasses[currentTitleSize]} leading-none mb-6`}>
+            <h1 className={`font-display ${titleSizeClasses[currentTitleSize]} leading-none mb-4 sm:mb-6`}>
               <span className="text-gradient">{slide?.title || 'GET STRONG'}</span>
               <br />
               <span className="text-foreground">{slide?.subtitle || 'GET REWARDS'}</span>
             </h1>
-            <p className={`text-lg md:text-xl text-muted-foreground mb-8 ${currentPosition === 'center' ? 'mx-auto' : ''} max-w-lg`}>
+            <p className={`text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground mb-6 sm:mb-8 ${currentPosition === 'center' ? 'mx-auto' : ''} max-w-lg`}>
               {slide?.description || 'Transform your body and mind with state-of-the-art equipment, expert trainers, and a motivating community.'}
             </p>
-            <div className={`flex flex-wrap gap-4 ${buttonPositionClasses[currentPosition]}`}>
-              <Button size={buttonSizeMap[currentButtonSize]} className="btn-glow group">
+            <div className={`flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 ${buttonPositionClasses[currentPosition]}`}>
+              <Button size={buttonSizeMap[currentButtonSize]} className="btn-glow group w-full sm:w-auto">
                 {slide?.button_text || 'Start Your Journey'}
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button size={buttonSizeMap[currentButtonSize]} variant="outline">
+              <Button size={buttonSizeMap[currentButtonSize]} variant="outline" className="w-full sm:w-auto">
                 View Special Offers
               </Button>
             </div>
@@ -112,27 +112,27 @@ export function HeroSection() {
         <>
           <button
             onClick={() => setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-background/50 backdrop-blur rounded-full hover:bg-primary transition-colors"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-background/50 backdrop-blur rounded-full hover:bg-primary transition-colors"
             aria-label="Previous slide"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
           <button
             onClick={() => setCurrentSlide((prev) => (prev + 1) % totalSlides)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-background/50 backdrop-blur rounded-full hover:bg-primary transition-colors"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-background/50 backdrop-blur rounded-full hover:bg-primary transition-colors"
             aria-label="Next slide"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           {/* Dots */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+          <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
             {activeSlides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  index === currentSlide ? 'bg-primary w-8' : 'bg-foreground/30'
+                className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all ${
+                  index === currentSlide ? 'bg-primary w-6 sm:w-8' : 'bg-foreground/30'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />

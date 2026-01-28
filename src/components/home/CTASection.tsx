@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 export function CTASection() {
-  return <section className="py-24 relative overflow-hidden">
+  return <section className="py-12 sm:py-16 md:py-24 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -13,7 +13,7 @@ export function CTASection() {
       }} />
       </div>
 
-      <div className="container mx-auto px-4 relative">
+      <div className="container mx-auto px-3 sm:px-4 relative">
         <motion.div initial={{
         opacity: 0,
         y: 30
@@ -23,16 +23,16 @@ export function CTASection() {
       }} viewport={{
         once: true
       }} className="max-w-4xl mx-auto text-center">
-          <h2 className="font-display text-4xl md:text-6xl mb-6">READY TO START AN 
-EVENT WITH US?<span className="text-gradient">TRANSFORM</span>?
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-6xl mb-4 sm:mb-6 px-4">
+            READY TO START AN EVENT WITH US?
           </h2>
-          <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">Join thousands of people who have started their event with us.</p>
+          <p className="text-sm sm:text-base md:text-xl text-muted-foreground mb-8 sm:mb-12 max-w-2xl mx-auto px-4">Join thousands of people who have started their event with us.</p>
 
 
           <Link to="/auth">
-            <Button size="lg" className="btn-glow text-lg px-8 py-6 group">
+            <Button size="lg" className="btn-glow text-sm sm:text-base md:text-lg px-6 sm:px-8 py-4 sm:py-6 group w-full sm:w-auto">
               Start Your Free Trial
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
         </motion.div>
