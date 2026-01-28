@@ -1,7 +1,7 @@
 import { HeroSection } from '@/components/home/HeroSection';
 import { FeaturesSection } from '@/components/home/FeaturesSection';
 import { CTASection } from '@/components/home/CTASection';
-import { LocationsSection } from '@/components/landing/LocationsSection';
+import { FullLocationsSection } from '@/components/landing/FullLocationsSection';
 import { PortfolioSection } from '@/components/landing/PortfolioSection';
 import { BlogSection } from '@/components/landing/BlogSection';
 import { SpecialOffersSection } from '@/components/landing/SpecialOffersSection';
@@ -39,8 +39,8 @@ const LandingPage = () => {
         {/* 2. Features/Why Us Section */}
         <FeaturesSection />
         
-        {/* 3. Locations Section */}
-        <LocationsSection />
+        {/* 3. Full Locations Section with Navigation */}
+        <FullLocationsSection />
         
         {/* 4. Portfolio Section */}
         <PortfolioSection />
