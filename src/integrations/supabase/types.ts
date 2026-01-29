@@ -227,6 +227,11 @@ export type Database = {
           button_link: string | null
           button_size: string | null
           button_text: string | null
+          button_visible: boolean | null
+          button2_link: string | null
+          button2_size: string | null
+          button2_text: string | null
+          button2_visible: boolean | null
           content_position: string | null
           created_at: string
           description: string | null
@@ -243,6 +248,11 @@ export type Database = {
           button_link?: string | null
           button_size?: string | null
           button_text?: string | null
+          button_visible?: boolean | null
+          button2_link?: string | null
+          button2_size?: string | null
+          button2_text?: string | null
+          button2_visible?: boolean | null
           content_position?: string | null
           created_at?: string
           description?: string | null
@@ -259,6 +269,11 @@ export type Database = {
           button_link?: string | null
           button_size?: string | null
           button_text?: string | null
+          button_visible?: boolean | null
+          button2_link?: string | null
+          button2_size?: string | null
+          button2_text?: string | null
+          button2_visible?: boolean | null
           content_position?: string | null
           created_at?: string
           description?: string | null

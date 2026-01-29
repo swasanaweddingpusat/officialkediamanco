@@ -20,6 +20,11 @@ type HeroSlide = {
   image_url: string | null;
   button_text: string | null;
   button_link: string | null;
+  button_visible: boolean | null;
+  button2_text: string | null;
+  button2_link: string | null;
+  button2_size: string | null;
+  button2_visible: boolean | null;
   title_size: string | null;
   button_size: string | null;
   content_position: string | null;
@@ -45,6 +50,11 @@ const AdminHero = () => {
     image_url: '',
     button_text: '',
     button_link: '',
+    button_visible: true,
+    button2_text: '',
+    button2_link: '',
+    button2_size: 'large',
+    button2_visible: true,
     title_size: 'large',
     button_size: 'large',
     content_position: 'left',
@@ -60,6 +70,11 @@ const AdminHero = () => {
       image_url: '',
       button_text: '',
       button_link: '',
+      button_visible: true,
+      button2_text: '',
+      button2_link: '',
+      button2_size: 'large',
+      button2_visible: true,
       title_size: 'large',
       button_size: 'large',
       content_position: 'left',
@@ -83,6 +98,11 @@ const AdminHero = () => {
       image_url: item.image_url || '',
       button_text: item.button_text || '',
       button_link: item.button_link || '',
+      button_visible: item.button_visible ?? true,
+      button2_text: item.button2_text || '',
+      button2_link: item.button2_link || '',
+      button2_size: item.button2_size || 'large',
+      button2_visible: item.button2_visible ?? true,
       title_size: item.title_size || 'large',
       button_size: item.button_size || 'large',
       content_position: item.content_position || 'left',
@@ -207,22 +227,6 @@ const AdminHero = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Button Size</Label>
-              <Select
-                value={formData.button_size}
-                onValueChange={(value) => setFormData({ ...formData, button_size: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select size" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="small">Small</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="large">Large</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
           <div>
             <Label>Content Position</Label>
@@ -240,22 +244,99 @@ const AdminHero = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Button Text</Label>
-              <Input
-                value={formData.button_text}
-                onChange={(e) => setFormData({ ...formData, button_text: e.target.value })}
-                placeholder="Join Now"
-              />
+          {/* Button 1 */}
+          <div className="border rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-semibold">Button 1 (Primary)</Label>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={formData.button_visible}
+                  onCheckedChange={(checked) => setFormData({ ...formData, button_visible: checked })}
+                />
+                <Label className="text-sm">Visible</Label>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Button Text</Label>
+                <Input
+                  value={formData.button_text}
+                  onChange={(e) => setFormData({ ...formData, button_text: e.target.value })}
+                  placeholder="Start Your Journey"
+                />
+              </div>
+              <div>
+                <Label>Button Link</Label>
+                <Input
+                  value={formData.button_link}
+                  onChange={(e) => setFormData({ ...formData, button_link: e.target.value })}
+                  placeholder="/register"
+                />
+              </div>
             </div>
             <div>
-              <Label>Button Link</Label>
-              <Input
-                value={formData.button_link}
-                onChange={(e) => setFormData({ ...formData, button_link: e.target.value })}
-                placeholder="/register"
-              />
+              <Label>Button Size</Label>
+              <Select
+                value={formData.button_size}
+                onValueChange={(value) => setFormData({ ...formData, button_size: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Small</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="large">Large</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Button 2 */}
+          <div className="border rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-semibold">Button 2 (Secondary)</Label>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={formData.button2_visible}
+                  onCheckedChange={(checked) => setFormData({ ...formData, button2_visible: checked })}
+                />
+                <Label className="text-sm">Visible</Label>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Button Text</Label>
+                <Input
+                  value={formData.button2_text}
+                  onChange={(e) => setFormData({ ...formData, button2_text: e.target.value })}
+                  placeholder="View Special Offers"
+                />
+              </div>
+              <div>
+                <Label>Button Link</Label>
+                <Input
+                  value={formData.button2_link}
+                  onChange={(e) => setFormData({ ...formData, button2_link: e.target.value })}
+                  placeholder="/offers"
+                />
+              </div>
+            </div>
+            <div>
+              <Label>Button Size</Label>
+              <Select
+                value={formData.button2_size}
+                onValueChange={(value) => setFormData({ ...formData, button2_size: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Small</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="large">Large</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div>
