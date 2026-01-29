@@ -36,7 +36,93 @@ interface LocationDetailCardProps {
   onOpenLightbox: (url: string) => void;
 }
 
-function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProps) {
+// Compact grid card for 3x3 layout
+function LocationGridCard({ location, onOpenLightbox }: LocationDetailCardProps) {
+  const [detailOpen, setDetailOpen] = useState(false);
+
+  const mainImage = useMemo(() => {
+    if (location.images && location.images.length > 0) return location.images[0];
+    if (location.image_url) return location.image_url;
+    return null;
+  }, [location]);
+
+  return (
+    <>
+      <div 
+        onClick={() => setDetailOpen(true)}
+        className="bg-card rounded-xl border border-border overflow-hidden cursor-pointer group hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
+      >
+        {/* Image */}
+        <div className="relative aspect-[4/3] overflow-hidden">
+          {mainImage ? (
+            <img
+              src={mainImage}
+              alt={location.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <MapPin className="w-10 h-10 text-muted-foreground/30" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+            <Badge variant="outline" className="mb-1.5 border-primary/50 text-primary bg-background/80 text-[10px] sm:text-xs">
+              {location.category || 'Jakarta'}
+            </Badge>
+            <h3 className="font-display text-base sm:text-lg md:text-xl text-foreground leading-tight line-clamp-2">
+              {location.name}
+            </h3>
+          </div>
+        </div>
+
+        {/* Info */}
+        <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+          {location.address && (
+            <div className="flex items-start gap-2 text-muted-foreground text-xs sm:text-sm">
+              <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
+              <span className="line-clamp-2">{location.address}</span>
+            </div>
+          )}
+          
+          {location.facilities && location.facilities.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {location.facilities.slice(0, 3).map((facility, i) => (
+                <Badge key={i} variant="secondary" className="text-[9px] sm:text-[10px] px-1.5 py-0.5">
+                  {facility}
+                </Badge>
+              ))}
+              {location.facilities.length > 3 && (
+                <Badge variant="secondary" className="text-[9px] sm:text-[10px] px-1.5 py-0.5">
+                  +{location.facilities.length - 3}
+                </Badge>
+              )}
+            </div>
+          )}
+
+          <Button size="sm" className="w-full text-xs sm:text-sm">
+            Lihat Detail
+          </Button>
+        </div>
+      </div>
+
+      {/* Detail Modal */}
+      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+          <DialogHeader className="sr-only">
+            <DialogTitle>{location.name}</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[90vh]">
+            <LocationDetailModal location={location} onOpenLightbox={onOpenLightbox} onClose={() => setDetailOpen(false)} />
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+// Full detail modal content
+function LocationDetailModal({ location, onOpenLightbox, onClose }: LocationDetailCardProps & { onClose: () => void }) {
   const { data: schedules = [] } = useBallroomSchedules(location.id);
   const { data: portfolios = [] } = usePortfoliosByLocation(location.id);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
@@ -58,8 +144,8 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
   };
 
   return (
-    <div className="bg-card rounded-xl sm:rounded-2xl border border-border overflow-hidden">
-      {/* Hero Image - Responsive aspect ratio */}
+    <div className="bg-card">
+      {/* Hero Image */}
       <div className="relative aspect-[16/9] sm:aspect-[21/9] overflow-hidden">
         {images.length > 0 ? (
           <img
@@ -77,38 +163,38 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
           <Badge variant="outline" className="mb-2 sm:mb-3 border-primary/50 text-primary bg-background/80 text-xs">
             {location.category || 'Jakarta'}
           </Badge>
-          <h3 className="font-display text-xl sm:text-2xl md:text-4xl lg:text-5xl text-foreground leading-tight">
+          <h3 className="font-display text-xl sm:text-2xl md:text-4xl text-foreground leading-tight">
             {location.name}
           </h3>
         </div>
       </div>
 
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
-        {/* Address & Contact - Stack on mobile */}
+        {/* Address & Contact */}
         <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
           {location.address && (
             <div className="flex items-start gap-2 sm:gap-3 text-muted-foreground text-sm sm:text-base">
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0 mt-0.5" />
-              <span className="line-clamp-2">{location.address}</span>
+              <span>{location.address}</span>
             </div>
           )}
           <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 text-sm">
             {location.phone && (
               <a href={`tel:${location.phone}`} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                 <Phone className="w-4 h-4" />
-                <span className="truncate">{location.phone}</span>
+                <span>{location.phone}</span>
               </a>
             )}
             {location.email && (
               <a href={`mailto:${location.email}`} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                 <Mail className="w-4 h-4" />
-                <span className="truncate">{location.email}</span>
+                <span>{location.email}</span>
               </a>
             )}
           </div>
         </div>
 
-        {/* Facilities - Smaller badges on mobile */}
+        {/* Facilities */}
         {location.facilities && location.facilities.length > 0 && (
           <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {location.facilities.map((facility, i) => (
@@ -119,7 +205,7 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
           </div>
         )}
 
-        {/* Gallery Grid - 3 columns on mobile, 4 on desktop */}
+        {/* Gallery Grid */}
         {images.length > 1 && (
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 sm:gap-2">
             {images.slice(0, 8).map((img, i) => (
@@ -303,7 +389,7 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
           </div>
         )}
 
-        {/* Action Buttons - Stack on mobile */}
+        {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border">
           <Button onClick={() => setBookingOpen(true)} className="btn-glow w-full sm:w-auto">
             Booking Venue
@@ -319,7 +405,7 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
         </div>
       </div>
 
-      {/* Booking Form Dialog - Full screen on mobile */}
+      {/* Booking Form Dialog */}
       <Dialog open={bookingOpen} onOpenChange={setBookingOpen}>
         <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] p-4 sm:p-6">
           <DialogHeader>
@@ -329,7 +415,7 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
             <BallroomBookingForm
               locationId={location.id}
               locationName={location.name}
-              onClose={() => setBookingOpen(false)}
+              onClose={() => { setBookingOpen(false); onClose(); }}
             />
           </ScrollArea>
         </DialogContent>
@@ -387,13 +473,13 @@ export function FullLocationsSection() {
           </motion.div>
 
           {isLoading ? (
-            <div className="space-y-6 sm:space-y-8 md:space-y-12">
-              {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-[300px] sm:h-[400px] md:h-[500px] rounded-xl sm:rounded-2xl" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {[...Array(6)].map((_, i) => (
+                <Skeleton key={i} className="h-[280px] sm:h-[320px] rounded-xl sm:rounded-2xl" />
               ))}
             </div>
           ) : (
-            <div className="space-y-8 sm:space-y-12 md:space-y-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {activeLocations.map((location, index) => (
                 <motion.div
                   key={location.id}
@@ -401,10 +487,10 @@ export function FullLocationsSection() {
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: index * 0.05 }}
                   className="scroll-mt-28 sm:scroll-mt-32"
                 >
-                  <LocationDetailCard 
+                  <LocationGridCard 
                     location={location} 
                     onOpenLightbox={setLightboxImage}
                   />
