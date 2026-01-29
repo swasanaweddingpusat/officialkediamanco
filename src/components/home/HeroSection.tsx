@@ -34,11 +34,18 @@ export function HeroSection() {
   };
 
   // Size classes for button
-  const buttonSizeMap = {
-    small: 'sm' as const,
-    medium: 'default' as const,
-    large: 'lg' as const,
+  const buttonSizeMap: Record<string, 'sm' | 'default' | 'lg'> = {
+    small: 'sm',
+    medium: 'default',
+    large: 'lg',
   };
+
+  // Button visibility and settings
+  const button1Visible = slide?.button_visible ?? true;
+  const button2Visible = slide?.button2_visible ?? true;
+  const button2Text = slide?.button2_text || 'View Special Offers';
+  const button2Link = slide?.button2_link || '#';
+  const button2Size = (slide?.button2_size as keyof typeof buttonSizeMap) || 'large';
 
   const currentTitleSize = (slide?.title_size as keyof typeof titleSizeClasses) || 'large';
   const currentButtonSize = (slide?.button_size as keyof typeof buttonSizeMap) || 'large';
@@ -95,13 +102,30 @@ export function HeroSection() {
               {slide?.description || 'Transform your body and mind with state-of-the-art equipment, expert trainers, and a motivating community.'}
             </p>
             <div className={`flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 ${buttonPositionClasses[currentPosition]}`}>
-              <Button size={buttonSizeMap[currentButtonSize]} className="btn-glow group w-full sm:w-auto">
-                {slide?.button_text || 'Start Your Journey'}
-                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button size={buttonSizeMap[currentButtonSize]} variant="outline" className="w-full sm:w-auto">
-                View Special Offers
-              </Button>
+              {button1Visible && (
+                <Button size={buttonSizeMap[currentButtonSize]} className="btn-glow group w-full sm:w-auto" asChild={!!slide?.button_link}>
+                  {slide?.button_link ? (
+                    <a href={slide.button_link}>
+                      {slide?.button_text || 'Start Your Journey'}
+                      <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                    </a>
+                  ) : (
+                    <>
+                      {slide?.button_text || 'Start Your Journey'}
+                      <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </Button>
+              )}
+              {button2Visible && (
+                <Button size={buttonSizeMap[button2Size]} variant="outline" className="w-full sm:w-auto" asChild={!!button2Link && button2Link !== '#'}>
+                  {button2Link && button2Link !== '#' ? (
+                    <a href={button2Link}>{button2Text}</a>
+                  ) : (
+                    <>{button2Text}</>
+                  )}
+                </Button>
+              )}
             </div>
           </motion.div>
         </AnimatePresence>
