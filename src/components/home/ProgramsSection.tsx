@@ -25,7 +25,7 @@ export function ProgramsSection() {
       }} className="flex flex-col md:flex-row md:items-end justify-between mb-16">
           <div>
             <h2 className="font-display text-4xl md:text-5xl mb-4">
-              OUR <span className="text-gradient">PROGRAMS</span>
+              OUR <span className="text-gradient text-primary">PROGRAMS</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl">Discover our best event venues in various cities</p>
           </div>
