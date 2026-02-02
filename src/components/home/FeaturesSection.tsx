@@ -52,7 +52,7 @@ export function FeaturesSection() {
                 <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:bg-primary transition-colors">
                   <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-primary group-hover:text-primary-foreground transition-colors" />
                 </div>
-                <h3 className="font-display text-base sm:text-lg md:text-2xl mb-1 sm:mb-2 md:mb-3 line-clamp-2">{feature.title}</h3>
+                <h3 className="font-display text-base sm:text-lg md:text-2xl mb-1 sm:mb-2 md:mb-3 line-clamp-2 text-secondary-foreground">{feature.title}</h3>
                 <p className="text-muted-foreground text-xs sm:text-sm md:text-base line-clamp-3">{feature.description}</p>
               </motion.div>;
         })}
