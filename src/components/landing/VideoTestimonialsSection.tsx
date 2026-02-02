@@ -4,9 +4,29 @@ import { useVideoTestimonials } from '@/hooks/useCMS';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 
+type VideoSourceType = 'upload' | 'youtube' | 'tiktok';
+
+const detectVideoSource = (url: string): VideoSourceType => {
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
+  if (url.includes('tiktok.com')) return 'tiktok';
+  return 'upload';
+};
+
+const getYouTubeId = (url: string): string | null => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+};
+
+const getTikTokId = (url: string): string | null => {
+  const regExp = /tiktok\.com\/@[^/]+\/video\/(\d+)/;
+  const match = url.match(regExp);
+  return match ? match[1] : null;
+};
+
 export function VideoTestimonialsSection() {
   const { data: testimonials, isLoading } = useVideoTestimonials();
-  const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const [activeVideo, setActiveVideo] = useState<{ url: string; type: VideoSourceType } | null>(null);
 
   if (isLoading) {
     return (
@@ -49,51 +69,62 @@ export function VideoTestimonialsSection() {
 
         {/* Video Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-          {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.id}
-              className="group relative aspect-[9/16] rounded-xl overflow-hidden cursor-pointer bg-card"
-              onClick={() => setActiveVideo(testimonial.video_url)}
-            >
-              {/* Thumbnail or Video Preview */}
-              {testimonial.thumbnail_url ? (
-                <img
-                  src={testimonial.thumbnail_url}
-                  alt={testimonial.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              ) : (
-                <video
-                  src={testimonial.video_url}
-                  className="w-full h-full object-cover"
-                  muted
-                  preload="metadata"
-                />
-              )}
+          {testimonials.map((testimonial) => {
+            const videoSource = detectVideoSource(testimonial.video_url);
+            const youtubeId = videoSource === 'youtube' ? getYouTubeId(testimonial.video_url) : null;
+            
+            return (
+              <div
+                key={testimonial.id}
+                className="group relative aspect-[9/16] rounded-xl overflow-hidden cursor-pointer bg-card"
+                onClick={() => setActiveVideo({ url: testimonial.video_url, type: videoSource })}
+              >
+                {/* Thumbnail or Video Preview */}
+                {testimonial.thumbnail_url ? (
+                  <img
+                    src={testimonial.thumbnail_url}
+                    alt={testimonial.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : videoSource === 'youtube' && youtubeId ? (
+                  <img
+                    src={`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`}
+                    alt={testimonial.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <video
+                    src={testimonial.video_url}
+                    className="w-full h-full object-cover"
+                    muted
+                    preload="metadata"
+                  />
+                )}
 
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-              {/* Play Button */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-primary/90 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <Play className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-primary-foreground ml-1" fill="currentColor" />
+                {/* Play Button */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-primary/90 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <Play className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-primary-foreground ml-1" fill="currentColor" />
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                  <p className="font-medium text-white text-sm sm:text-base truncate">
+                    {testimonial.name}
+                  </p>
+                  {testimonial.role && (
+                    <p className="text-white/70 text-xs sm:text-sm truncate">
+                      {testimonial.role}
+                    </p>
+                  )}
                 </div>
               </div>
-
-              {/* Info */}
-              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
-                <p className="font-medium text-white text-sm sm:text-base truncate">
-                  {testimonial.name}
-                </p>
-                {testimonial.role && (
-                  <p className="text-white/70 text-xs sm:text-sm truncate">
-                    {testimonial.role}
-                  </p>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -106,9 +137,24 @@ export function VideoTestimonialsSection() {
           >
             <X className="w-5 h-5 text-white" />
           </button>
-          {activeVideo && (
+          {activeVideo && activeVideo.type === 'youtube' && getYouTubeId(activeVideo.url) && (
+            <iframe
+              src={`https://www.youtube.com/embed/${getYouTubeId(activeVideo.url)}?autoplay=1`}
+              className="w-full aspect-video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          )}
+          {activeVideo && activeVideo.type === 'tiktok' && getTikTokId(activeVideo.url) && (
+            <iframe
+              src={`https://www.tiktok.com/embed/v2/${getTikTokId(activeVideo.url)}`}
+              className="w-full aspect-[9/16] max-h-[80vh]"
+              allowFullScreen
+            />
+          )}
+          {activeVideo && activeVideo.type === 'upload' && (
             <video
-              src={activeVideo}
+              src={activeVideo.url}
               className="w-full aspect-[9/16] max-h-[80vh] object-contain"
               controls
               autoPlay

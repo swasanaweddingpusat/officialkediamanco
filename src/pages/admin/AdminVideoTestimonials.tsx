@@ -8,9 +8,30 @@ import { ImageUpload } from '@/components/admin/ImageUpload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Play } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Play, Youtube, Video } from 'lucide-react';
 import { useAllVideoTestimonials, useCreateVideoTestimonial, useUpdateVideoTestimonial, useDeleteVideoTestimonial } from '@/hooks/useCMS';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+
+type VideoSourceType = 'upload' | 'youtube' | 'tiktok';
+
+const detectVideoSource = (url: string): VideoSourceType => {
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
+  if (url.includes('tiktok.com')) return 'tiktok';
+  return 'upload';
+};
+
+const getYouTubeId = (url: string): string | null => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+};
+
+const getTikTokId = (url: string): string | null => {
+  const regExp = /tiktok\.com\/@[^/]+\/video\/(\d+)/;
+  const match = url.match(regExp);
+  return match ? match[1] : null;
+};
 
 interface VideoTestimonial {
   id: string;
@@ -41,22 +62,43 @@ const AdminVideoTestimonials = () => {
     is_active: true,
     sort_order: 0,
   });
+  const [videoSource, setVideoSource] = useState<VideoSourceType>('upload');
 
   const columns = [
     {
       key: 'video_url' as keyof VideoTestimonial,
       label: 'Video',
-      render: (item: VideoTestimonial) => (
-        <div
-          className="w-16 h-24 bg-secondary rounded-lg overflow-hidden cursor-pointer relative group"
-          onClick={() => setPreviewVideo(item.video_url)}
-        >
-          <video src={item.video_url} className="w-full h-full object-cover" muted preload="metadata" />
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <Play className="w-6 h-6 text-white" fill="currentColor" />
+      render: (item: VideoTestimonial) => {
+        const source = detectVideoSource(item.video_url);
+        return (
+          <div
+            className="w-16 h-24 bg-secondary rounded-lg overflow-hidden cursor-pointer relative group"
+            onClick={() => setPreviewVideo(item.video_url)}
+          >
+            {source === 'youtube' ? (
+              <img 
+                src={`https://img.youtube.com/vi/${getYouTubeId(item.video_url)}/mqdefault.jpg`}
+                alt={item.name}
+                className="w-full h-full object-cover"
+              />
+            ) : source === 'tiktok' ? (
+              <div className="w-full h-full flex items-center justify-center bg-black">
+                <span className="text-white text-xs">TikTok</span>
+              </div>
+            ) : (
+              <video src={item.video_url} className="w-full h-full object-cover" muted preload="metadata" />
+            )}
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <Play className="w-6 h-6 text-white" fill="currentColor" />
+            </div>
+            {source !== 'upload' && (
+              <div className="absolute top-1 left-1">
+                <Youtube className="w-4 h-4 text-red-500" />
+              </div>
+            )}
           </div>
-        </div>
-      ),
+        );
+      },
     },
     { key: 'name' as keyof VideoTestimonial, label: 'Nama' },
     { key: 'role' as keyof VideoTestimonial, label: 'Role' },
@@ -82,6 +124,7 @@ const AdminVideoTestimonials = () => {
       is_active: true,
       sort_order: (testimonials?.length || 0) + 1,
     });
+    setVideoSource('upload');
     setIsFormOpen(true);
   };
 
@@ -95,6 +138,7 @@ const AdminVideoTestimonials = () => {
       is_active: item.is_active ?? true,
       sort_order: item.sort_order ?? 0,
     });
+    setVideoSource(detectVideoSource(item.video_url));
     setIsFormOpen(true);
   };
 
@@ -140,13 +184,70 @@ const AdminVideoTestimonials = () => {
       >
         <div className="space-y-4">
           <div>
-            <Label>Video *</Label>
-            <VideoUpload
-              value={formData.video_url}
-              onChange={(url) => setFormData({ ...formData, video_url: url })}
-              folder="video-testimonials"
-            />
+            <Label>Sumber Video *</Label>
+            <Select value={videoSource} onValueChange={(v: VideoSourceType) => {
+              setVideoSource(v);
+              setFormData({ ...formData, video_url: '' });
+            }}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="upload">
+                  <div className="flex items-center gap-2">
+                    <Video className="w-4 h-4" />
+                    Upload Video
+                  </div>
+                </SelectItem>
+                <SelectItem value="youtube">
+                  <div className="flex items-center gap-2">
+                    <Youtube className="w-4 h-4" />
+                    YouTube
+                  </div>
+                </SelectItem>
+                <SelectItem value="tiktok">
+                  <div className="flex items-center gap-2">
+                    <Video className="w-4 h-4" />
+                    TikTok
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
+          {videoSource === 'upload' ? (
+            <div>
+              <Label>Video *</Label>
+              <VideoUpload
+                value={formData.video_url}
+                onChange={(url) => setFormData({ ...formData, video_url: url })}
+                folder="video-testimonials"
+              />
+            </div>
+          ) : (
+            <div>
+              <Label htmlFor="video_url">
+                {videoSource === 'youtube' ? 'YouTube URL *' : 'TikTok URL *'}
+              </Label>
+              <Input
+                id="video_url"
+                value={formData.video_url}
+                onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                placeholder={videoSource === 'youtube' 
+                  ? 'https://www.youtube.com/watch?v=...' 
+                  : 'https://www.tiktok.com/@user/video/...'}
+              />
+              {formData.video_url && videoSource === 'youtube' && getYouTubeId(formData.video_url) && (
+                <div className="mt-2 rounded-lg overflow-hidden aspect-video">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${getYouTubeId(formData.video_url)}`}
+                    className="w-full h-full"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           <div>
             <Label>Thumbnail (Optional)</Label>
@@ -156,7 +257,9 @@ const AdminVideoTestimonials = () => {
               folder="video-testimonials"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Jika tidak diupload, frame pertama video akan digunakan
+              {videoSource === 'youtube' 
+                ? 'Jika tidak diupload, thumbnail YouTube akan digunakan'
+                : 'Jika tidak diupload, frame pertama video akan digunakan'}
             </p>
           </div>
 
