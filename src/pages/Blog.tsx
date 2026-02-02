@@ -68,7 +68,7 @@ const Blog = () => {
       <section className="py-16 bg-gradient-to-b from-primary/5 to-background">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="font-display text-4xl md:text-5xl mb-4 text-primary">
+            <h1 className="text-4xl md:text-5xl mb-4 text-primary font-serif font-bold">
               Blog & Artikel
             </h1>
             <p className="text-muted-foreground text-lg mb-8">
