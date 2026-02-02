@@ -1,7 +1,7 @@
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card } from '@/components/ui/card';
-import { useHeroSlides, useFeatures, usePrograms, useTrainers, useLocations, useArticles } from '@/hooks/useCMS';
-import { Image, Zap, Dumbbell, Users, MapPin, ArrowRight, FileText } from 'lucide-react';
+import { useHeroSlides, useFeatures, usePrograms, useTrainers, useLocations, useArticles, useAllVideoTestimonials } from '@/hooks/useCMS';
+import { Image, Zap, Dumbbell, Users, MapPin, ArrowRight, FileText, Video } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Admin = () => {
@@ -11,6 +11,7 @@ const Admin = () => {
   const { data: trainers } = useTrainers();
   const { data: locations } = useLocations();
   const { data: articles } = useArticles();
+  const { data: videoTestimonials } = useAllVideoTestimonials();
 
   const stats = [
     { name: 'Hero Slides', count: slides?.length || 0, icon: Image, href: '/admin/hero', color: 'bg-blue-500/10 text-blue-500' },
@@ -19,6 +20,7 @@ const Admin = () => {
     { name: 'Portfolio', count: trainers?.length || 0, icon: Users, href: '/admin/trainers', color: 'bg-purple-500/10 text-purple-500' },
     { name: 'Locations', count: locations?.length || 0, icon: MapPin, href: '/admin/locations', color: 'bg-red-500/10 text-red-500' },
     { name: 'Articles', count: articles?.length || 0, icon: FileText, href: '/admin/articles', color: 'bg-cyan-500/10 text-cyan-500' },
+    { name: 'Video Testimonials', count: videoTestimonials?.length || 0, icon: Video, href: '/admin/video-testimonials', color: 'bg-pink-500/10 text-pink-500' },
   ];
 
   return (

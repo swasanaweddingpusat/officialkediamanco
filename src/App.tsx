@@ -25,6 +25,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminBallroomSchedules from "./pages/admin/AdminBallroomSchedules";
 import AdminBallroomBookings from "./pages/admin/AdminBallroomBookings";
 import AdminArticles from "./pages/admin/AdminArticles";
+import AdminVideoTestimonials from "./pages/admin/AdminVideoTestimonials";
 import Blog from "./pages/Blog";
 import ArticleDetail from "./pages/ArticleDetail";
 import BookingTrack from "./pages/BookingTrack";
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/admin/locations" element={<AdminLocations />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/articles" element={<AdminArticles />} />
+              <Route path="/admin/video-testimonials" element={<AdminVideoTestimonials />} />
               <Route path="/admin/ballroom-schedules" element={<AdminBallroomSchedules />} />
               <Route path="/admin/ballroom-bookings" element={<AdminBallroomBookings />} />
               <Route path="*" element={<NotFound />} />
