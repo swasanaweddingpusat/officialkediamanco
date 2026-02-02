@@ -2,6 +2,91 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// Video Testimonials
+export function useVideoTestimonials() {
+  return useQuery({
+    queryKey: ['video-testimonials'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('video_testimonials')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useAllVideoTestimonials() {
+  return useQuery({
+    queryKey: ['video-testimonials-all'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('video_testimonials')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useCreateVideoTestimonial() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (testimonial: { 
+      name: string; 
+      role?: string; 
+      video_url: string; 
+      thumbnail_url?: string;
+      is_active?: boolean;
+      sort_order?: number;
+    }) => {
+      const { error } = await supabase.from('video_testimonials').insert(testimonial);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['video-testimonials'] });
+      queryClient.invalidateQueries({ queryKey: ['video-testimonials-all'] });
+      toast.success('Video testimonial created');
+    },
+    onError: () => toast.error('Failed to create video testimonial'),
+  });
+}
+
+export function useUpdateVideoTestimonial() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from('video_testimonials').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['video-testimonials'] });
+      queryClient.invalidateQueries({ queryKey: ['video-testimonials-all'] });
+      toast.success('Video testimonial updated');
+    },
+    onError: () => toast.error('Failed to update video testimonial'),
+  });
+}
+
+export function useDeleteVideoTestimonial() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('video_testimonials').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['video-testimonials'] });
+      queryClient.invalidateQueries({ queryKey: ['video-testimonials-all'] });
+      toast.success('Video testimonial deleted');
+    },
+    onError: () => toast.error('Failed to delete video testimonial'),
+  });
+}
+
 // Hero Slides
 export function useHeroSlides() {
   return useQuery({

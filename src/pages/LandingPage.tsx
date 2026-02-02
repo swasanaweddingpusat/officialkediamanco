@@ -5,6 +5,7 @@ import { FullLocationsSection } from '@/components/landing/FullLocationsSection'
 import { PortfolioSection } from '@/components/landing/PortfolioSection';
 import { BlogSection } from '@/components/landing/BlogSection';
 import { SpecialOffersSection } from '@/components/landing/SpecialOffersSection';
+import { VideoTestimonialsSection } from '@/components/landing/VideoTestimonialsSection';
 import { useSiteSettings } from '@/hooks/useCMS';
 
 const LandingPage = () => {
@@ -47,11 +48,14 @@ const LandingPage = () => {
         
         {/* 5. Special Offers Section */}
         <SpecialOffersSection />
+
+        {/* 6. Video Testimonials Section */}
+        <VideoTestimonialsSection />
         
-        {/* 6. Blog Section */}
+        {/* 7. Blog Section */}
         <BlogSection />
         
-        {/* 7. CTA Section */}
+        {/* 8. CTA Section */}
         <CTASection />
       </main>
 
