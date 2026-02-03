@@ -1,17 +1,24 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Dumbbell } from 'lucide-react';
+import { Dumbbell, Home, Gift, Briefcase, MapPin, FileText, LogIn, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useSiteSettings } from '@/hooks/useCMS';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 const navLinks = [
-  { name: 'Home', href: '/' },
-  { name: 'Special Offers', href: '/classes' },
-  { name: 'Our Portfolio', href: '/trainers' },
-  { name: 'Locations', href: '/locations' },
-  { name: 'Blog', href: '/blog' },
+  { name: 'Beranda', href: '/', icon: Home },
+  { name: 'Promo', href: '/classes', icon: Gift },
+  { name: 'Portfolio', href: '/trainers', icon: Briefcase },
+  { name: 'Lokasi', href: '/locations', icon: MapPin },
+  { name: 'Artikel', href: '/blog', icon: FileText },
 ];
 
 export function Navbar() {
@@ -83,61 +90,99 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile Menu - User Friendly Sheet */}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="px-4 py-3 text-base font-semibold gap-2"
+              >
+                <span className="text-lg">☰</span>
+                <span>Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
+              <SheetHeader className="pb-4 border-b border-border">
+                <SheetTitle className="text-center text-xl">
+                  {siteSettings?.site_name || 'Menu Navigasi'}
+                </SheetTitle>
+              </SheetHeader>
+              
+              <div className="flex flex-col gap-3 py-6 overflow-y-auto">
+                {navLinks.map((link) => {
+                  const IconComponent = link.icon;
+                  const isActive = location.pathname === link.href;
+                  
+                  return (
+                    <Link
+                      key={link.name}
+                      to={link.href}
+                      onClick={() => setIsOpen(false)}
+                      className={`flex items-center gap-4 p-5 rounded-2xl transition-all active:scale-[0.98] ${
+                        isActive 
+                          ? 'bg-primary text-primary-foreground shadow-lg' 
+                          : 'bg-secondary hover:bg-secondary/80'
+                      }`}
+                    >
+                      <div className={`p-3 rounded-xl ${isActive ? 'bg-primary-foreground/20' : 'bg-background'}`}>
+                        <IconComponent className="w-7 h-7" />
+                      </div>
+                      <span className="text-xl font-semibold">{link.name}</span>
+                    </Link>
+                  );
+                })}
+
+                <div className="border-t border-border my-4" />
+
+                {user ? (
+                  <>
+                    {isAdmin && (
+                      <Link 
+                        to="/admin" 
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-4 p-5 rounded-2xl bg-secondary hover:bg-secondary/80 transition-all active:scale-[0.98]"
+                      >
+                        <div className="p-3 rounded-xl bg-background">
+                          <Settings className="w-7 h-7" />
+                        </div>
+                        <span className="text-xl font-semibold">Admin Panel</span>
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => { signOut(); setIsOpen(false); }}
+                      className="flex items-center gap-4 p-5 rounded-2xl bg-destructive/10 hover:bg-destructive/20 text-destructive transition-all active:scale-[0.98] w-full text-left"
+                    >
+                      <div className="p-3 rounded-xl bg-destructive/20">
+                        <LogOut className="w-7 h-7" />
+                      </div>
+                      <span className="text-xl font-semibold">Keluar</span>
+                    </button>
+                  </>
+                ) : (
+                  <Link 
+                    to="/auth" 
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-4 p-5 rounded-2xl bg-primary text-primary-foreground shadow-lg transition-all active:scale-[0.98]"
+                  >
+                    <div className="p-3 rounded-xl bg-primary-foreground/20">
+                      <LogIn className="w-7 h-7" />
+                    </div>
+                    <span className="text-xl font-semibold">Masuk / Daftar</span>
+                  </Link>
+                )}
+              </div>
+
+              {/* Footer hint */}
+              <div className="absolute bottom-6 left-0 right-0 text-center">
+                <p className="text-muted-foreground text-sm">
+                  Geser ke bawah untuk menutup
+                </p>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-background border-b border-border"
-          >
-            <div className="container px-4 py-4 flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`py-2 font-medium ${
-                    location.pathname === link.href ? 'text-primary' : 'text-muted-foreground'
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
-              {user ? (
-                <>
-                  {isAdmin && (
-                    <Link to="/admin" onClick={() => setIsOpen(false)}>
-                      <Button variant="outline" className="w-full">
-                        Admin
-                      </Button>
-                    </Link>
-                  )}
-                  <Button variant="ghost" onClick={() => { signOut(); setIsOpen(false); }}>
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <Link to="/auth" onClick={() => setIsOpen(false)}>
-                  <Button className="w-full btn-glow">Join Now</Button>
-                </Link>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </nav>
   );
 }
