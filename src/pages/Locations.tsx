@@ -47,7 +47,7 @@ const Locations = () => {
           y: 0
         }} className="text-center">
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-4">
-              OUR <span className="text-gradient text-primary">LOCATIONS</span>
+              LOKASI <span className="text-gradient text-primary">KAMI</span>
             </h1>
           </motion.div>
 
@@ -94,7 +94,7 @@ const Locations = () => {
                 {/* Coming Soon */}
                 {comingSoonLocations.length > 0 && <>
                     <h2 className="font-display text-2xl sm:text-3xl text-center mb-6 md:mb-8">
-                      <span className="text-muted-foreground">COMING</span> SOON
+                      <span className="text-muted-foreground">SEGERA</span> HADIR
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                       {comingSoonLocations.map((location, index) => <LocationCard key={location.id} location={location} index={index} images={getImages(location)} expandedGallery={expandedGallery} expandedFacilities={expandedFacilities} onToggleGallery={toggleGallery} onToggleFacilities={toggleFacilities} onImageClick={setLightboxImage} isComingSoon />)}
@@ -103,7 +103,7 @@ const Locations = () => {
               </motion.div>
             </AnimatePresence> : <div className="text-center py-12 md:py-16">
               <p className="text-muted-foreground text-base sm:text-lg">
-                {selectedCategory === 'Semua' ? 'No locations available yet.' : `Tidak ada lokasi di ${selectedCategory}.`}
+                {selectedCategory === 'Semua' ? 'Belum ada lokasi tersedia.' : `Tidak ada lokasi di ${selectedCategory}.`}
               </p>
             </div>}
         </div>
@@ -190,12 +190,12 @@ const LocationCard = ({
           e.stopPropagation();
           window.open(location.google_maps_url!, '_blank');
         }} className="absolute top-3 right-3 sm:top-4 sm:right-4 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary text-primary-foreground font-semibold text-xs sm:text-sm rounded-full hover:bg-primary/90 transition-colors">
-              View in Maps
+              Lihat di Peta
             </span>}
 
           {/* Coming Soon Badge */}
           {isComingSoon && <div className="absolute top-3 right-3 sm:top-4 sm:right-4 px-3 py-1.5 sm:px-4 sm:py-2 bg-accent text-accent-foreground font-bold text-xs sm:text-sm rounded-full">
-              Coming Soon
+              Segera Hadir
             </div>}
         </div>
       </Link>
@@ -225,7 +225,7 @@ const LocationCard = ({
             <button onClick={() => onToggleGallery(location.id)} className="flex items-center justify-between w-full py-1.5 sm:py-2 text-left hover:text-primary transition-colors">
               <span className="font-semibold flex items-center gap-2 text-sm sm:text-base">
                 <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                Gallery
+                Galeri
               </span>
               <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${isGalleryExpanded ? 'rotate-180' : ''}`} />
             </button>
@@ -252,7 +252,7 @@ const LocationCard = ({
         {/* Facilities Toggle */}
         {location.facilities && location.facilities.length > 0 && <div className="border-t border-border pt-2 sm:pt-3">
             <button onClick={() => onToggleFacilities(location.id)} className="flex items-center justify-between w-full py-1.5 sm:py-2 text-left hover:text-primary transition-colors">
-              <span className="font-semibold text-sm sm:text-base">Facilities</span>
+              <span className="font-semibold text-sm sm:text-base">Fasilitas</span>
               <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${isFacilitiesExpanded ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>

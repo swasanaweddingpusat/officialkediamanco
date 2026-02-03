@@ -33,26 +33,26 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-display text-xl mb-4">Quick Links</h4>
+            <h4 className="font-display text-xl mb-4">Tautan Cepat</h4>
             <ul className="space-y-2">
               <li>
                 <Link to="/classes" className="text-muted-foreground hover:text-primary transition-colors">
-                  Special Offers
+                  Promo Spesial
                 </Link>
               </li>
               <li>
                 <Link to="/trainers" className="text-muted-foreground hover:text-primary transition-colors">
-                  Our Portfolio
+                  Portfolio Kami
                 </Link>
               </li>
               <li>
                 <Link to="/locations" className="text-muted-foreground hover:text-primary transition-colors">
-                  Locations
+                  Lokasi
                 </Link>
               </li>
               <li>
                 <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors">
-                  Blog
+                  Artikel
                 </Link>
               </li>
               <li>
@@ -65,7 +65,7 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="font-display text-xl mb-4">Contact Us</h4>
+            <h4 className="font-display text-xl mb-4">Hubungi Kami</h4>
             <ul className="space-y-3">
               {settings?.phone && (
                 <li className="flex items-center gap-2 text-muted-foreground">
@@ -90,7 +90,7 @@ export function Footer() {
 
           {/* Social */}
           <div>
-            <h4 className="font-display text-xl mb-4">Follow Us</h4>
+            <h4 className="font-display text-xl mb-4">Ikuti Kami</h4>
             <div className="flex flex-wrap gap-3">
               {settings?.instagram_link && (
                 <a
@@ -155,7 +155,7 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t border-border text-center text-muted-foreground">
           <p>
-            © {new Date().getFullYear()} {settings?.site_name || "Power Gym"}. All rights reserved.
+            © {new Date().getFullYear()} {settings?.site_name || "Kediaman"}. Hak Cipta Dilindungi.
           </p>
         </div>
       </div>

@@ -43,8 +43,8 @@ export function HeroSection() {
   // Button visibility and settings
   const button1Visible = slide?.button_visible ?? true;
   const button2Visible = slide?.button2_visible ?? true;
-  const button2Text = slide?.button2_text || 'View Special Offers';
-  const button2Link = slide?.button2_link || '#';
+  const button2Text = slide?.button2_text || 'Lihat Promo';
+  const button2Link = slide?.button2_link || '/classes';
   const button2Size = (slide?.button2_size as keyof typeof buttonSizeMap) || 'large';
 
   const currentTitleSize = (slide?.title_size as keyof typeof titleSizeClasses) || 'large';
@@ -94,24 +94,24 @@ export function HeroSection() {
             className={`max-w-2xl ${currentPosition === 'center' ? 'mx-auto' : ''}`}
           >
             <h1 className={`font-display ${titleSizeClasses[currentTitleSize]} leading-none mb-4 sm:mb-6`}>
-              <span className="text-gradient">{slide?.title || 'GET STRONG'}</span>
+              <span className="text-gradient">{slide?.title || 'VENUE IMPIAN'}</span>
               <br />
-              <span className="text-foreground">{slide?.subtitle || 'GET REWARDS'}</span>
+              <span className="text-foreground">{slide?.subtitle || 'UNTUK ACARA ANDA'}</span>
             </h1>
             <p className={`text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground mb-6 sm:mb-8 ${currentPosition === 'center' ? 'mx-auto' : ''} max-w-lg`}>
-              {slide?.description || 'Transform your body and mind with state-of-the-art equipment, expert trainers, and a motivating community.'}
+              {slide?.description || 'Wujudkan acara impian Anda bersama venue premium kami dengan fasilitas terlengkap dan pelayanan terbaik.'}
             </p>
             <div className={`flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 ${buttonPositionClasses[currentPosition]}`}>
               {button1Visible && (
                 <Button size={buttonSizeMap[currentButtonSize]} className="btn-glow group w-full sm:w-auto" asChild={!!slide?.button_link}>
                   {slide?.button_link ? (
                     <a href={slide.button_link}>
-                      {slide?.button_text || 'Start Your Journey'}
+                      {slide?.button_text || 'Mulai Sekarang'}
                       <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                     </a>
                   ) : (
                     <>
-                      {slide?.button_text || 'Start Your Journey'}
+                      {slide?.button_text || 'Mulai Sekarang'}
                       <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}

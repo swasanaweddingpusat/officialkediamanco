@@ -12,8 +12,8 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 const authSchema = z.object({
-  email: z.string().email('Please enter a valid email'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email('Masukkan email yang valid'),
+  password: z.string().min(6, 'Password minimal 6 karakter'),
 });
 
 const Auth = () => {
@@ -48,24 +48,24 @@ const Auth = () => {
         if (error) {
           toast.error(error.message);
         } else {
-          toast.success('Welcome back!');
+          toast.success('Selamat datang kembali!');
           navigate('/');
         }
       } else {
         const { error } = await signUp(email, password);
         if (error) {
           if (error.message.includes('already registered')) {
-            toast.error('This email is already registered. Please sign in instead.');
+            toast.error('Email sudah terdaftar. Silakan masuk.');
           } else {
             toast.error(error.message);
           }
         } else {
-          toast.success('Account created successfully!');
+          toast.success('Akun berhasil dibuat!');
           navigate('/');
         }
       }
     } catch (error) {
-      toast.error('An unexpected error occurred');
+      toast.error('Terjadi kesalahan. Silakan coba lagi.');
     } finally {
       setLoading(false);
     }
@@ -98,19 +98,19 @@ const Auth = () => {
                     <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
                   </div>
                   <span className="font-display text-xl sm:text-2xl tracking-wider">
-                    {siteSettings?.site_name || 'POWER GYM'}
+                    {siteSettings?.site_name || 'KEDIAMAN'}
                   </span>
                 </>
               )}
             </Link>
 
             <h1 className="font-display text-3xl sm:text-4xl mb-2">
-              {isLogin ? 'WELCOME BACK' : 'JOIN US'}
+              {isLogin ? 'SELAMAT DATANG' : 'DAFTAR SEKARANG'}
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base mb-6 sm:mb-8">
               {isLogin
-                ? 'Sign in to access your account'
-                : 'Create an account to start your fitness journey'}
+                ? 'Masuk ke akun Anda untuk melanjutkan'
+                : 'Buat akun untuk memulai perjalanan Anda'}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
@@ -131,7 +131,7 @@ const Auth = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Kata Sandi</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                   <Input
@@ -147,19 +147,19 @@ const Auth = () => {
               </div>
 
               <Button type="submit" className="w-full btn-glow" disabled={loading}>
-                {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
+                {loading ? 'Mohon tunggu...' : isLogin ? 'Masuk' : 'Buat Akun'}
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </form>
 
             <p className="text-center mt-4 sm:mt-6 text-sm sm:text-base text-muted-foreground">
-              {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
+              {isLogin ? "Belum punya akun?" : 'Sudah punya akun?'}{' '}
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-primary hover:underline font-medium"
               >
-                {isLogin ? 'Sign up' : 'Sign in'}
+                {isLogin ? 'Daftar' : 'Masuk'}
               </button>
             </p>
           </motion.div>

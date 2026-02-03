@@ -32,7 +32,7 @@ export function BlogSection() {
           </div>
           <Link to="/blog">
             <Button variant="outline" size="sm" className="w-full sm:w-auto">
-              View All Articles
+              Lihat Semua Artikel
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </Link>
