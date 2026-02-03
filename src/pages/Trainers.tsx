@@ -56,10 +56,10 @@ const Trainers = () => {
           y: 0
         }} className="text-center">
             <h1 className="font-display text-5xl md:text-7xl mb-4">
-              OUR <span className="text-gradient text-primary">PORTFOLIO</span>
+              PORTFOLIO <span className="text-gradient text-primary">KAMI</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Find inspiration from several events that have been held
+              Temukan inspirasi dari berbagai acara yang telah kami selenggarakan
             </p>
           </motion.div>
         </div>
@@ -196,7 +196,7 @@ const Trainers = () => {
                     Reset Filter
                   </Button>
                 </div> : <p className="text-muted-foreground text-lg">
-                  There are no events held yet.
+                  Belum ada event yang diselenggarakan.
                 </p>}
             </div>}
         </div>

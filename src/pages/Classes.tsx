@@ -30,10 +30,10 @@ const Classes = () => {
           y: 0
         }} className="text-center">
             <h1 className="font-display text-5xl md:text-7xl mb-4">
-              <span className="text-gradient text-primary">SPECIAL OFFERS</span>
+              <span className="text-gradient text-primary">PROMO SPESIAL</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Discover our exclusive packages and promotions designed for you
+              Temukan paket dan promosi eksklusif yang dirancang khusus untuk Anda
             </p>
           </motion.div>
         </div>
@@ -44,7 +44,7 @@ const Classes = () => {
           <div className="container mx-auto px-4">
             <div className="flex flex-wrap justify-center gap-4">
               <button onClick={() => setSelectedCategory(null)} className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === null ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-primary hover:text-primary-foreground'}`}>
-                All
+                Semua
               </button>
               {categories.map(category => <button key={category} onClick={() => setSelectedCategory(category as string)} className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === category ? 'bg-primary text-primary-foreground' : 'bg-secondary hover:bg-primary hover:text-primary-foreground'}`}>
                   {category}

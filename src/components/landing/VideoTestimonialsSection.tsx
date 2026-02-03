@@ -57,7 +57,7 @@ export function VideoTestimonialsSection() {
         <div className="text-center mb-8 sm:mb-12">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
             <Quote className="w-3 h-3 sm:w-4 sm:h-4" />
-            Testimonials
+            Testimoni
           </div>
           <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl mb-2 sm:mb-3">
             Apa Kata Mereka

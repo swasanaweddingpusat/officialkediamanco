@@ -30,9 +30,9 @@ export function FeaturesSection() {
         once: true
       }} className="text-center mb-8 sm:mb-12 md:mb-16">
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl mb-2 sm:mb-4">
-            WHY <span className="text-gradient text-primary">KEDIAMAN</span>?
+            MENGAPA <span className="text-gradient text-primary">KEDIAMAN</span>?
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-4">Everything you need to achieve your event goals is in one place</p>
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-4">Semua yang Anda butuhkan untuk acara sempurna ada di satu tempat</p>
         </motion.div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-8">

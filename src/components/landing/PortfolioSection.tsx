@@ -22,15 +22,15 @@ export function PortfolioSection() {
         >
           <div className="mb-4 md:mb-0">
             <h2 className="font-display text-3xl sm:text-4xl md:text-5xl mb-2 sm:mb-4">
-              OUR <span className="text-gradient">PORTFOLIO</span>
+              PORTFOLIO <span className="text-gradient">KAMI</span>
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-              Find inspiration from several events that have been held
+              Temukan inspirasi dari berbagai acara yang telah kami selenggarakan
             </p>
           </div>
           <Link to="/trainers">
             <Button variant="outline" size="sm" className="w-full sm:w-auto">
-              View All Portfolio
+              Lihat Semua Portfolio
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </Link>

@@ -15,7 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          "Source Sans Pro",
+          "Plus Jakarta Sans",
           "ui-sans-serif",
           "system-ui",
           "-apple-system",
@@ -28,19 +28,14 @@ export default {
           "sans-serif",
         ],
         display: [
-          "Bebas Neue",
+          "Space Grotesk",
+          "Plus Jakarta Sans",
+          "ui-sans-serif",
+          "system-ui",
           "sans-serif",
-          "Source Serif Pro",
-          "ui-serif",
-          "Georgia",
-          "Cambria",
-          "Times New Roman",
-          "Times",
-          "serif",
         ],
-        serif: ["Source Serif Pro", "ui-serif", "Georgia", "Cambria", "Times New Roman", "Times", "serif"],
+        serif: ["Plus Jakarta Sans", "ui-serif", "Georgia", "Cambria", "Times New Roman", "Times", "serif"],
         mono: [
-          "Source Code Pro",
           "ui-monospace",
           "SFMono-Regular",
           "Menlo",

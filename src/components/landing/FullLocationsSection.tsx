@@ -306,13 +306,13 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
         {/* Action Buttons - Stack on mobile */}
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border">
           <Button onClick={() => setBookingOpen(true)} className="btn-glow w-full sm:w-auto">
-            Booking Venue
+            Pesan Venue
           </Button>
           {location.google_maps_url && (
             <Button variant="outline" className="w-full sm:w-auto" asChild>
               <a href={location.google_maps_url} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-4 h-4 mr-2" />
-                View in Maps
+                Lihat di Peta
               </a>
             </Button>
           )}
@@ -379,7 +379,7 @@ export function FullLocationsSection() {
             className="text-center mb-8 sm:mb-12 md:mb-16"
           >
             <h2 className="font-display text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4">
-              OUR <span className="text-gradient">LOCATIONS</span>
+              LOKASI <span className="text-gradient">KAMI</span>
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl mx-auto px-4">
               Temukan venue terbaik kami di berbagai lokasi strategis
