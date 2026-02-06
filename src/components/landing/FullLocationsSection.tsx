@@ -58,14 +58,14 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
   };
 
   return (
-    <div className="bg-card rounded-xl sm:rounded-2xl border border-border overflow-hidden">
+    <div className="card-luxury rounded-xl overflow-hidden">
       {/* Hero Image - Responsive aspect ratio */}
       <div className="relative aspect-[16/9] sm:aspect-[21/9] overflow-hidden">
         {images.length > 0 ? (
           <img
             src={images[0]}
             alt={location.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full bg-muted flex items-center justify-center">
@@ -74,10 +74,10 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
-          <Badge variant="outline" className="mb-2 sm:mb-3 border-primary/50 text-primary bg-background/80 text-xs">
+          <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-sm rounded-full mb-3 tracking-wider">
             {location.category || 'Jakarta'}
-          </Badge>
-          <h3 className="font-display text-xl sm:text-2xl md:text-4xl lg:text-5xl text-foreground leading-tight">
+          </span>
+          <h3 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-foreground leading-tight tracking-wide">
             {location.name}
           </h3>
         </div>
@@ -352,15 +352,15 @@ export function FullLocationsSection() {
   return (
     <>
       {/* Location Navigation - Scrollable on mobile */}
-      <nav className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b border-border py-2 sm:py-4">
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
-            <span className="text-xs sm:text-sm text-muted-foreground font-medium whitespace-nowrap mr-1 sm:mr-2">Lokasi:</span>
+      <nav className="sticky top-20 z-40 bg-background/95 backdrop-blur-md border-b border-border/50 py-3 sm:py-4">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            <span className="text-sm text-muted-foreground tracking-wider whitespace-nowrap">Lokasi:</span>
             {activeLocations.map((location) => (
               <a
                 key={location.id}
                 href={`#location-${getLocationSlug(location.name)}`}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium bg-secondary hover:bg-primary hover:text-primary-foreground transition-colors whitespace-nowrap flex-shrink-0"
+                className="px-4 py-2 rounded-full text-sm tracking-wide border border-border/50 hover:border-primary hover:bg-primary/10 transition-all whitespace-nowrap flex-shrink-0"
               >
                 {location.name}
               </a>
@@ -370,24 +370,23 @@ export function FullLocationsSection() {
       </nav>
 
       {/* Locations */}
-      <section className="py-8 sm:py-12 md:py-16">
-        <div className="container mx-auto px-3 sm:px-4">
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-12 md:mb-16"
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
           >
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4">
-              LOKASI <span className="text-gradient">KAMI</span>
+            <p className="font-script text-3xl md:text-4xl text-primary mb-4">Temukan Venue Impian</p>
+            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide">
+              Lokasi <span className="text-gradient italic">Kami</span>
             </h2>
-            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl mx-auto px-4">
-              Temukan venue terbaik kami di berbagai lokasi strategis
-            </p>
           </motion.div>
 
           {isLoading ? (
-            <div className="space-y-6 sm:space-y-8 md:space-y-12">
+            <div className="space-y-8 md:space-y-12">
               {[...Array(3)].map((_, i) => (
                 <Skeleton key={i} className="h-[300px] sm:h-[400px] md:h-[500px] rounded-xl sm:rounded-2xl" />
               ))}

@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
-import { Dumbbell, Users, Clock, Zap, Shield, Award, Heart, Target, Gem, Building2 } from 'lucide-react';
+import { Dumbbell, Users, Clock, Zap, Shield, Award, Heart, Target, Gem, Building2, Star, Sparkles } from 'lucide-react';
 import { useFeatures } from '@/hooks/useCMS';
+import { Skeleton } from '@/components/ui/skeleton';
+
 const iconMap: Record<string, React.ElementType> = {
   Dumbbell,
   Users,
@@ -11,52 +13,76 @@ const iconMap: Record<string, React.ElementType> = {
   Heart,
   Target,
   Gem,
-  Building2
+  Building2,
+  Star,
+  Sparkles,
+  dumbbell: Dumbbell,
+  trophy: Award,
+  users: Users,
+  clock: Clock,
+  flame: Zap,
+  target: Target,
+  heart: Heart,
+  zap: Zap,
+  shield: Shield,
+  star: Star,
+  award: Award,
+  sparkles: Sparkles,
 };
+
 export function FeaturesSection() {
-  const {
-    data: features
-  } = useFeatures();
-  const activeFeatures = features?.filter(f => f.is_active) || [];
-  return <section className="py-12 sm:py-16 md:py-24 bg-card">
-      <div className="container mx-auto px-3 sm:px-4">
-        <motion.div initial={{
-        opacity: 0,
-        y: 20
-      }} whileInView={{
-        opacity: 1,
-        y: 0
-      }} viewport={{
-        once: true
-      }} className="text-center mb-8 sm:mb-12 md:mb-16">
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl mb-2 sm:mb-4">
-            MENGAPA <span className="text-gradient text-primary">KEDIAMAN</span>?
+  const { data: features, isLoading } = useFeatures();
+  const activeFeatures = features?.filter(f => f.is_active)?.slice(0, 6) || [];
+
+  return (
+    <section className="py-24 md:py-32 bg-background relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16 md:mb-20"
+        >
+          <p className="font-script text-3xl md:text-4xl text-primary mb-4">Mengapa Memilih Kami</p>
+          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide">
+            Keunggulan <span className="text-gradient italic">Kami</span>
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-4">Semua yang Anda butuhkan untuk acara sempurna ada di satu tempat</p>
         </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-8">
-          {activeFeatures.map((feature, index) => {
-          const IconComponent = iconMap[feature.icon || 'Dumbbell'] || Dumbbell;
-          return <motion.div key={feature.id} initial={{
-            opacity: 0,
-            y: 30
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} viewport={{
-            once: true
-          }} transition={{
-            delay: index * 0.1
-          }} className="group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl card-gradient border border-border hover:border-primary/50 transition-all">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:bg-primary transition-colors">
-                  <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-primary group-hover:text-primary-foreground transition-colors" />
-                </div>
-                <h3 className="font-display text-base sm:text-lg md:text-2xl mb-1 sm:mb-2 md:mb-3 line-clamp-2 text-secondary-foreground">{feature.title}</h3>
-                <p className="text-muted-foreground text-xs sm:text-sm md:text-base line-clamp-3">{feature.description}</p>
-              </motion.div>;
-        })}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-64 rounded-xl" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {activeFeatures.map((feature, index) => {
+              const IconComponent = iconMap[feature.icon || 'Star'] || Star;
+              return (
+                <motion.div
+                  key={feature.id}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  className="card-luxury p-8 rounded-xl group"
+                >
+                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
+                    <IconComponent className="w-7 h-7 text-primary" />
+                  </div>
+                  <h3 className="font-display text-2xl mb-4 tracking-wide">{feature.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed text-lg">{feature.description}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </div>
-    </section>;
+    </section>
+  );
 }
