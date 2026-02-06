@@ -1,242 +1,240 @@
-import { useState } from 'react';
-import { Play, X, Quote } from 'lucide-react';
-import { useVideoTestimonials } from '@/hooks/useCMS';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useCallback } from 'react';
+import { Upload, X, Video, Loader2, Link as LinkIcon } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-type VideoSourceType = 'upload' | 'youtube' | 'tiktok';
+interface VideoUploadProps {
+  value?: string;
+  onChange: (url: string) => void;
+  folder?: string;
+  className?: string;
+}
 
-const detectVideoSource = (url: string): VideoSourceType => {
-  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
-  if (url.includes('tiktok.com')) return 'tiktok';
-  return 'upload';
-};
+export function VideoUpload({ value, onChange, folder = 'videos', className }: VideoUploadProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [urlInput, setUrlInput] = useState('');
+  const [showUrlInput, setShowUrlInput] = useState(false);
 
-const getYouTubeId = (url: string): string | null => {
-  try {
-    // Handle various YouTube URL formats
-    const patterns = [
-      /(?:youtube\.com\/shorts\/)([^&\n?#]+)/,           // YouTube Shorts
-      /(?:youtube\.com\/watch\?v=)([^&\n?#]+)/,          // Standard YouTube
-      /(?:youtu\.be\/)([^&\n?#]+)/,                       // YouTube short link
-      /(?:youtube\.com\/embed\/)([^&\n?#]+)/,            // Embedded
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/  // Fallback
-    ];
-    
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match) {
-        const id = match[1] || match[2];
-        if (id && id.length === 11) {
-          return id;
-        }
-      }
+  const isValidUrl = (url: string): boolean => {
+    try {
+      const urlObj = new URL(url);
+      return (
+        urlObj.hostname.includes('youtube.com') ||
+        urlObj.hostname.includes('youtu.be') ||
+        urlObj.hostname.includes('tiktok.com')
+      );
+    } catch {
+      return false;
     }
-    return null;
-  } catch (error) {
-    console.error('Error extracting YouTube ID:', error);
-    return null;
-  }
-};
+  };
 
-const getTikTokId = (url: string): string | null => {
-  const regExp = /tiktok\.com\/@[^/]+\/video\/(\d+)/;
-  const match = url.match(regExp);
-  return match ? match[1] : null;
-};
+  const handleUrlSubmit = () => {
+    if (!urlInput.trim()) {
+      toast.error('Please enter a valid URL');
+      return;
+    }
 
-export function VideoTestimonialsSection() {
-  const { data: testimonials, isLoading } = useVideoTestimonials();
-  const [activeVideo, setActiveVideo] = useState<{ url: string; type: VideoSourceType } | null>(null);
+    if (!isValidUrl(urlInput)) {
+      toast.error('Only YouTube and TikTok URLs are supported');
+      return;
+    }
 
-  if (isLoading) {
-    return (
-      <section className="py-12 sm:py-16 lg:py-20 bg-secondary/30">
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <Skeleton className="h-8 w-48 mx-auto mb-3" />
-            <Skeleton className="h-4 w-64 mx-auto" />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="aspect-[9/16] rounded-xl" />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
+    onChange(urlInput.trim());
+    setUrlInput('');
+    setShowUrlInput(false);
+    toast.success('Video URL added successfully');
+  };
 
-  if (!testimonials || testimonials.length === 0) {
-    return null;
-  }
+  const uploadFile = async (file: File) => {
+    if (!file.type.startsWith('video/')) {
+      toast.error('Please upload a video file');
+      return;
+    }
+
+    if (file.size > 100 * 1024 * 1024) {
+      toast.error('Video must be less than 100MB');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('gym-images')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('gym-images')
+        .getPublicUrl(fileName);
+
+      onChange(publicUrl);
+      toast.success('Video uploaded successfully');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload video');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files[0];
+    if (file) uploadFile(file);
+  }, [folder]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadFile(file);
+  };
+
+  const handleRemove = () => {
+    onChange('');
+  };
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-secondary/30">
-      <div className="container mx-auto px-3 sm:px-4">
-        {/* Header */}
-        <div className="text-center mb-8 sm:mb-12">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
-            <Quote className="w-3 h-3 sm:w-4 sm:h-4" />
-            Testimoni
-          </div>
-          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl mb-2 sm:mb-3 font-bold">
-            Apa Kata Mereka
-          </h2>
-          <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
-            Dengarkan pengalaman langsung dari klien kami
-          </p>
-        </div>
-
-        {/* Video Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-          {testimonials.map((testimonial) => {
-            const videoSource = detectVideoSource(testimonial.video_url);
-            const youtubeId = videoSource === 'youtube' ? getYouTubeId(testimonial.video_url) : null;
-            
-            return (
-              <div
-                key={testimonial.id}
-                className="group relative aspect-[9/16] rounded-xl overflow-hidden cursor-pointer bg-card"
-                onClick={() => setActiveVideo({ url: testimonial.video_url, type: videoSource })}
-              >
-                {/* Thumbnail or Video Preview */}
-                {testimonial.thumbnail_url ? (
-                  <img
-                    src={testimonial.thumbnail_url}
-                    alt={testimonial.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                ) : videoSource === 'youtube' && youtubeId ? (
-                  <img
-                    src={`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`}
-                    alt={testimonial.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                ) : (
-                  <video
-                    src={testimonial.video_url}
-                    className="w-full h-full object-cover"
-                    muted
-                    preload="metadata"
-                  />
-                )}
-
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-
-                {/* Play Button */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-primary/90 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                    <Play className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-primary-foreground ml-1" fill="currentColor" />
-                  </div>
-                </div>
-
-                {/* Info */}
-                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
-                  <p className="font-medium text-white text-sm sm:text-base truncate">
-                    {testimonial.name}
-                  </p>
-                  {testimonial.role && (
-                    <p className="text-white/70 text-xs sm:text-sm truncate">
-                      {testimonial.role}
-                    </p>
-                  )}
-                </div>
+    <div className={cn("space-y-2", className)}>
+      {value ? (
+        <div className="relative group">
+          {value.includes('youtube.com') || value.includes('youtu.be') ? (
+            <div className="w-full h-48 bg-gray-900 rounded-lg border border-border flex items-center justify-center">
+              <div className="text-center">
+                <LinkIcon className="w-8 h-8 text-primary mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground truncate max-w-xs px-4">{value}</p>
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Video Modal */}
-      {activeVideo && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4">
-          {/* Close Button */}
+            </div>
+          ) : value.includes('tiktok.com') ? (
+            <div className="w-full h-48 bg-gray-900 rounded-lg border border-border flex items-center justify-center">
+              <div className="text-center">
+                <LinkIcon className="w-8 h-8 text-primary mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground truncate max-w-xs px-4">{value}</p>
+              </div>
+            </div>
+          ) : (
+            <video
+              src={value}
+              className="w-full h-48 object-cover rounded-lg border border-border"
+              controls
+            />
+          )}
           <button
-            onClick={() => setActiveVideo(null)}
-            className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors z-[10000]"
+            type="button"
+            onClick={handleRemove}
+            className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
           >
-            <X className="w-6 h-6 text-white" />
+            <X className="w-4 h-4" />
           </button>
-
-          {/* Video Container */}
-          <div className="relative w-full max-w-5xl">
-            {/* YouTube */}
-            {activeVideo.type === 'youtube' && (
-              (() => {
-                const youtubeId = getYouTubeId(activeVideo.url);
-                if (youtubeId) {
-                  return (
-                    <div className="w-full aspect-video rounded-lg overflow-hidden">
-                      <iframe
-                        key={`youtube-${youtubeId}`}
-                        src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                        allowFullScreen
-                        title="YouTube Video"
-                      />
-                    </div>
-                  );
-                }
-                return (
-                  <div className="w-full aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="text-white mb-2">Video tidak dapat dimuat</p>
-                      <p className="text-white/60 text-sm">URL: {activeVideo.url}</p>
-                    </div>
-                  </div>
-                );
-              })()
-            )}
-
-            {/* TikTok */}
-            {activeVideo.type === 'tiktok' && (
-              (() => {
-                const tikTokId = getTikTokId(activeVideo.url);
-                if (tikTokId) {
-                  return (
-                    <div className="w-full max-h-[80vh] flex items-center justify-center rounded-lg overflow-hidden">
-                      <iframe
-                        key={`tiktok-${tikTokId}`}
-                        src={`https://www.tiktok.com/embed/v2/${tikTokId}`}
-                        className="w-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                        allowFullScreen
-                        title="TikTok Video"
-                        style={{ maxHeight: '80vh' }}
-                      />
-                    </div>
-                  );
-                }
-                return (
-                  <div className="w-full aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="text-white mb-2">Video tidak dapat dimuat</p>
-                      <p className="text-white/60 text-sm">URL: {activeVideo.url}</p>
-                    </div>
-                  </div>
-                );
-              })()
-            )}
-
-            {/* Upload Video */}
-            {activeVideo.type === 'upload' && (
-              <div className="w-full aspect-video bg-black rounded-lg overflow-hidden">
-                <video
-                  key={`upload-${activeVideo.url}`}
-                  src={activeVideo.url}
-                  className="w-full h-full object-contain"
-                  controls
-                  autoPlay
-                  playsInline
-                  controlsList="nodownload"
-                />
-              </div>
-            )}
+        </div>
+      ) : showUrlInput ? (
+        <div className="space-y-2 p-4 border border-border rounded-lg bg-secondary/30">
+          <label className="text-sm font-medium">Enter Video URL</label>
+          <input
+            type="text"
+            placeholder="Paste YouTube or TikTok URL (e.g., https://youtu.be/... or https://www.tiktok.com/@.../video/...)"
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleUrlSubmit()}
+            className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleUrlSubmit}
+              className="flex-1 px-3 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90"
+            >
+              Add URL
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowUrlInput(false);
+                setUrlInput('');
+              }}
+              className="flex-1 px-3 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/80"
+            >
+              Cancel
+            </button>
           </div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <div
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            className={cn(
+              "relative border-2 border-dashed rounded-lg p-8 transition-colors cursor-pointer",
+              isDragging
+                ? "border-primary bg-primary/5"
+                : "border-border hover:border-primary/50",
+              isUploading && "pointer-events-none opacity-50"
+            )}
+          >
+            <input
+              type="file"
+              accept="video/*"
+              onChange={handleFileSelect}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              disabled={isUploading}
+            />
+            <div className="flex flex-col items-center justify-center text-center">
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-10 h-10 text-primary animate-spin mb-3" />
+                  <p className="text-sm text-muted-foreground">Uploading...</p>
+                </>
+              ) : (
+                <>
+                  <div className="p-3 bg-primary/10 rounded-full mb-3">
+                    {isDragging ? (
+                      <Video className="w-6 h-6 text-primary" />
+                    ) : (
+                      <Upload className="w-6 h-6 text-primary" />
+                    )}
+                  </div>
+                  <p className="text-sm font-medium mb-1">
+                    {isDragging ? 'Drop video here' : 'Drag & drop video'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    or click to browse (max 100MB)
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowUrlInput(true)}
+            className="w-full px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-secondary/50 transition-colors flex items-center justify-center gap-2"
+          >
+            <LinkIcon className="w-4 h-4" />
+            Add YouTube or TikTok URL
+          </button>
         </div>
       )}
-    </section>
+    </div>
   );
 }
