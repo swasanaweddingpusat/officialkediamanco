@@ -36,7 +36,7 @@ export const LocationPortfolioSection = ({
           <div className="p-2.5 bg-primary/10 rounded-xl">
             <Images className="w-5 h-5 text-primary" />
           </div>
-          <h2 className="font-display text-2xl">Our Portfolio</h2>
+          <h2 className="font-serif text-2xl font-bold">Our Portfolio</h2>
         </div>
         <Link to="/trainers">
           <Button variant="ghost" size="sm" className="gap-2">
@@ -66,14 +66,14 @@ export const LocationPortfolioSection = ({
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg mb-1">{portfolio.name}</h3>
+                  <h3 className="font-serif font-bold text-lg mb-2 text-foreground">{portfolio.name}</h3>
                   {portfolio.specialization && (
-                    <Badge variant="outline" className="mb-2">
+                    <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/30">
                       {portfolio.specialization}
                     </Badge>
                   )}
                   {portfolio.bio && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
+                    <p className="text-sm text-foreground font-medium line-clamp-2">
                       {portfolio.bio}
                     </p>
                   )}
@@ -111,7 +111,7 @@ export const LocationPortfolioSection = ({
                     </motion.button>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 text-center">
+                <p className="text-sm font-medium text-foreground mt-3 text-center">
                   {portfolio.images.length} foto dokumentasi
                 </p>
               </div>

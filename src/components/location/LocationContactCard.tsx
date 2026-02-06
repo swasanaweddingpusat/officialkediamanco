@@ -33,7 +33,7 @@ export const LocationContactCard = ({
       transition={{ delay: 0.2 }}
       className="bg-card border border-border rounded-2xl p-6 lg:sticky lg:top-24 shadow-sm"
     >
-      <h3 className="font-display text-xl mb-5">Informasi Kontak</h3>
+      <h3 className="font-serif text-xl mb-5 font-bold">Informasi Kontak</h3>
 
       <div className="space-y-4">
         {location.address && (

@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Play, X, Quote } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useVideoTestimonials } from '@/hooks/useCMS';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type VideoSourceType = 'upload' | 'youtube' | 'tiktok';
@@ -14,9 +12,30 @@ const detectVideoSource = (url: string): VideoSourceType => {
 };
 
 const getYouTubeId = (url: string): string | null => {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
+  try {
+    // Handle various YouTube URL formats
+    const patterns = [
+      /(?:youtube\.com\/shorts\/)([^&\n?#]+)/,           // YouTube Shorts
+      /(?:youtube\.com\/watch\?v=)([^&\n?#]+)/,          // Standard YouTube
+      /(?:youtu\.be\/)([^&\n?#]+)/,                       // YouTube short link
+      /(?:youtube\.com\/embed\/)([^&\n?#]+)/,            // Embedded
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/  // Fallback
+    ];
+    
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) {
+        const id = match[1] || match[2];
+        if (id && id.length === 11) {
+          return id;
+        }
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error('Error extracting YouTube ID:', error);
+    return null;
+  }
 };
 
 const getTikTokId = (url: string): string | null => {
@@ -31,14 +50,14 @@ export function VideoTestimonialsSection() {
 
   if (isLoading) {
     return (
-      <section className="py-24 md:py-32 bg-card">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Skeleton className="h-12 w-64 mx-auto mb-4" />
-            <Skeleton className="h-6 w-96 mx-auto" />
+      <section className="py-12 sm:py-16 lg:py-20 bg-secondary/30">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="text-center mb-8 sm:mb-12">
+            <Skeleton className="h-8 w-48 mx-auto mb-3" />
+            <Skeleton className="h-4 w-64 mx-auto" />
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="aspect-[9/16] rounded-xl" />
             ))}
           </div>
@@ -52,39 +71,32 @@ export function VideoTestimonialsSection() {
   }
 
   return (
-    <section className="py-24 md:py-32 bg-card">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-12 sm:py-16 lg:py-20 bg-secondary/30">
+      <div className="container mx-auto px-3 sm:px-4">
         {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
-        >
-          <p className="font-script text-3xl md:text-4xl text-primary mb-4">Cerita Mereka</p>
-          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-wide mb-6">
-            Testimoni <span className="text-gradient italic">Klien</span>
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+            <Quote className="w-3 h-3 sm:w-4 sm:h-4" />
+            Testimoni
+          </div>
+          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl mb-2 sm:mb-3 font-bold">
+            Apa Kata Mereka
           </h2>
-          <p className="text-muted-foreground text-lg md:text-xl max-w-xl mx-auto">
+          <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto">
             Dengarkan pengalaman langsung dari klien kami
           </p>
-        </motion.div>
+        </div>
 
         {/* Video Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {testimonials.map((testimonial, index) => {
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          {testimonials.map((testimonial) => {
             const videoSource = detectVideoSource(testimonial.video_url);
             const youtubeId = videoSource === 'youtube' ? getYouTubeId(testimonial.video_url) : null;
             
             return (
-              <motion.div
+              <div
                 key={testimonial.id}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-                className="group relative aspect-[9/16] rounded-xl overflow-hidden cursor-pointer border border-border/50 hover:border-primary/30 transition-all"
+                className="group relative aspect-[9/16] rounded-xl overflow-hidden cursor-pointer bg-card"
                 onClick={() => setActiveVideo({ url: testimonial.video_url, type: videoSource })}
               >
                 {/* Thumbnail or Video Preview */}
@@ -92,13 +104,13 @@ export function VideoTestimonialsSection() {
                   <img
                     src={testimonial.thumbnail_url}
                     alt={testimonial.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : videoSource === 'youtube' && youtubeId ? (
                   <img
                     src={`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`}
                     alt={testimonial.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
                   <video
@@ -110,66 +122,121 @@ export function VideoTestimonialsSection() {
                 )}
 
                 {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent opacity-70 group-hover:opacity-90 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
                 {/* Play Button */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-full border border-primary/50 bg-primary/20 backdrop-blur-sm flex items-center justify-center transform group-hover:scale-110 group-hover:bg-primary/30 transition-all duration-300">
-                    <Play className="w-6 h-6 md:w-7 md:h-7 text-foreground ml-1" />
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-primary/90 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <Play className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-primary-foreground ml-1" fill="currentColor" />
                   </div>
                 </div>
 
                 {/* Info */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
-                  <p className="font-display text-lg text-foreground tracking-wide truncate">
+                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                  <p className="font-medium text-white text-sm sm:text-base truncate">
                     {testimonial.name}
                   </p>
                   {testimonial.role && (
-                    <p className="text-muted-foreground text-sm truncate">
+                    <p className="text-white/70 text-xs sm:text-sm truncate">
                       {testimonial.role}
                     </p>
                   )}
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
       </div>
 
       {/* Video Modal */}
-      <Dialog open={!!activeVideo} onOpenChange={() => setActiveVideo(null)}>
-        <DialogContent className="max-w-3xl p-0 bg-background border border-border/50 overflow-hidden">
+      {activeVideo && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4">
+          {/* Close Button */}
           <button
             onClick={() => setActiveVideo(null)}
-            className="absolute top-4 right-4 z-10 p-2 bg-background/80 hover:bg-background rounded-full transition-colors border border-border/50"
+            className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors z-[10000]"
           >
-            <X className="w-5 h-5" />
+            <X className="w-6 h-6 text-white" />
           </button>
-          {activeVideo && activeVideo.type === 'youtube' && getYouTubeId(activeVideo.url) && (
-            <iframe
-              src={`https://www.youtube.com/embed/${getYouTubeId(activeVideo.url)}?autoplay=1`}
-              className="w-full aspect-video"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          )}
-          {activeVideo && activeVideo.type === 'tiktok' && getTikTokId(activeVideo.url) && (
-            <iframe
-              src={`https://www.tiktok.com/embed/v2/${getTikTokId(activeVideo.url)}`}
-              className="w-full aspect-[9/16] max-h-[80vh]"
-              allowFullScreen
-            />
-          )}
-          {activeVideo && activeVideo.type === 'upload' && (
-            <video
-              src={activeVideo.url}
-              className="w-full aspect-[9/16] max-h-[80vh] object-contain"
-              controls
-              autoPlay
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+
+          {/* Video Container */}
+          <div className="relative w-full max-w-5xl">
+            {/* YouTube */}
+            {activeVideo.type === 'youtube' && (
+              (() => {
+                const youtubeId = getYouTubeId(activeVideo.url);
+                if (youtubeId) {
+                  return (
+                    <div className="w-full aspect-video rounded-lg overflow-hidden">
+                      <iframe
+                        key={`youtube-${youtubeId}`}
+                        src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                        allowFullScreen
+                        title="YouTube Video"
+                      />
+                    </div>
+                  );
+                }
+                return (
+                  <div className="w-full aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-white mb-2">Video tidak dapat dimuat</p>
+                      <p className="text-white/60 text-sm">URL: {activeVideo.url}</p>
+                    </div>
+                  </div>
+                );
+              })()
+            )}
+
+            {/* TikTok */}
+            {activeVideo.type === 'tiktok' && (
+              (() => {
+                const tikTokId = getTikTokId(activeVideo.url);
+                if (tikTokId) {
+                  return (
+                    <div className="w-full max-h-[80vh] flex items-center justify-center rounded-lg overflow-hidden">
+                      <iframe
+                        key={`tiktok-${tikTokId}`}
+                        src={`https://www.tiktok.com/embed/v2/${tikTokId}`}
+                        className="w-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                        allowFullScreen
+                        title="TikTok Video"
+                        style={{ maxHeight: '80vh' }}
+                      />
+                    </div>
+                  );
+                }
+                return (
+                  <div className="w-full aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-white mb-2">Video tidak dapat dimuat</p>
+                      <p className="text-white/60 text-sm">URL: {activeVideo.url}</p>
+                    </div>
+                  </div>
+                );
+              })()
+            )}
+
+            {/* Upload Video */}
+            {activeVideo.type === 'upload' && (
+              <div className="w-full aspect-video bg-black rounded-lg overflow-hidden">
+                <video
+                  key={`upload-${activeVideo.url}`}
+                  src={activeVideo.url}
+                  className="w-full h-full object-contain"
+                  controls
+                  autoPlay
+                  playsInline
+                  controlsList="nodownload"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

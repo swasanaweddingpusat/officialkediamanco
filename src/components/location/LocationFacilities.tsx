@@ -15,7 +15,7 @@ export const LocationFacilities = ({ facilities }: LocationFacilitiesProps) => {
       transition={{ delay: 0.1 }}
       className="bg-card border border-border rounded-2xl p-6 md:p-8"
     >
-      <h2 className="font-display text-2xl mb-6">Fasilitas</h2>
+      <h2 className="font-serif text-2xl mb-6 font-bold">Fasilitas</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {facilities.map((facility, i) => (
           <motion.div

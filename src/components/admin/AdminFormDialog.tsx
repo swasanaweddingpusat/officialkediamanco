@@ -29,7 +29,7 @@ export function AdminFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">{title}</DialogTitle>
+          <DialogTitle className="font-serif text-2xl font-bold tracking-tight">{title}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">{children}</div>
         {!hideSubmit && (

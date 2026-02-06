@@ -24,8 +24,8 @@ export function ProgramsSection() {
         once: true
       }} className="flex flex-col md:flex-row md:items-end justify-between mb-16">
           <div>
-            <h2 className="font-display text-4xl md:text-5xl mb-4">
-              OUR <span className="text-gradient text-primary">PROGRAMS</span>
+            <h2 className="font-serif text-4xl md:text-5xl mb-4 font-bold">
+              OUR <span className="text-primary">PROGRAMS</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl">Discover our best event venues in various cities</p>
           </div>
@@ -55,7 +55,7 @@ export function ProgramsSection() {
                 {program.category && <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-sm rounded-full mb-3">
                     {program.category}
                   </span>}
-                <h3 className="font-display text-3xl mb-2">{program.name}</h3>
+                <h3 className="font-serif text-3xl mb-2 font-bold">{program.name}</h3>
                 <p className="text-muted-foreground line-clamp-2">{program.description}</p>
               </div>
             </motion.div>)}

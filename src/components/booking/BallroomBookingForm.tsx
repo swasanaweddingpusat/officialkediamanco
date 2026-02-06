@@ -118,7 +118,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
         className="text-center py-8"
       >
         <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
-        <h3 className="font-display text-2xl mb-2">Permintaan Booking Terkirim!</h3>
+        <h3 className="font-serif text-2xl mb-2 font-bold">Permintaan Booking Terkirim!</h3>
         <p className="text-muted-foreground mb-4">
           Terima kasih! Tim kami akan menghubungi Anda dalam 1x24 jam untuk konfirmasi.
         </p>
@@ -139,7 +139,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="text-center mb-4">
-          <h3 className="font-display text-xl">Booking {locationName}</h3>
+          <h3 className="font-serif text-xl font-bold">Booking {locationName}</h3>
           <p className="text-sm text-muted-foreground">Isi form berikut untuk mengajukan reservasi</p>
         </div>
 

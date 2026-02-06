@@ -56,7 +56,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
           <div className="p-2 bg-primary rounded-lg">
             <Dumbbell className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-display text-xl">ADMIN CMS</span>
+          <span className="font-serif text-xl font-bold">ADMIN CMS</span>
         </Link>
 
         <nav className="flex-1 space-y-1">
@@ -97,7 +97,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
       {/* Main Content */}
       <main className="flex-1 ml-64 p-8">
         <div className="mb-8">
-          <h1 className="font-display text-4xl">{title}</h1>
+          <h1 className="font-serif text-4xl font-bold">{title}</h1>
         </div>
         {children}
       </main>

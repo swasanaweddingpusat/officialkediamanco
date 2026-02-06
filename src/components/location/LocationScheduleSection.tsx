@@ -97,7 +97,7 @@ export const LocationScheduleSection = ({ schedules }: LocationScheduleSectionPr
         <div className="p-2.5 bg-primary/10 rounded-xl">
           <CalendarDays className="w-5 h-5 text-primary" />
         </div>
-        <h2 className="font-display text-2xl">Jadwal Ballroom</h2>
+        <h2 className="font-serif text-2xl font-bold">Jadwal Ballroom</h2>
       </div>
 
       {/* Calendar Header */}

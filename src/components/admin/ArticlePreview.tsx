@@ -66,7 +66,7 @@ export const ArticlePreview = ({
               <Badge className="mb-4">{category}</Badge>
             )}
             
-            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl mb-4 leading-tight">
+            <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl mb-4 leading-tight font-bold">
               {title || 'Judul Artikel Anda'}
             </h1>
 

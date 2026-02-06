@@ -29,7 +29,7 @@ export const LocationAreaSection = ({
       transition={{ delay: 0.3 }}
       className="bg-card border border-border rounded-2xl p-6 md:p-8"
     >
-      <h2 className="font-display text-2xl mb-4">{title}</h2>
+      <h2 className="font-serif text-2xl mb-4 font-bold">{title}</h2>
       
       {/* Info badges */}
       {(capacity || dimensions) && (

@@ -21,7 +21,7 @@ export const LocationGalleryGrid = ({
       transition={{ delay: 0.2 }}
       className="bg-card border border-border rounded-2xl p-6 md:p-8"
     >
-      <h2 className="font-display text-2xl mb-6">{title}</h2>
+      <h2 className="font-serif text-2xl mb-6 font-bold">{title}</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
         {images.map((img, i) => (
           <motion.button
