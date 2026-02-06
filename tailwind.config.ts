@@ -15,25 +15,23 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          "Times New Roman",
-          "Times",
-          "ui-serif",
+          "Cormorant Garamond",
           "Georgia",
-          "Cambria",
+          "Times New Roman",
+          "ui-serif",
           "serif",
         ],
         serif: [
-          "Times New Roman",
-          "Times",
-          "ui-serif",
+          "Cormorant Garamond",
           "Georgia",
-          "Cambria",
+          "Times New Roman",
+          "ui-serif",
           "serif",
         ],
         display: [
           "Playfair Display",
-          "Times New Roman",
-          "Times",
+          "Cormorant Garamond",
+          "Georgia",
           "ui-serif",
           "serif",
         ],
@@ -86,9 +84,10 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        energy: "hsl(var(--energy))",
-        success: "hsl(var(--success))",
-        warning: "hsl(var(--warning))",
+        forest: "hsl(var(--forest))",
+        cream: "hsl(var(--cream))",
+        gold: "hsl(var(--gold))",
+        sage: "hsl(var(--sage))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -124,28 +123,37 @@ export default {
         },
         "pulse-glow": {
           "0%, 100%": {
-            boxShadow: "0 0 20px hsl(50, 14%, 92%, 0.3)",
+            boxShadow: "0 0 20px hsl(45, 50%, 75%, 0.2)",
           },
           "50%": {
-            boxShadow: "0 0 40px hsl(50, 14%, 92%, 0.5)",
+            boxShadow: "0 0 40px hsl(45, 50%, 75%, 0.4)",
           },
         },
         "slide-up": {
           from: {
             opacity: "0",
-            transform: "translateY(20px)",
+            transform: "translateY(30px)",
           },
           to: {
             opacity: "1",
             transform: "translateY(0)",
           },
         },
+        "float": {
+          "0%, 100%": {
+            transform: "translateY(0) rotate(-5deg)",
+          },
+          "50%": {
+            transform: "translateY(-10px) rotate(-5deg)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
-        "slide-up": "slide-up 0.5s ease-out",
+        "pulse-glow": "pulse-glow 3s ease-in-out infinite",
+        "slide-up": "slide-up 0.6s ease-out",
+        "float": "float 6s ease-in-out infinite",
       },
       boxShadow: {
         "2xs": "var(--shadow-2xs)",
@@ -155,6 +163,7 @@ export default {
         lg: "var(--shadow-lg)",
         xl: "var(--shadow-xl)",
         "2xl": "var(--shadow-2xl)",
+        "glow": "0 0 40px hsl(45, 50%, 75%, 0.15)",
       },
     },
   },
