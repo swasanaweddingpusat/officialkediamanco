@@ -24,7 +24,7 @@ const LandingPage = () => {
                 className="h-8 sm:h-10 w-auto object-contain"
               />
             ) : (
-              <span className="font-display text-xl sm:text-2xl tracking-wider">
+              <span className="font-serif text-xl sm:text-2xl tracking-wider font-bold">
                 {siteSettings?.site_name || 'KEDIAMAN'}
               </span>
             )}
@@ -69,7 +69,7 @@ const LandingPage = () => {
               className="h-10 sm:h-12 w-auto object-contain mx-auto mb-3 sm:mb-4"
             />
           )}
-          <p className="text-foreground font-display text-lg sm:text-xl mb-2">
+          <p className="text-foreground font-serif text-lg sm:text-xl mb-2 font-semibold">
             {siteSettings?.site_name || 'Kediaman'}
           </p>
           {siteSettings?.tagline && (

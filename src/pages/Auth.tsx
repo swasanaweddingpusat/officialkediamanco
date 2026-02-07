@@ -97,14 +97,14 @@ const Auth = () => {
                   <div className="p-2 bg-primary rounded-lg">
                     <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
                   </div>
-                  <span className="font-display text-xl sm:text-2xl tracking-wider">
+                  <span className="font-serif text-xl sm:text-2xl tracking-wider font-bold">
                     {siteSettings?.site_name || 'KEDIAMAN'}
                   </span>
                 </>
               )}
             </Link>
 
-            <h1 className="font-display text-3xl sm:text-4xl mb-2">
+            <h1 className="font-serif text-3xl sm:text-4xl mb-2 font-bold">
               {isLogin ? 'SELAMAT DATANG' : 'DAFTAR SEKARANG'}
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base mb-6 sm:mb-8">

@@ -68,7 +68,7 @@ const PortfolioDetail = () => {
               <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
                 <Images className="w-10 h-10 text-muted-foreground" />
               </div>
-              <h1 className="font-display text-3xl md:text-4xl mb-4">Portfolio Tidak Ditemukan</h1>
+              <h1 className="font-serif text-3xl md:text-4xl mb-4 font-bold">Portfolio Tidak Ditemukan</h1>
               <p className="text-muted-foreground mb-8">
                 Portfolio yang Anda cari tidak tersedia atau telah dihapus.
               </p>
@@ -131,7 +131,7 @@ const PortfolioDetail = () => {
                     </Badge>
                   )}
                 </div>
-                <h1 className="font-display text-3xl md:text-5xl lg:text-6xl tracking-tight text-white drop-shadow-lg">
+                <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl tracking-tight text-white drop-shadow-lg font-bold">
                   {portfolio.name}
                 </h1>
               </div>
@@ -166,7 +166,7 @@ const PortfolioDetail = () => {
                   </Badge>
                 )}
               </div>
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight">
+              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight font-bold">
                 {portfolio.name}
               </h1>
             </motion.div>
@@ -225,7 +225,7 @@ const PortfolioDetail = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <h2 className="font-display text-2xl md:text-3xl mb-6">Galeri Foto</h2>
+              <h2 className="font-serif text-2xl md:text-3xl mb-6 font-bold">Galeri Foto</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
                 {portfolio.images.map((img, idx) => (
                   <motion.button
@@ -266,7 +266,7 @@ const PortfolioDetail = () => {
                     <MapPin className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-display text-xl">{location.name}</h3>
+                    <h3 className="font-serif text-xl font-semibold">{location.name}</h3>
                   </div>
                 </div>
                 <Link to={`/locations/${location.id}`}>

@@ -39,7 +39,7 @@ const ProgramDetail = () => {
       <Layout>
         <div className="pt-20 pb-16">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="font-display text-4xl mb-4">Program Not Found</h1>
+            <h1 className="font-serif text-4xl mb-4 font-bold">Program Not Found</h1>
             <p className="text-muted-foreground mb-8">The program you're looking for doesn't exist.</p>
             <Button onClick={() => navigate('/classes')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -102,8 +102,8 @@ const ProgramDetail = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <h1 className="font-display text-4xl md:text-6xl mb-6">
-                <span className="text-gradient">{program.name}</span>
+              <h1 className="font-serif text-4xl md:text-6xl mb-6 font-bold">
+                <span className="text-primary">{program.name}</span>
               </h1>
             </motion.div>
 

@@ -18,6 +18,7 @@ import { LocationScheduleSection } from '@/components/location/LocationScheduleS
 import { LocationContactCard } from '@/components/location/LocationContactCard';
 import { LocationLightbox } from '@/components/location/LocationLightbox';
 import { LocationPortfolioSection } from '@/components/location/LocationPortfolioSection';
+import { Matterport360Embed } from '@/components/location/Matterport360Embed';
 
 const LocationDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +31,12 @@ const LocationDetail = () => {
   const [bookingOpen, setBookingOpen] = useState(false);
 
   const location = locations?.find(l => l.id === id);
+
+  // Debug logging
+  if (location) {
+    console.log('Location loaded:', location);
+    console.log('Matterport URL:', (location as any).matterport_360_url);
+  }
 
   // Memoized values
   const images = useMemo(() => {
@@ -100,7 +107,7 @@ const LocationDetail = () => {
               <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
                 <MapPin className="w-10 h-10 text-muted-foreground" />
               </div>
-              <h1 className="font-display text-3xl md:text-4xl mb-4">Lokasi Tidak Ditemukan</h1>
+              <h1 className="font-serif text-3xl md:text-4xl mb-4 font-bold">Lokasi Tidak Ditemukan</h1>
               <p className="text-muted-foreground mb-8">
                 Lokasi yang Anda cari tidak tersedia atau telah dihapus.
               </p>
@@ -165,7 +172,7 @@ const LocationDetail = () => {
                     <Badge variant="secondary">Coming Soon</Badge>
                   )}
                 </div>
-                <h1 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight">
+                <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight font-bold">
                   {location.name}
                 </h1>
                 {location.address && (
@@ -204,6 +211,11 @@ const LocationDetail = () => {
                 images={location.ballroom_layout_images}
                 onOpenLightbox={setLightboxImage}
               />
+
+              {/* 360 Virtual Tour Embed */}
+              {(location as any).matterport_360_url && (
+                <Matterport360Embed url={(location as any).matterport_360_url} />
+              )}
 
               {/* Schedule */}
               <LocationScheduleSection schedules={upcomingSchedules} />

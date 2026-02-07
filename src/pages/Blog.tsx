@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useArticles } from '@/hooks/useCMS';
+import { useSEO } from '@/hooks/useSEO';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,16 @@ const Blog = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const siteName = siteSettings?.site_name || 'Kediaman Corp';
+
+  useSEO({
+    title: "Kediaman Corp Blog - Artikel & Tips Tari",
+    description: "Baca artikel terbaru, tips, dan panduan tentang tari, fitness, dan lifestyle dari Kediaman Corp.",
+    url: "https://kediamancorp.com/blog",
+    breadcrumbs: [
+      { name: "Home", url: "https://kediamancorp.com/" },
+      { name: "Blog", url: "https://kediamancorp.com/blog" }
+    ]
+  });
 
   // Filter articles
   const filteredArticles = articles?.filter(article => {
@@ -126,7 +137,7 @@ const Blog = () => {
                         {article.category && <Badge variant="secondary" className="mb-3">
                             {article.category}
                           </Badge>}
-                        <h2 className="font-display text-xl mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                        <h2 className="font-serif text-xl mb-2 group-hover:text-primary transition-colors line-clamp-2 font-semibold">
                           {article.title}
                         </h2>
                         {article.excerpt && <p className="text-muted-foreground text-sm mb-4 line-clamp-3">

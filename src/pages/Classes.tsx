@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Layout } from '@/components/layout/Layout';
 import { usePrograms } from '@/hooks/useCMS';
+import { useSEO } from '@/hooks/useSEO';
 import { Skeleton } from '@/components/ui/skeleton';
 import pilatesImage from '@/assets/pilates-class.jpg';
 import hiitImage from '@/assets/hiit-class.jpg';
@@ -14,6 +15,16 @@ const Classes = () => {
     data: programs,
     isLoading
   } = usePrograms();
+  
+  useSEO({
+    title: "Kediaman Corp - Program Kelas Tari & Fitness",
+    description: "Ikuti program kelas tari profesional, fitness, dan pelatihan khusus dengan instruktur berpengalaman di Kediaman Corp.",
+    url: "https://kediamancorp.com/classes",
+    breadcrumbs: [
+      { name: "Home", url: "https://kediamancorp.com/" },
+      { name: "Classes", url: "https://kediamancorp.com/classes" }
+    ]
+  });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const activePrograms = programs?.filter(p => p.is_active) || [];
   const categories = [...new Set(activePrograms.map(p => p.category).filter(Boolean))];
@@ -29,11 +40,11 @@ const Classes = () => {
           opacity: 1,
           y: 0
         }} className="text-center">
-            <h1 className="font-display text-5xl md:text-7xl mb-4">
-              <span className="text-gradient text-primary">PROMO SPESIAL</span>
+            <h1 className="font-serif text-5xl md:text-7xl mb-4 font-bold">
+              <span className="text-primary">PROGRAM SPESIAL</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Temukan paket dan promosi eksklusif yang dirancang khusus untuk Anda
+              Temukan paket dan program eksklusif yang dirancang khusus untuk Anda
             </p>
           </motion.div>
         </div>
@@ -76,7 +87,7 @@ const Classes = () => {
                     {program.category && <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-sm rounded-full mb-3">
                         {program.category}
                       </span>}
-                    <h3 className="font-display text-3xl mb-2">{program.name}</h3>
+                    <h3 className="font-serif text-3xl mb-2 font-bold">{program.name}</h3>
                     <p className="text-muted-foreground">{program.description}</p>
                   </div>
                 </motion.div>)}

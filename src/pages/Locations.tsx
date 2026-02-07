@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, ChevronDown, Play, X } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useLocations } from '@/hooks/useCMS';
+import { useSEO } from '@/hooks/useSEO';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +14,16 @@ const Locations = () => {
     data: locations,
     isLoading
   } = useLocations();
+  
+  useSEO({
+    title: "Kediaman Corp - Lokasi & Venue Kami",
+    description: "Kunjungi lokasi-lokasi premium Kediaman Corp di Jakarta, Bintaro, dan Bandung. Fasilitas lengkap untuk kelas, acara, dan booking venue.",
+    url: "https://kediamancorp.com/locations",
+    breadcrumbs: [
+      { name: "Home", url: "https://kediamancorp.com/" },
+      { name: "Locations", url: "https://kediamancorp.com/locations" }
+    ]
+  });
   const [expandedGallery, setExpandedGallery] = useState<string | null>(null);
   const [expandedFacilities, setExpandedFacilities] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
@@ -46,8 +57,8 @@ const Locations = () => {
           opacity: 1,
           y: 0
         }} className="text-center">
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-4">
-              LOKASI <span className="text-gradient text-primary">KAMI</span>
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-4 font-bold">
+              LOKASI <span className="text-primary">KAMI</span>
             </h1>
           </motion.div>
 
@@ -93,7 +104,7 @@ const Locations = () => {
 
                 {/* Coming Soon */}
                 {comingSoonLocations.length > 0 && <>
-                    <h2 className="font-display text-2xl sm:text-3xl text-center mb-6 md:mb-8">
+                    <h2 className="font-serif text-2xl sm:text-3xl text-center mb-6 md:mb-8 font-bold">
                       <span className="text-muted-foreground">SEGERA</span> HADIR
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -209,7 +220,7 @@ const LocationCard = ({
 
         {/* Name - Clickable */}
         <Link to={`/locations/${location.id}`}>
-          <h3 className="font-display text-xl sm:text-2xl mb-2 hover:text-primary transition-colors line-clamp-1">
+          <h3 className="font-serif text-xl sm:text-2xl mb-2 hover:text-primary transition-colors line-clamp-1 font-semibold">
             {location.name}
           </h3>
         </Link>

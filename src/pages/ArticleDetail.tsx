@@ -130,7 +130,7 @@ const ArticleDetail = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-32 text-center">
-          <h1 className="font-display text-4xl mb-4">Artikel Tidak Ditemukan</h1>
+          <h1 className="font-serif text-4xl mb-4 font-bold">Artikel Tidak Ditemukan</h1>
           <p className="text-muted-foreground mb-8">Artikel yang Anda cari tidak tersedia.</p>
           <Link to="/blog">
             <Button>
@@ -217,7 +217,7 @@ const ArticleDetail = () => {
                 </Badge>
               )}
               
-              <h1 className="font-display text-3xl md:text-4xl lg:text-5xl mb-6 leading-tight">
+              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl mb-6 leading-tight font-bold">
                 {article.title}
               </h1>
 
@@ -323,7 +323,7 @@ const ArticleDetail = () => {
           {relatedArticles && relatedArticles.length > 0 && (
             <section className="mt-16 pt-16 border-t border-border">
               <div className="max-w-6xl mx-auto">
-                <h2 className="font-display text-2xl md:text-3xl mb-8 text-center">
+                <h2 className="font-serif text-2xl md:text-3xl mb-8 text-center font-bold">
                   Artikel Terkait
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

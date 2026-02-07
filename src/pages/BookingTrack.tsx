@@ -133,7 +133,7 @@ const BookingTrack = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
               <CalendarDays className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl mb-4">
+            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-4 font-bold">
               Cek Status Booking
             </h1>
             <p className="text-muted-foreground text-lg max-w-xl mx-auto">
@@ -206,7 +206,7 @@ const BookingTrack = () => {
                       <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                         <Search className="w-8 h-8 text-muted-foreground" />
                       </div>
-                      <h3 className="font-display text-xl mb-2">Tidak Ditemukan</h3>
+                      <h3 className="font-serif text-xl mb-2 font-bold">Tidak Ditemukan</h3>
                       <p className="text-muted-foreground">
                         Tidak ada booking yang ditemukan untuk email <strong>{searchedEmail}</strong>.
                         <br />
@@ -236,7 +236,7 @@ const BookingTrack = () => {
                           <Card>
                             <CardHeader className="pb-3">
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <CardTitle className="text-lg font-display">
+                                <CardTitle className="text-lg font-serif font-bold">
                                   {booking.event_name}
                                 </CardTitle>
                                 <Badge variant={statusConfig.variant} className="self-start sm:self-center">
