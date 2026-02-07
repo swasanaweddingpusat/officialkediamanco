@@ -309,6 +309,7 @@ export type Database = {
           loading_area_description: string | null
           loading_area_dimensions: string | null
           loading_area_images: string[] | null
+          matterport_360_url: string | null
           name: string
           operating_hours: Json | null
           phone: string | null
@@ -335,6 +336,7 @@ export type Database = {
           loading_area_description?: string | null
           loading_area_dimensions?: string | null
           loading_area_images?: string[] | null
+          matterport_360_url?: string | null
           name: string
           operating_hours?: Json | null
           phone?: string | null
@@ -361,6 +363,7 @@ export type Database = {
           loading_area_description?: string | null
           loading_area_dimensions?: string | null
           loading_area_images?: string[] | null
+          matterport_360_url?: string | null
           name?: string
           operating_hours?: Json | null
           phone?: string | null
