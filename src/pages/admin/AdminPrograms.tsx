@@ -142,7 +142,7 @@ const AdminPrograms = () => {
             <Input
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Summer Promo 50% Off"
+              placeholder="Summer Program 50% Off"
             />
           </div>
           <div>

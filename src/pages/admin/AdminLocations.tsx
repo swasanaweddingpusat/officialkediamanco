@@ -4,6 +4,7 @@ import { AdminTable } from '@/components/admin/AdminTable';
 import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
+import { Matterport360Input } from '@/components/admin/Matterport360Input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -41,6 +42,7 @@ type Location = {
   ballroom_layout_description: string | null;
   ballroom_layout_capacity: string | null;
   ballroom_layout_dimensions: string | null;
+  matterport_360_url: string | null;
 };
 
 const AdminLocations = () => {
@@ -74,6 +76,7 @@ const AdminLocations = () => {
     ballroom_layout_description: '',
     ballroom_layout_capacity: '',
     ballroom_layout_dimensions: '',
+    matterport_360_url: '',
   });
 
   const resetForm = () => {
@@ -97,6 +100,7 @@ const AdminLocations = () => {
       ballroom_layout_description: '',
       ballroom_layout_capacity: '',
       ballroom_layout_dimensions: '',
+      matterport_360_url: '',
     });
     setEditingItem(null);
   };
@@ -128,6 +132,7 @@ const AdminLocations = () => {
       ballroom_layout_description: item.ballroom_layout_description || '',
       ballroom_layout_capacity: item.ballroom_layout_capacity || '',
       ballroom_layout_dimensions: item.ballroom_layout_dimensions || '',
+      matterport_360_url: item.matterport_360_url || '',
     });
     setFormOpen(true);
   };
@@ -159,6 +164,7 @@ const AdminLocations = () => {
       ballroom_layout_description: formData.ballroom_layout_description || null,
       ballroom_layout_capacity: formData.ballroom_layout_capacity || null,
       ballroom_layout_dimensions: formData.ballroom_layout_dimensions || null,
+      matterport_360_url: formData.matterport_360_url || null,
     };
 
     if (editingItem) {
@@ -407,6 +413,15 @@ const AdminLocations = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Matterport 360 Section */}
+          <div className="border-t pt-4 mt-4">
+            <h3 className="font-semibold text-lg mb-3">360° Virtual Tour</h3>
+            <Matterport360Input
+              value={formData.matterport_360_url}
+              onChange={(url) => setFormData({ ...formData, matterport_360_url: url })}
+            />
           </div>
 
           <div>

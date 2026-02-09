@@ -1,116 +1,92 @@
 import { motion } from 'framer-motion';
-import { Star, Quote } from 'lucide-react';
-import { useTestimonials } from '@/hooks/useCMS';
+import { useVideoTestimonials } from '@/hooks/useCMS';
+import { Star } from 'lucide-react';
 
 export function TestimonialsSection() {
-  const { data: testimonials, isLoading } = useTestimonials();
+  const { data: testimonials } = useVideoTestimonials();
+  const activeTestimonials = testimonials?.slice(0, 6) || [];
 
-  const activeTestimonials = testimonials?.filter(t => t.is_active) || [];
-
-  if (isLoading) {
-    return (
-      <section className="py-24 md:py-32 bg-secondary/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="h-8 w-48 bg-muted animate-pulse mx-auto mb-4 rounded" />
-            <div className="h-12 w-96 bg-muted animate-pulse mx-auto rounded" />
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-card p-8 rounded-2xl">
-                <div className="h-24 bg-muted animate-pulse rounded mb-6" />
-                <div className="h-6 w-32 bg-muted animate-pulse rounded mb-2" />
-                <div className="h-4 w-24 bg-muted animate-pulse rounded" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (activeTestimonials.length === 0) {
+  if (!activeTestimonials.length) {
     return null;
   }
 
   return (
-    <section className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
-      {/* Decorative Elements */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
-
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Header */}
+    <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-b from-background to-card/30">
+      <div className="container mx-auto px-3 sm:px-4">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 md:mb-16"
         >
-          <span className="font-script text-primary text-3xl md:text-4xl mb-4 block">
-            Testimoni
-          </span>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight">
-            Kata Mereka Tentang Kami
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-2 sm:mb-4 font-bold tracking-tight">
+            TESTIMONI <span className="text-primary">KLIEN</span>
           </h2>
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-4">
+            Dengarkan pengalaman nyata dari klien-klien kami yang puas
+          </p>
         </motion.div>
 
-        {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {activeTestimonials.slice(0, 6).map((testimonial, index) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+          {activeTestimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="card-luxury p-8 rounded-2xl relative group"
+              className="group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-video bg-muted border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
             >
-              {/* Quote Icon */}
-              <Quote className="absolute top-6 right-6 w-10 h-10 text-primary/20 group-hover:text-primary/40 transition-colors" />
-
-              {/* Rating */}
-              {testimonial.rating && (
-                <div className="flex gap-1 mb-6">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-5 h-5 ${
-                        i < testimonial.rating!
-                          ? 'text-primary fill-primary'
-                          : 'text-muted-foreground/30'
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Content */}
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed italic">
-                "{testimonial.content}"
-              </p>
-
-              {/* Author */}
-              <div className="flex items-center gap-4">
-                {testimonial.photo_url ? (
+              {/* Thumbnail with Play Button */}
+              <div className="relative w-full h-full">
+                {testimonial.thumbnail_url && (
                   <img
-                    src={testimonial.photo_url}
+                    src={testimonial.thumbnail_url}
                     alt={testimonial.name}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-primary/30"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                ) : (
-                  <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="text-primary font-display text-xl">
-                      {testimonial.name.charAt(0)}
-                    </span>
-                  </div>
                 )}
-                <div>
-                  <h4 className="font-display text-lg font-semibold">
+                
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 sm:p-5 md:p-6">
+                  {/* Play button */}
+                  <div className="flex justify-center items-center h-full">
+                    <button
+                      onClick={() => window.open(testimonial.video_url, '_blank')}
+                      className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center transition-all transform hover:scale-110"
+                    >
+                      <div className="w-0 h-0 border-l-8 border-l-primary-foreground border-t-4 border-t-transparent border-b-4 border-b-transparent ml-1" />
+                    </button>
+                  </div>
+
+                  {/* Info at bottom */}
+                  <div>
+                    <div className="flex gap-0.5 mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="w-3 h-3 sm:w-4 sm:h-4 fill-primary text-primary"
+                        />
+                      ))}
+                    </div>
+                    <h3 className="font-serif text-sm sm:text-base md:text-lg font-bold text-white mb-0.5">
+                      {testimonial.name}
+                    </h3>
+                    {testimonial.role && (
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {testimonial.role}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Static Display (non-hover) */}
+                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 bg-gradient-to-t from-black/80 to-transparent opacity-100 group-hover:opacity-0 transition-opacity duration-300">
+                  <h3 className="font-serif text-sm sm:text-base font-bold text-white line-clamp-1">
                     {testimonial.name}
-                  </h4>
+                  </h3>
                   {testimonial.role && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground line-clamp-1">
                       {testimonial.role}
                     </p>
                   )}

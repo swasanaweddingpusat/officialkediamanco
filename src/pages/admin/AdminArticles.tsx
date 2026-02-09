@@ -26,7 +26,7 @@ const categories = [
   'Wedding',
   'Corporate',
   'News',
-  'Promo',
+  'Program',
 ];
 
 type Article = NonNullable<ReturnType<typeof useArticles>['data']>[number];

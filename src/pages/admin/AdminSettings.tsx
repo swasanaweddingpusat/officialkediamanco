@@ -71,7 +71,7 @@ const AdminSettings = () => {
         <Card className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <h3 className="font-display text-xl mb-4">Branding</h3>
+              <h3 className="font-serif text-xl mb-4 font-bold">Branding</h3>
             </div>
 
             <div>
@@ -99,7 +99,7 @@ const AdminSettings = () => {
             </div>
 
             <div className="md:col-span-2">
-              <h3 className="font-display text-xl mb-4 mt-4">General</h3>
+              <h3 className="font-serif text-xl mb-4 mt-4 font-semibold">General</h3>
             </div>
             
             <div>
@@ -120,7 +120,7 @@ const AdminSettings = () => {
             </div>
 
             <div className="md:col-span-2">
-              <h3 className="font-display text-xl mb-4 mt-4">Contact Information</h3>
+              <h3 className="font-serif text-xl mb-4 mt-4 font-semibold">Contact Information</h3>
             </div>
 
             <div>
@@ -150,7 +150,7 @@ const AdminSettings = () => {
             </div>
 
             <div className="md:col-span-2">
-              <h3 className="font-display text-xl mb-4 mt-4">Social Media</h3>
+              <h3 className="font-serif text-xl mb-4 mt-4 font-semibold">Social Media</h3>
             </div>
 
             <div>

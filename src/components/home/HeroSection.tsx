@@ -43,7 +43,7 @@ export function HeroSection() {
   // Button visibility and settings
   const button1Visible = slide?.button_visible ?? true;
   const button2Visible = slide?.button2_visible ?? true;
-  const button2Text = slide?.button2_text || 'Lihat Promo';
+  const button2Text = slide?.button2_text || 'Lihat Program';
   const button2Link = slide?.button2_link || '/classes';
   const button2Size = (slide?.button2_size as keyof typeof buttonSizeMap) || 'large';
 

@@ -25,15 +25,15 @@ export function SpecialOffersSection() {
         >
           <div className="mb-4 md:mb-0">
             <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-2 sm:mb-4 font-bold">
-              PROMO <span className="text-primary">SPESIAL</span>
+              PROGRAM <span className="text-primary">SPESIAL</span>
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-              Temukan paket dan promosi eksklusif yang dirancang khusus untuk Anda
+              Temukan paket dan program eksklusif yang dirancang khusus untuk Anda
             </p>
           </div>
           <Link to="/classes">
             <Button variant="outline" size="sm" className="w-full sm:w-auto">
-              Lihat Semua Promo
+              Lihat Semua Program
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </Link>

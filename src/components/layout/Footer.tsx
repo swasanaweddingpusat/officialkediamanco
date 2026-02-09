@@ -37,7 +37,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link to="/classes" className="text-muted-foreground hover:text-primary transition-colors">
-                  Promo Spesial
+                  Program Spesial
                 </Link>
               </li>
               <li>

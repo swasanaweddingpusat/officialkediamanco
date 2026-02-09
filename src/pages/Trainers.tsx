@@ -4,6 +4,7 @@ import { Images, Filter, Search, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useTrainers } from '@/hooks/useCMS';
+import { useSEO } from '@/hooks/useSEO';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,16 @@ const Trainers = () => {
     data: trainers,
     isLoading
   } = useTrainers();
+  
+  useSEO({
+    title: "Kediaman Corp - Instruktur & Pelatih Profesional",
+    description: "Temui instruktur dan pelatih profesional berpengalaman di Kediaman Corp. Spesialisasi dalam berbagai jenis kelas tari dan fitness.",
+    url: "https://kediamancorp.com/trainers",
+    breadcrumbs: [
+      { name: "Home", url: "https://kediamancorp.com/" },
+      { name: "Trainers", url: "https://kediamancorp.com/trainers" }
+    ]
+  });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const activeTrainers = trainers?.filter(t => t.is_active) || [];
@@ -55,8 +66,8 @@ const Trainers = () => {
           opacity: 1,
           y: 0
         }} className="text-center">
-            <h1 className="font-display text-5xl md:text-7xl mb-4">
-              PORTFOLIO <span className="text-gradient text-primary">KAMI</span>
+            <h1 className="font-serif text-5xl md:text-7xl mb-4 font-bold">
+              PORTFOLIO <span className="text-primary">KAMI</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Temukan inspirasi dari berbagai acara yang telah kami selenggarakan
@@ -168,7 +179,7 @@ const Trainers = () => {
                                 {portfolio.images.length}
                               </div>}
                           </div>
-                          <h3 className="font-display text-2xl mb-1 group-hover:text-primary transition-colors">
+                          <h3 className="font-serif text-2xl mb-1 group-hover:text-primary transition-colors font-semibold">
                             {portfolio.name}
                           </h3>
                           <div className="flex flex-wrap items-center gap-2 mb-2">
