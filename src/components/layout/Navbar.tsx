@@ -41,11 +41,8 @@ export function Navbar() {
               />
             ) : (
               <>
-                <div className="p-2 bg-primary rounded-lg group-hover:animate-pulse-glow transition-all">
-                  <Dumbbell className="w-6 h-6 text-primary-foreground" />
-                </div>
                 <span className="font-serif text-2xl tracking-wider font-bold">
-                  {siteSettings?.site_name || 'POWER GYM'}
+                  {siteSettings?.site_name || 'Logo'}
                 </span>
               </>
             )}
