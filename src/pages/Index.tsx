@@ -1,7 +1,7 @@
 import { Layout } from '@/components/layout/Layout';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FeaturesSection } from '@/components/home/FeaturesSection';
-import { ProgramsSection } from '@/components/home/ProgramsSection';
+import { OurVenueSection } from '@/components/home/OurVenueSection';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { CTASection } from '@/components/home/CTASection';
 import { useSEO } from '@/hooks/useSEO';
@@ -25,7 +25,7 @@ const Index = () => {
     <Layout>
       <HeroSection />
       <FeaturesSection />
-      <ProgramsSection />
+      <OurVenueSection />
       <TestimonialsSection />
       <CTASection />
     </Layout>
