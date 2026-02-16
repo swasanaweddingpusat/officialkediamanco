@@ -15,7 +15,7 @@ import {
 
 const navLinks = [
   { name: 'Beranda', href: '/', icon: Home },
-  { name: 'Program', href: '/classes', icon: Gift },
+  { name: 'Tentang Kami', href: '/classes', icon: Gift },
   { name: 'Portfolio', href: '/trainers', icon: Briefcase },
   { name: 'Lokasi', href: '/locations', icon: MapPin },
   { name: 'Artikel', href: '/blog', icon: FileText },
