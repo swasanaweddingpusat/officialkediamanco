@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      about_sections: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          is_visible: boolean
+          section_type: string
+          sort_order: number
+          styling: Json
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          section_type?: string
+          sort_order?: number
+          styling?: Json
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          section_type?: string
+          sort_order?: number
+          styling?: Json
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       about_settings: {
         Row: {
           created_at: string
