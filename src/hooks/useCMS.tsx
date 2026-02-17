@@ -714,3 +714,34 @@ export function useDeleteArticle() {
     onError: () => toast.error('Failed to delete article'),
   });
 }
+
+// About Settings
+export function useAboutSettings() {
+  return useQuery({
+    queryKey: ['about-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('about_settings')
+        .select('*')
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useUpdateAboutSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from('about_settings').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['about-settings'] });
+      toast.success('About settings updated');
+    },
+    onError: () => toast.error('Failed to update about settings'),
+  });
+}

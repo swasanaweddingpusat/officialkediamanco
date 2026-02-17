@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Image, Zap, Dumbbell, Users, MapPin, Settings, LogOut, Home, CalendarDays, CalendarCheck, FileText, Video } from 'lucide-react';
+import { LayoutDashboard, Image, Zap, Dumbbell, Users, MapPin, Settings, LogOut, Home, CalendarDays, CalendarCheck, FileText, Video, Info } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,7 @@ const navItems = [
   { name: 'Video Testimonials', href: '/admin/video-testimonials', icon: Video },
   { name: 'Jadwal Ballroom', href: '/admin/ballroom-schedules', icon: CalendarDays },
   { name: 'Booking Requests', href: '/admin/ballroom-bookings', icon: CalendarCheck },
+  { name: 'Tentang Kami', href: '/admin/about', icon: Info },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 

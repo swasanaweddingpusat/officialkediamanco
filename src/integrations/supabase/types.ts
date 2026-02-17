@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      about_settings: {
+        Row: {
+          created_at: string
+          cta_description: string | null
+          cta_subtitle: string | null
+          cta_title: string | null
+          hero_description: string | null
+          hero_subtitle: string | null
+          hero_title: string | null
+          id: string
+          mission_items: Json | null
+          stats_items: Json | null
+          updated_at: string
+          values_items: Json | null
+          vision_description: string | null
+          vision_title: string | null
+        }
+        Insert: {
+          created_at?: string
+          cta_description?: string | null
+          cta_subtitle?: string | null
+          cta_title?: string | null
+          hero_description?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
+          id?: string
+          mission_items?: Json | null
+          stats_items?: Json | null
+          updated_at?: string
+          values_items?: Json | null
+          vision_description?: string | null
+          vision_title?: string | null
+        }
+        Update: {
+          created_at?: string
+          cta_description?: string | null
+          cta_subtitle?: string | null
+          cta_title?: string | null
+          hero_description?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
+          id?: string
+          mission_items?: Json | null
+          stats_items?: Json | null
+          updated_at?: string
+          values_items?: Json | null
+          vision_description?: string | null
+          vision_title?: string | null
+        }
+        Relationships: []
+      }
       articles: {
         Row: {
           author_name: string | null
