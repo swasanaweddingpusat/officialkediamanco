@@ -745,3 +745,79 @@ export function useUpdateAboutSettings() {
     onError: () => toast.error('Failed to update about settings'),
   });
 }
+
+// About Sections (Page Builder)
+export function useAboutSections() {
+  return useQuery({
+    queryKey: ['about-sections'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('about_sections')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useCreateAboutSection() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (section: { section_type: string; title?: string; content?: unknown; styling?: unknown; sort_order?: number }) => {
+      const { error } = await supabase.from('about_sections').insert([section as any]);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['about-sections'] });
+      toast.success('Section created');
+    },
+    onError: () => toast.error('Failed to create section'),
+  });
+}
+
+export function useUpdateAboutSection() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from('about_sections').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['about-sections'] });
+      toast.success('Section updated');
+    },
+    onError: () => toast.error('Failed to update section'),
+  });
+}
+
+export function useDeleteAboutSection() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('about_sections').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['about-sections'] });
+      toast.success('Section deleted');
+    },
+    onError: () => toast.error('Failed to delete section'),
+  });
+}
+
+export function useBulkUpdateAboutSectionOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (sections: { id: string; sort_order: number }[]) => {
+      for (const s of sections) {
+        const { error } = await supabase.from('about_sections').update({ sort_order: s.sort_order }).eq('id', s.id);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['about-sections'] });
+    },
+    onError: () => toast.error('Failed to reorder sections'),
+  });
+}
