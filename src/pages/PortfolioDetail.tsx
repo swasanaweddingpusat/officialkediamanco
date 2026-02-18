@@ -72,7 +72,7 @@ const PortfolioDetail = () => {
               <p className="text-muted-foreground mb-8">
                 Portfolio yang Anda cari tidak tersedia atau telah dihapus.
               </p>
-              <Link to="/trainers">
+              <Link to="/portfolio">
                 <Button size="lg">
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Kembali ke Portfolio
@@ -92,7 +92,7 @@ const PortfolioDetail = () => {
       {/* Back Button */}
       <section className="pt-20 md:pt-24 pb-4">
         <div className="container mx-auto px-4 sm:px-6">
-          <Link to="/trainers">
+          <Link to="/portfolio">
             <Button variant="ghost" className="gap-2 -ml-3 text-muted-foreground hover:text-foreground">
               <ChevronLeft className="w-4 h-4" />
               Kembali ke Portfolio
@@ -195,7 +195,7 @@ const PortfolioDetail = () => {
           >
             {location && (
               <Link 
-                to={`/locations/${location.id}`}
+                to={`/lokasi/${location.id}`}
                 className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
               >
                 <MapPin className="w-5 h-5" />
@@ -269,7 +269,7 @@ const PortfolioDetail = () => {
                     <h3 className="font-serif text-xl font-semibold">{location.name}</h3>
                   </div>
                 </div>
-                <Link to={`/locations/${location.id}`}>
+                <Link to={`/lokasi/${location.id}`}>
                   <Button>
                     Lihat Venue
                     <ChevronLeft className="w-4 h-4 ml-2 rotate-180" />

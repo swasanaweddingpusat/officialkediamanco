@@ -189,7 +189,7 @@ const LocationCard = ({
     delay: Math.min(index * 0.1, 0.3)
   }} className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-card border border-border">
       {/* Main Image - Clickable to detail */}
-      <Link to={`/locations/${location.id}`}>
+      <Link to={`/lokasi/${location.id}`}>
         <div className="relative aspect-[4/3] overflow-hidden bg-muted cursor-pointer">
           {images.length > 0 ? <img src={images[0]} alt={location.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground">
               <MapPin className="w-10 h-10 sm:w-12 sm:h-12 opacity-30" />
@@ -219,7 +219,7 @@ const LocationCard = ({
         </Badge>
 
         {/* Name - Clickable */}
-        <Link to={`/locations/${location.id}`}>
+        <Link to={`/lokasi/${location.id}`}>
           <h3 className="font-serif text-xl sm:text-2xl mb-2 hover:text-primary transition-colors line-clamp-1 font-semibold">
             {location.name}
           </h3>

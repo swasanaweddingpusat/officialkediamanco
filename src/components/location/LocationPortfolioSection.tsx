@@ -38,7 +38,7 @@ export const LocationPortfolioSection = ({
           </div>
           <h2 className="font-serif text-2xl font-bold">Our Portfolio</h2>
         </div>
-        <Link to="/trainers">
+        <Link to="/portfolio">
           <Button variant="ghost" size="sm" className="gap-2">
             Lihat Semua
             <ArrowRight className="w-4 h-4" />

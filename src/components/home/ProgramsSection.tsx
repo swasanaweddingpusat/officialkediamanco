@@ -29,7 +29,7 @@ export function ProgramsSection() {
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl">Discover our best event venues in various cities</p>
           </div>
-          <Link to="/classes">
+          <Link to="/tentang-kami">
             <Button variant="outline" className="mt-4 md:mt-0">
               View Special Offers
               <ArrowRight className="ml-2 w-4 h-4" />

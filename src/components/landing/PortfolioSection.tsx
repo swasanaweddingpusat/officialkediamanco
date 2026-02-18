@@ -28,7 +28,7 @@ export function PortfolioSection() {
               Temukan inspirasi dari berbagai acara yang telah kami selenggarakan
             </p>
           </div>
-          <Link to="/trainers">
+          <Link to="/portfolio">
             <Button variant="outline" size="sm" className="w-full sm:w-auto">
               Lihat Semua Portfolio
               <ArrowRight className="ml-2 w-4 h-4" />

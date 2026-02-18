@@ -25,7 +25,7 @@ export function OurVenueSection() {
               Temukan venue eksklusif kami di berbagai kota
             </p>
           </div>
-          <Link to="/locations">
+          <Link to="/lokasi">
             <Button variant="outline" className="mt-4 md:mt-0">
               Lihat Semua Venue
               <ArrowRight className="ml-2 w-4 h-4" />
@@ -43,7 +43,7 @@ export function OurVenueSection() {
               transition={{ delay: index * 0.1 }}
             >
               <Link
-                to={`/locations/${location.id}`}
+                to={`/lokasi/${location.id}`}
                 className="group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/5] block cursor-pointer"
               >
                 <img

@@ -30,7 +30,7 @@ export function BlogSection() {
               Temukan artikel terbaru, tips, dan informasi seputar venue dan event
             </p>
           </div>
-          <Link to="/blog">
+          <Link to="/artikel">
             <Button variant="outline" size="sm" className="w-full sm:w-auto">
               Lihat Semua Artikel
               <ArrowRight className="ml-2 w-4 h-4" />
@@ -54,7 +54,7 @@ export function BlogSection() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link to={`/blog/${article.slug}`}>
+                <Link to={`/artikel/${article.slug}`}>
                   <Card className="overflow-hidden h-full hover:border-primary/50 transition-all hover:-translate-y-1 group">
                     {article.featured_image && (
                       <div className="aspect-video overflow-hidden">
