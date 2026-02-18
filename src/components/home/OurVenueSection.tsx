@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { useLocations } from '@/hooks/useCMS';
 
 export function OurVenueSection() {
@@ -9,69 +8,78 @@ export function OurVenueSection() {
   const activeLocations = locations?.filter(l => l.is_active)?.slice(0, 6) || [];
 
   return (
-    <section className="py-16 sm:py-24">
-      <div className="container mx-auto px-3 sm:px-4">
+    <section className="py-24 lg:py-32 bg-card">
+      <div className="container mx-auto px-6 lg:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-16"
+          className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16 lg:mb-20"
         >
           <div>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 font-bold">
-              OUR <span className="text-primary">VENUE</span>
-            </h2>
-            <p className="text-muted-foreground text-sm sm:text-lg max-w-xl">
-              Temukan venue eksklusif kami di berbagai kota
+            <p className="text-primary text-[11px] tracking-[0.3em] uppercase mb-4 flex items-center gap-3">
+              <span className="w-8 h-px bg-primary" />
+              Venue
             </p>
+            <h2 className="font-serif text-3xl lg:text-5xl font-bold leading-tight">
+              Our <span className="text-primary">Venue</span>
+            </h2>
           </div>
-          <Link to="/lokasi">
-            <Button variant="outline" className="mt-4 md:mt-0">
-              Lihat Semua Venue
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
+          <Link
+            to="/lokasi"
+            className="group inline-flex items-center gap-2 text-sm tracking-[0.1em] uppercase text-muted-foreground hover:text-primary transition-colors"
+          >
+            Lihat Semua
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {activeLocations.map((location, index) => (
             <motion.div
               key={location.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.08 }}
             >
               <Link
                 to={`/lokasi/${location.id}`}
-                className="group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/5] block cursor-pointer"
+                className="group block relative overflow-hidden aspect-[3/4] rounded-sm"
               >
                 <img
                   src={location.image_url || '/placeholder.svg'}
                   alt={location.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent opacity-80" />
-                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+                
+                {/* Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8">
                   {location.category && (
-                    <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-xs sm:text-sm rounded-full mb-2 sm:mb-3">
+                    <span className="text-primary text-[10px] tracking-[0.2em] uppercase mb-2 block">
                       {location.category}
                     </span>
                   )}
-                  <h3 className="font-serif text-xl sm:text-2xl lg:text-3xl mb-1 sm:mb-2 font-bold">
+                  <h3 className="font-serif text-xl lg:text-2xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">
                     {location.name}
                   </h3>
                   {location.address && (
-                    <p className="text-muted-foreground text-xs sm:text-sm flex items-center gap-1.5 line-clamp-1">
-                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+                    <p className="text-muted-foreground text-xs flex items-center gap-1.5 line-clamp-1">
+                      <MapPin className="w-3 h-3 shrink-0" />
                       {location.address}
                     </p>
                   )}
                   {location.is_coming_soon && (
-                    <span className="inline-block mt-2 px-2 py-0.5 bg-accent text-accent-foreground text-xs rounded-full">
+                    <span className="inline-block mt-3 px-3 py-1 bg-accent/80 text-accent-foreground text-[10px] tracking-[0.1em] uppercase rounded-full">
                       Coming Soon
                     </span>
                   )}
+                </div>
+
+                {/* Hover Arrow */}
+                <div className="absolute top-6 right-6 w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:border-primary">
+                  <ArrowRight className="w-4 h-4 text-primary" />
                 </div>
               </Link>
             </motion.div>

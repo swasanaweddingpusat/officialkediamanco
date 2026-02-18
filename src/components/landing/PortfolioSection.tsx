@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { Images, ArrowRight } from 'lucide-react';
 import { useTrainers } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import trainerImage from '@/assets/trainer-1.jpg';
 
 export function PortfolioSection() {
@@ -12,38 +10,40 @@ export function PortfolioSection() {
   const activePortfolios = trainers?.filter(t => t.is_active)?.slice(0, 8) || [];
 
   return (
-    <section className="py-12 sm:py-16 md:py-24 bg-card">
-      <div className="container mx-auto px-3 sm:px-4">
+    <section className="py-24 lg:py-32 bg-card">
+      <div className="container mx-auto px-6 lg:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 md:mb-16"
+          className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16 lg:mb-20"
         >
-          <div className="mb-4 md:mb-0">
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-2 sm:mb-4 font-bold">
-              PORTFOLIO <span className="text-primary">KAMI</span>
-            </h2>
-            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-              Temukan inspirasi dari berbagai acara yang telah kami selenggarakan
+          <div>
+            <p className="text-primary text-[11px] tracking-[0.3em] uppercase mb-4 flex items-center gap-3">
+              <span className="w-8 h-px bg-primary" />
+              Featured Work
             </p>
+            <h2 className="font-serif text-3xl lg:text-5xl font-bold leading-tight">
+              Portfolio <span className="text-primary">Kami</span>
+            </h2>
           </div>
-          <Link to="/portfolio">
-            <Button variant="outline" size="sm" className="w-full sm:w-auto">
-              Lihat Semua Portfolio
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
+          <Link
+            to="/portfolio"
+            className="group inline-flex items-center gap-2 text-sm tracking-[0.1em] uppercase text-muted-foreground hover:text-primary transition-colors"
+          >
+            Lihat Semua
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="aspect-[3/4] rounded-xl sm:rounded-2xl" />
+              <Skeleton key={i} className="aspect-[3/4] rounded-sm" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
             {activePortfolios.map((portfolio, index) => {
               const location = portfolio.locations as { name: string } | null;
               return (
@@ -55,34 +55,29 @@ export function PortfolioSection() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Link to={`/portfolio/${portfolio.id}`} className="group block">
-                    <div className="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[3/4] mb-2 sm:mb-4">
+                    <div className="relative overflow-hidden rounded-sm aspect-[3/4] mb-3">
                       <img
                         src={portfolio.photo_url || trainerImage}
                         alt={portfolio.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60" />
-                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
                       {portfolio.images && portfolio.images.length > 0 && (
-                        <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 px-2 py-1 sm:px-3 sm:py-1.5 bg-background/80 backdrop-blur rounded-full flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm">
-                          <Images className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <div className="absolute bottom-3 right-3 px-2.5 py-1 bg-background/60 backdrop-blur-sm rounded-full flex items-center gap-1 text-[10px]">
+                          <Images className="w-3 h-3" />
                           {portfolio.images.length}
                         </div>
                       )}
                     </div>
-                    <h3 className="font-serif text-sm sm:text-lg md:text-xl mb-1 group-hover:text-primary transition-colors line-clamp-1 font-semibold">
+                    <h3 className="font-serif text-sm lg:text-base mb-0.5 group-hover:text-primary transition-colors font-bold line-clamp-1">
                       {portfolio.name}
                     </h3>
-                    <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                    <div className="flex items-center gap-2">
                       {portfolio.specialization && (
-                        <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 py-0">
-                          {portfolio.specialization}
-                        </Badge>
+                        <span className="text-primary text-[9px] tracking-[0.15em] uppercase">{portfolio.specialization}</span>
                       )}
                       {location && (
-                        <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 py-0 hidden sm:inline-flex">
-                          {location.name}
-                        </Badge>
+                        <span className="text-muted-foreground text-[9px]">· {location.name}</span>
                       )}
                     </div>
                   </Link>
