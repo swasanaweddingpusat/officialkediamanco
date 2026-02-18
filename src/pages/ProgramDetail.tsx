@@ -41,7 +41,7 @@ const ProgramDetail = () => {
           <div className="container mx-auto px-4 text-center">
             <h1 className="font-serif text-4xl mb-4 font-bold">Program Not Found</h1>
             <p className="text-muted-foreground mb-8">The program you're looking for doesn't exist.</p>
-            <Button onClick={() => navigate('/classes')}>
+            <Button onClick={() => navigate('/tentang-kami')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Special Offers
             </Button>
@@ -71,7 +71,7 @@ const ProgramDetail = () => {
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => navigate('/classes')}
+            onClick={() => navigate('/tentang-kami')}
             className="backdrop-blur-sm"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />

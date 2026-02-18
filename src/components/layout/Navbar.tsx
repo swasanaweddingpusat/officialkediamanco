@@ -15,10 +15,10 @@ import {
 
 const navLinks = [
   { name: 'Beranda', href: '/', icon: Home },
-  { name: 'Tentang Kami', href: '/classes', icon: Gift },
-  { name: 'Portfolio', href: '/trainers', icon: Briefcase },
-  { name: 'Lokasi', href: '/locations', icon: MapPin },
-  { name: 'Artikel', href: '/blog', icon: FileText },
+  { name: 'Tentang Kami', href: '/tentang-kami', icon: Gift },
+  { name: 'Portfolio', href: '/portfolio', icon: Briefcase },
+  { name: 'Lokasi', href: '/lokasi', icon: MapPin },
+  { name: 'Artikel', href: '/artikel', icon: FileText },
 ];
 
 export function Navbar() {

@@ -111,7 +111,7 @@ const LocationDetail = () => {
               <p className="text-muted-foreground mb-8">
                 Lokasi yang Anda cari tidak tersedia atau telah dihapus.
               </p>
-              <Link to="/locations">
+              <Link to="/lokasi">
                 <Button size="lg">
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Kembali ke Lokasi
@@ -129,7 +129,7 @@ const LocationDetail = () => {
       {/* Back Button */}
       <section className="pt-20 md:pt-24 pb-4">
         <div className="container mx-auto px-4 sm:px-6">
-          <Link to="/locations">
+          <Link to="/lokasi">
             <Button variant="ghost" className="gap-2 -ml-3 text-muted-foreground hover:text-foreground">
               <ChevronLeft className="w-4 h-4" />
               Kembali ke Lokasi

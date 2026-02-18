@@ -128,7 +128,7 @@ const Blog = () => {
               </p>
             </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredArticles?.map(article => <article key={article.id}>
-                  <Link to={`/blog/${article.slug}`}>
+                  <Link to={`/artikel/${article.slug}`}>
                     <Card className="overflow-hidden h-full hover:border-primary/50 transition-all hover:-translate-y-1 group">
                       {article.featured_image && <div className="aspect-video overflow-hidden">
                           <img src={article.featured_image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />

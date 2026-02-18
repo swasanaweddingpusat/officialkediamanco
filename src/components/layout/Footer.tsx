@@ -36,22 +36,22 @@ export function Footer() {
             <h4 className="font-serif text-xl mb-4 font-bold">Tautan Cepat</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/classes" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/tentang-kami" className="text-muted-foreground hover:text-primary transition-colors">
                   Program Spesial
                 </Link>
               </li>
               <li>
-                <Link to="/trainers" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/portfolio" className="text-muted-foreground hover:text-primary transition-colors">
                   Portfolio Kami
                 </Link>
               </li>
               <li>
-                <Link to="/locations" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/lokasi" className="text-muted-foreground hover:text-primary transition-colors">
                   Lokasi
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/artikel" className="text-muted-foreground hover:text-primary transition-colors">
                   Artikel
                 </Link>
               </li>

@@ -52,14 +52,14 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/landing" element={<LandingPage />} />
-              <Route path="/classes" element={<Classes />} />
-              <Route path="/classes/:id" element={<ProgramDetail />} />
-              <Route path="/trainers" element={<Trainers />} />
+              <Route path="/tentang-kami" element={<Classes />} />
+              <Route path="/tentang-kami/:id" element={<ProgramDetail />} />
+              <Route path="/portfolio" element={<Trainers />} />
               <Route path="/portfolio/:id" element={<PortfolioDetail />} />
-              <Route path="/locations" element={<Locations />} />
-              <Route path="/locations/:id" element={<LocationDetail />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<ArticleDetail />} />
+              <Route path="/lokasi" element={<Locations />} />
+              <Route path="/lokasi/:id" element={<LocationDetail />} />
+              <Route path="/artikel" element={<Blog />} />
+              <Route path="/artikel/:slug" element={<ArticleDetail />} />
               <Route path="/booking/track" element={<BookingTrack />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/admin" element={<Admin />} />

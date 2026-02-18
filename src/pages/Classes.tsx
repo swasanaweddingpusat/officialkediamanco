@@ -181,7 +181,7 @@ const Classes = () => {
                     {content.description && <p className="text-muted-foreground text-lg mb-8 leading-relaxed">{content.description}</p>}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                       {content.button_text && (
-                        <a href={content.button_link || '/locations'} className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-full font-semibold btn-glow hover:opacity-90 transition-opacity">
+                        <a href={content.button_link || '/lokasi'} className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-full font-semibold btn-glow hover:opacity-90 transition-opacity">
                           <MapPin className="w-5 h-5" />
                           {content.button_text}
                         </a>

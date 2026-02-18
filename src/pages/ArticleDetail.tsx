@@ -132,7 +132,7 @@ const ArticleDetail = () => {
         <div className="container mx-auto px-4 py-32 text-center">
           <h1 className="font-serif text-4xl mb-4 font-bold">Artikel Tidak Ditemukan</h1>
           <p className="text-muted-foreground mb-8">Artikel yang Anda cari tidak tersedia.</p>
-          <Link to="/blog">
+          <Link to="/artikel">
             <Button>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Kembali ke Blog
@@ -196,7 +196,7 @@ const ArticleDetail = () => {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link to="/blog">Blog</Link>
+                  <Link to="/artikel">Artikel</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
@@ -310,7 +310,7 @@ const ArticleDetail = () => {
 
             {/* Back Button */}
             <div className="pt-8 border-t border-border">
-              <Link to="/blog">
+              <Link to="/artikel">
                 <Button variant="outline">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Kembali ke Blog
@@ -328,7 +328,7 @@ const ArticleDetail = () => {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {relatedArticles.map((related) => (
-                    <Link key={related.id} to={`/blog/${related.slug}`}>
+                    <Link key={related.id} to={`/artikel/${related.slug}`}>
                       <Card className="overflow-hidden h-full hover:border-primary/50 transition-all hover:-translate-y-1 group">
                         {related.featured_image && (
                           <div className="aspect-video overflow-hidden">

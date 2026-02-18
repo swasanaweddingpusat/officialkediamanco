@@ -31,7 +31,7 @@ export function SpecialOffersSection() {
               Temukan paket dan program eksklusif yang dirancang khusus untuk Anda
             </p>
           </div>
-          <Link to="/classes">
+          <Link to="/tentang-kami">
             <Button variant="outline" size="sm" className="w-full sm:w-auto">
               Lihat Semua Program
               <ArrowRight className="ml-2 w-4 h-4" />
@@ -55,7 +55,7 @@ export function SpecialOffersSection() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link to={`/classes/${program.id}`} className="group block">
+                <Link to={`/tentang-kami/${program.id}`} className="group block">
                   <div className="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/5]">
                     <img
                       src={program.image_url || fallbackImages[index % fallbackImages.length]}
