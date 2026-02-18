@@ -31,6 +31,7 @@ import Blog from "./pages/Blog";
 import ArticleDetail from "./pages/ArticleDetail";
 import BookingTrack from "./pages/BookingTrack";
 import NotFound from "./pages/NotFound";
+import { FloatingChat } from "./components/FloatingChat";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,7 @@ const App = () => (
               <Route path="/admin/ballroom-bookings" element={<AdminBallroomBookings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <FloatingChat />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
