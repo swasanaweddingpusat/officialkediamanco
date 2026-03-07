@@ -28,13 +28,13 @@ export function FloatingChat() {
   const waNumber = settings?.phone?.replace(/[^0-9]/g, '') || '6281117797567';
   const waLink = settings?.whatsapp_link || `https://wa.me/${waNumber}`;
 
-  if (location.pathname === '/venue-only') return null;
-
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
+
+  if (location.pathname === '/venue-only') return null;
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
