@@ -25,10 +25,10 @@ export function FloatingChat() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: settings } = useSiteSettings();
 
-  if (location.pathname === '/venue-only') return null;
-
   const waNumber = settings?.phone?.replace(/[^0-9]/g, '') || '6281117797567';
   const waLink = settings?.whatsapp_link || `https://wa.me/${waNumber}`;
+
+  if (location.pathname === '/venue-only') return null;
 
   useEffect(() => {
     if (scrollRef.current) {
