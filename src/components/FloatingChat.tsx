@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSiteSettings } from '@/hooks/useCMS';
 import ReactMarkdown from 'react-markdown';
+import { useLocation } from 'react-router-dom';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
@@ -16,6 +17,7 @@ const QUICK_QUESTIONS = [
 ];
 
 export function FloatingChat() {
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
@@ -31,6 +33,8 @@ export function FloatingChat() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
+
+  if (location.pathname === '/venue-only') return null;
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
