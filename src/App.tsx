@@ -53,6 +53,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/landing" element={<LandingPage />} />
+              <Route path="/venue-only" element={<VenueOnly />} />
               <Route path="/tentang-kami" element={<Classes />} />
               <Route path="/tentang-kami/:id" element={<ProgramDetail />} />
               <Route path="/portfolio" element={<Trainers />} />
