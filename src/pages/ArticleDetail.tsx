@@ -21,9 +21,13 @@ const ArticleDetail = () => {
   const siteUrl = 'https://officialkediamanco.lovable.app';
   const currentUrl = `${siteUrl}/artikel/${slug}`;
 
-  const relatedArticles = allArticles
-    ?.filter(a => a.is_published && a.category === article?.category && a.id !== article?.id)
-    .slice(0, 3);
+  // Related: prioritize same category, then fallback to latest articles
+  const otherArticles = allArticles?.filter(a => a.is_published && a.id !== article?.id) || [];
+  const sameCategoryArticles = otherArticles.filter(a => a.category === article?.category);
+  const relatedArticles = sameCategoryArticles.length >= 3
+    ? sameCategoryArticles.slice(0, 3)
+    : [...sameCategoryArticles, ...otherArticles.filter(a => a.category !== article?.category)]
+        .slice(0, 3);
 
   // Enhanced Article JSON-LD
   const articleSchema = article ? {
