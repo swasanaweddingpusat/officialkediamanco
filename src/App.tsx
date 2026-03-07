@@ -8,6 +8,7 @@ import { useDynamicFavicon } from "@/hooks/useDynamicFavicon";
 import { HelmetProvider } from "react-helmet-async";
 import Index from "./pages/Index";
 import LandingPage from "./pages/LandingPage";
+import VenueOnly from "./pages/VenueOnly";
 import Classes from "./pages/Classes";
 import ProgramDetail from "./pages/ProgramDetail";
 import Trainers from "./pages/Trainers";
@@ -52,6 +53,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/landing" element={<LandingPage />} />
+              <Route path="/venue-only" element={<VenueOnly />} />
               <Route path="/tentang-kami" element={<Classes />} />
               <Route path="/tentang-kami/:id" element={<ProgramDetail />} />
               <Route path="/portfolio" element={<Trainers />} />
