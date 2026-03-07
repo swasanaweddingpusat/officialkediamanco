@@ -53,8 +53,18 @@ export default function VenueOnly() {
         className="fixed top-0 left-0 right-0 z-50 bg-background/70 backdrop-blur-xl border-b border-border/30"
       >
         <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between h-14 lg:h-16">
-          <Link to="/" className="font-serif text-lg lg:text-xl tracking-[0.15em] font-bold uppercase text-primary">
-            {siteSettings?.site_name || 'Kediaman'}
+          <Link to="/" className="relative z-50">
+            {siteSettings?.logo_url ? (
+              <img
+                src={siteSettings.logo_url}
+                alt={siteSettings.site_name || 'Logo'}
+                className="h-8 lg:h-10 w-auto object-contain"
+              />
+            ) : (
+              <span className="font-serif text-lg lg:text-xl tracking-[0.15em] font-bold uppercase text-primary">
+                {siteSettings?.site_name || 'Kediaman'}
+              </span>
+            )}
           </Link>
           <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
             <Button size="sm" className="text-xs tracking-[0.1em] uppercase gap-2">
