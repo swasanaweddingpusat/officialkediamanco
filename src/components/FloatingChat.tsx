@@ -18,14 +18,14 @@ const QUICK_QUESTIONS = [
 
 export function FloatingChat() {
   const location = useLocation();
-  if (location.pathname === '/venue-only') return null;
-
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: settings } = useSiteSettings();
+
+  if (location.pathname === '/venue-only') return null;
 
   const waNumber = settings?.phone?.replace(/[^0-9]/g, '') || '6281117797567';
   const waLink = settings?.whatsapp_link || `https://wa.me/${waNumber}`;
