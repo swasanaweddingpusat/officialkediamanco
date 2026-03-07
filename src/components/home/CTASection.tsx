@@ -1,9 +1,13 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { useSiteSettings } from '@/hooks/useCMS';
 
 export function CTASection() {
+  const { data: settings } = useSiteSettings();
+  const waNumber = settings?.phone?.replace(/[^0-9]/g, '') || '6281117797567';
+  const waLink = settings?.whatsapp_link || `https://wa.me/${waNumber}`;
+
   return (
     <section className="py-24 lg:py-40 relative overflow-hidden bg-card">
       <div className="container mx-auto px-6 lg:px-12 relative">
@@ -22,12 +26,12 @@ export function CTASection() {
           <p className="text-muted-foreground text-sm lg:text-base mb-10 max-w-lg mx-auto leading-relaxed">
             Bergabunglah dengan ribuan klien yang telah mempercayakan acara mereka kepada kami.
           </p>
-          <Link to="/auth">
+          <a href={waLink} target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="group rounded-full px-10 text-sm tracking-[0.05em] uppercase">
               Hubungi Kami
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
-          </Link>
+          </a>
         </motion.div>
       </div>
     </section>
