@@ -78,9 +78,18 @@ const AdminSettings = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (settings?.id) {
-      await updateMutation.mutateAsync({ id: settings.id, ...formData });
+    if (!settings?.id) return;
+    const result = settingsSchema.safeParse(formData);
+    if (!result.success) {
+      const firstError = result.error.errors[0];
+      toast({
+        title: 'Validasi gagal',
+        description: firstError?.message || 'Periksa kembali input Anda',
+        variant: 'destructive',
+      });
+      return;
     }
+    await updateMutation.mutateAsync({ id: settings.id, ...result.data });
   };
 
   if (isLoading) {
