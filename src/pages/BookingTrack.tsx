@@ -96,15 +96,13 @@ const BookingTrack = () => {
     setHasSearched(false);
 
     try {
-      const { data: results, error } = await supabase
-        .from('ballroom_bookings')
-        .select('*, locations(name)')
-        .eq('contact_email', data.email.toLowerCase().trim())
-        .order('created_at', { ascending: false });
+      const { data: results, error } = await supabase.functions.invoke('track-booking', {
+        body: { email: data.email.toLowerCase().trim() },
+      });
 
       if (error) throw error;
 
-      setBookings(results as Booking[]);
+      setBookings((results?.bookings ?? []) as Booking[]);
       setSearchedEmail(data.email);
       setHasSearched(true);
     } catch (error) {
