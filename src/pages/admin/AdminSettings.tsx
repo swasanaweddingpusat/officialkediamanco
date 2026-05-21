@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { z } from 'zod';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,35 @@ import { Button } from '@/components/ui/button';
 import { useSiteSettings, useUpdateSiteSettings } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { toast } from '@/hooks/use-toast';
+
+const optionalUrl = z
+  .string()
+  .trim()
+  .max(500, 'Maksimal 500 karakter')
+  .refine(
+    (v) => v === '' || /^https?:\/\//i.test(v),
+    'Harus diawali dengan http:// atau https://',
+  );
+
+const settingsSchema = z.object({
+  site_name: z.string().trim().min(1, 'Nama situs wajib diisi').max(100),
+  tagline: z.string().trim().max(200).optional().or(z.literal('')),
+  phone: z.string().trim().max(30).optional().or(z.literal('')),
+  email: z
+    .string()
+    .trim()
+    .max(255)
+    .refine((v) => v === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), 'Email tidak valid'),
+  address: z.string().trim().max(500).optional().or(z.literal('')),
+  whatsapp_link: optionalUrl,
+  instagram_link: optionalUrl,
+  facebook_link: optionalUrl,
+  tiktok_link: optionalUrl,
+  youtube_link: optionalUrl,
+  logo_url: optionalUrl,
+  auth_background_url: optionalUrl,
+});
 
 const AdminSettings = () => {
   const { data: settings, isLoading } = useSiteSettings();
