@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { MapPin, Calendar, Search } from 'lucide-react';
 import { useHeroSlides } from '@/hooks/useCMS';
 import heroImage from '@/assets/hero-gym.jpg';
 
@@ -10,7 +11,6 @@ export function HeroWithSearch() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [location, setLocation] = useState('');
   const [date, setDate] = useState('');
-  const [capacity, setCapacity] = useState('');
 
   const activeSlides = slides?.filter(s => s.is_active) || [];
   const totalSlides = activeSlides.length;
@@ -29,12 +29,11 @@ export function HeroWithSearch() {
     const params = new URLSearchParams();
     if (location) params.set('q', location);
     if (date) params.set('date', date);
-    if (capacity) params.set('capacity', capacity);
     navigate(`/lokasi${params.toString() ? `?${params}` : ''}`);
   };
 
   return (
-    <section className="relative min-h-[92vh] flex flex-col justify-center items-center px-6 overflow-hidden -mt-16 lg:-mt-20 pt-16 lg:pt-20">
+    <section className="relative h-[600px] md:h-[640px] flex items-center justify-center text-center px-6 overflow-hidden -mt-16 lg:-mt-20 pt-16 lg:pt-20">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
@@ -45,91 +44,75 @@ export function HeroWithSearch() {
           className="absolute inset-0 z-0"
         >
           {currentImageUrl ? (
-            <img src={currentImageUrl} alt="Kediaman venue" className="w-full h-full object-cover brightness-75" />
+            <img src={currentImageUrl} alt="Kediaman venue" className="w-full h-full object-cover brightness-50" />
           ) : (
             <div className="w-full h-full bg-muted animate-pulse" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-background" />
         </motion.div>
       </AnimatePresence>
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, delay: 0.2 }}
-        className="relative z-10 text-center max-w-5xl w-full"
+        transition={{ duration: 0.9, delay: 0.15 }}
+        className="relative z-10 max-w-4xl w-full"
       >
-        <span className="font-script text-primary text-4xl md:text-5xl mb-4 block">
-          {slide?.subtitle || 'Kemewahan yang Abadi'}
-        </span>
-        <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-white font-light tracking-tight mb-10 leading-[1.05]">
-          {slide?.title || (
+        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white mb-6 leading-tight italic">
+          {slide?.title ? (
+            slide.title
+          ) : (
             <>
-              Wujudkan Pernikahan <br />
-              <span className="italic">Impian Anda</span>
+              Temukan Ruang Untuk <br />
+              <span className="font-bold not-italic">Hari Bahagia Anda</span>
             </>
           )}
         </h1>
+        <p className="text-white/90 text-base md:text-lg mb-10 max-w-xl mx-auto font-light leading-relaxed">
+          {slide?.description ||
+            'Kurasi venue pernikahan eksklusif dan dekorasi terbaik di seluruh Indonesia untuk momen yang tak terlupakan.'}
+        </p>
 
-        {/* Bridestory-style search bar */}
         <form
           onSubmit={handleSearch}
-          className="bg-background/95 backdrop-blur-md p-2 rounded-full shadow-2xl max-w-4xl mx-auto flex flex-col md:flex-row items-center border border-primary/30"
+          className="bg-background p-2 rounded-2xl shadow-[0_20px_50px_rgba(27,48,34,0.25)] flex flex-col md:flex-row items-center gap-2 max-w-3xl mx-auto border border-primary/10"
         >
-          <div className="flex-1 px-6 py-3 text-left md:border-r border-border w-full">
-            <label className="block text-[10px] uppercase tracking-widest font-bold text-primary mb-1">
-              Lokasi
-            </label>
+          <div className="flex-1 flex items-center gap-3 px-5 py-2 md:border-r border-border w-full">
+            <MapPin className="w-5 h-5 text-primary shrink-0" />
             <input
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Cari kota atau venue..."
-              className="w-full bg-transparent outline-none text-sm placeholder:text-muted-foreground font-medium text-foreground"
+              placeholder="Lokasi (Jakarta, Bali...)"
+              className="bg-transparent outline-none w-full text-sm placeholder:text-muted-foreground font-medium text-foreground"
             />
           </div>
-          <div className="flex-1 px-6 py-3 text-left md:border-r border-border w-full">
-            <label className="block text-[10px] uppercase tracking-widest font-bold text-primary mb-1">
-              Tanggal
-            </label>
+          <div className="flex-1 flex items-center gap-3 px-5 py-2 w-full">
+            <Calendar className="w-5 h-5 text-primary shrink-0" />
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-transparent outline-none text-sm placeholder:text-muted-foreground font-medium text-foreground"
+              className="bg-transparent outline-none w-full text-sm placeholder:text-muted-foreground font-medium text-foreground"
             />
-          </div>
-          <div className="flex-1 px-6 py-3 text-left w-full">
-            <label className="block text-[10px] uppercase tracking-widest font-bold text-primary mb-1">
-              Kapasitas
-            </label>
-            <select
-              value={capacity}
-              onChange={(e) => setCapacity(e.target.value)}
-              className="w-full bg-transparent outline-none text-sm text-foreground font-medium"
-            >
-              <option value="">Pilih jumlah tamu</option>
-              <option value="100-300">100 - 300</option>
-              <option value="300-800">300 - 800</option>
-              <option value="1000+">1000+</option>
-            </select>
           </div>
           <button
             type="submit"
-            className="w-full md:w-auto mt-2 md:mt-0 bg-foreground text-background px-10 py-4 rounded-full font-serif hover:bg-primary hover:text-primary-foreground transition-all transform hover:scale-105 active:scale-95 text-sm tracking-wide"
+            className="w-full md:w-auto bg-foreground text-background px-8 py-4 rounded-xl font-semibold hover:bg-primary hover:text-primary-foreground transition-all shadow-lg flex items-center justify-center gap-2 text-sm"
           >
-            Cari Venue
+            <Search className="w-4 h-4" />
+            Cari Sekarang
           </button>
         </form>
 
         {totalSlides > 1 && (
-          <div className="flex gap-2 justify-center mt-10">
+          <div className="flex gap-2 justify-center mt-8">
             {activeSlides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentSlide(i)}
-                className={`h-px transition-all duration-500 ${
-                  i === currentSlide ? 'w-12 bg-primary' : 'w-6 bg-white/30'
+                className={`h-1 rounded-full transition-all duration-500 ${
+                  i === currentSlide ? 'w-10 bg-primary' : 'w-2 bg-white/40'
                 }`}
                 aria-label={`Slide ${i + 1}`}
               />
