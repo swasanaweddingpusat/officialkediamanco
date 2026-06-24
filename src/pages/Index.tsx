@@ -1,8 +1,8 @@
 import { Layout } from '@/components/layout/Layout';
 import { HeroWithSearch } from '@/components/home/HeroWithSearch';
+import { PromoSliderSection } from '@/components/home/PromoSliderSection';
 import { VenueCollectionSection } from '@/components/home/VenueCollectionSection';
 import { PortfolioBentoSection } from '@/components/home/PortfolioBentoSection';
-import { PromoBannerSection } from '@/components/home/PromoBannerSection';
 import { JournalSection } from '@/components/home/JournalSection';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { CTASection } from '@/components/home/CTASection';
@@ -26,9 +26,9 @@ const Index = () => {
   return (
     <Layout>
       <HeroWithSearch />
+      <PromoSliderSection />
       <VenueCollectionSection />
       <PortfolioBentoSection />
-      <PromoBannerSection />
       <JournalSection />
       <TestimonialsSection />
       <CTASection />
