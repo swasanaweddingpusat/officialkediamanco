@@ -1,0 +1,1 @@
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS hero_video_url text;

@@ -387,6 +387,7 @@ export type Database = {
           email: string | null
           facilities: string[] | null
           google_maps_url: string | null
+          hero_video_url: string | null
           id: string
           image_url: string | null
           images: string[] | null
@@ -414,6 +415,7 @@ export type Database = {
           email?: string | null
           facilities?: string[] | null
           google_maps_url?: string | null
+          hero_video_url?: string | null
           id?: string
           image_url?: string | null
           images?: string[] | null
@@ -441,6 +443,7 @@ export type Database = {
           email?: string | null
           facilities?: string[] | null
           google_maps_url?: string | null
+          hero_video_url?: string | null
           id?: string
           image_url?: string | null
           images?: string[] | null
