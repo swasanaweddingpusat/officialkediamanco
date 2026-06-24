@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { ChevronLeft, MapPin } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useLocations, useBallroomSchedules, usePortfoliosByLocation } from '@/hooks/useCMS';
@@ -8,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { isBefore, startOfToday } from 'date-fns';
 
-import { LocationHeroGallery } from '@/components/location/LocationHeroGallery';
+import { LocationNetflixHero } from '@/components/location/LocationNetflixHero';
 import { LocationFacilities } from '@/components/location/LocationFacilities';
 import { LocationGalleryGrid } from '@/components/location/LocationGalleryGrid';
 import { LocationAreaSection } from '@/components/location/LocationAreaSection';
@@ -17,6 +16,7 @@ import { LocationContactCard } from '@/components/location/LocationContactCard';
 import { LocationLightbox } from '@/components/location/LocationLightbox';
 import { LocationPortfolioSection } from '@/components/location/LocationPortfolioSection';
 import { Matterport360Embed } from '@/components/location/Matterport360Embed';
+import { useRef } from 'react';
 
 const LocationDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +27,7 @@ const LocationDetail = () => {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const detailsRef = useRef<HTMLDivElement>(null);
 
   const location = locations?.find(l => l.id === id);
 
@@ -102,8 +103,20 @@ const LocationDetail = () => {
 
   return (
     <Layout>
-      {/* Back + Breadcrumb */}
-      <div className="pt-8 lg:pt-12 pb-4">
+      {/* Netflix-style Hero with optional video overlay */}
+      <LocationNetflixHero
+        videoUrl={(location as any).hero_video_url}
+        posterImage={images[0]}
+        locationName={location.name}
+        category={location.category}
+        address={location.address}
+        isComingSoon={location.is_coming_soon || false}
+        onBook={() => setBookingOpen(true)}
+        onScrollToDetails={() => detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+      />
+
+      {/* Back link */}
+      <div className="pt-6 pb-2">
         <div className="container mx-auto px-6 lg:px-12">
           <Link to="/lokasi" className="inline-flex items-center gap-2 text-xs tracking-[0.1em] uppercase text-muted-foreground hover:text-primary transition-colors">
             <ChevronLeft className="w-3 h-3" />
@@ -112,43 +125,11 @@ const LocationDetail = () => {
         </div>
       </div>
 
-      {/* Hero Gallery */}
-      <section className="pb-8">
-        <div className="container mx-auto px-6 lg:px-12">
-          <LocationHeroGallery
-            images={images}
-            locationName={location.name}
-            selectedImageIndex={selectedImageIndex}
-            isComingSoon={location.is_coming_soon || false}
-            onSelectImage={setSelectedImageIndex}
-            onOpenLightbox={setLightboxImage}
-          />
-        </div>
-      </section>
-
       {/* Content */}
-      <section className="pb-24 lg:pb-32">
+      <section ref={detailsRef} className="pt-6 pb-24 lg:pb-32 scroll-mt-24">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
             <div className="lg:col-span-2 space-y-8">
-              {/* Header */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                {location.category && (
-                  <span className="text-primary text-[10px] tracking-[0.2em] uppercase">
-                    {location.category}
-                  </span>
-                )}
-                <h1 className="font-serif text-3xl lg:text-5xl tracking-tight font-bold">
-                  {location.name}
-                </h1>
-                {location.address && (
-                  <div className="flex items-start gap-2 text-muted-foreground text-sm">
-                    <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                    <span>{location.address}</span>
-                  </div>
-                )}
-              </motion.div>
-
               <LocationFacilities facilities={location.facilities || []} />
               <LocationGalleryGrid images={images} onOpenLightbox={setLightboxImage} />
               <LocationAreaSection title="Loading Area" description={location.loading_area_description} capacity={location.loading_area_capacity} dimensions={location.loading_area_dimensions} images={location.loading_area_images} onOpenLightbox={setLightboxImage} />

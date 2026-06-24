@@ -4,6 +4,7 @@ import { AdminTable } from '@/components/admin/AdminTable';
 import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
+import { VideoUpload } from '@/components/admin/VideoUpload';
 import { Matterport360Input } from '@/components/admin/Matterport360Input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,6 +44,7 @@ type Location = {
   ballroom_layout_capacity: string | null;
   ballroom_layout_dimensions: string | null;
   matterport_360_url: string | null;
+  hero_video_url: string | null;
 };
 
 const AdminLocations = () => {
@@ -77,6 +79,7 @@ const AdminLocations = () => {
     ballroom_layout_capacity: '',
     ballroom_layout_dimensions: '',
     matterport_360_url: '',
+    hero_video_url: '',
   });
 
   const resetForm = () => {
@@ -101,6 +104,7 @@ const AdminLocations = () => {
       ballroom_layout_capacity: '',
       ballroom_layout_dimensions: '',
       matterport_360_url: '',
+      hero_video_url: '',
     });
     setEditingItem(null);
   };
@@ -133,6 +137,7 @@ const AdminLocations = () => {
       ballroom_layout_capacity: item.ballroom_layout_capacity || '',
       ballroom_layout_dimensions: item.ballroom_layout_dimensions || '',
       matterport_360_url: item.matterport_360_url || '',
+      hero_video_url: (item as any).hero_video_url || '',
     });
     setFormOpen(true);
   };
@@ -165,6 +170,7 @@ const AdminLocations = () => {
       ballroom_layout_capacity: formData.ballroom_layout_capacity || null,
       ballroom_layout_dimensions: formData.ballroom_layout_dimensions || null,
       matterport_360_url: formData.matterport_360_url || null,
+      hero_video_url: formData.hero_video_url || null,
     };
 
     if (editingItem) {
@@ -413,6 +419,19 @@ const AdminLocations = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Hero Video Section */}
+          <div className="border-t pt-4 mt-4">
+            <h3 className="font-semibold text-lg mb-1">Hero Video (Netflix Style)</h3>
+            <p className="text-xs text-muted-foreground mb-3">
+              Video latar untuk halaman detail lokasi. Upload file (mp4/webm, max 100MB) atau tempel link YouTube.
+            </p>
+            <VideoUpload
+              value={formData.hero_video_url}
+              onChange={(url) => setFormData({ ...formData, hero_video_url: url })}
+              folder="locations/hero-videos"
+            />
           </div>
 
           {/* Matterport 360 Section */}
