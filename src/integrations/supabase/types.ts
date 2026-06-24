@@ -181,10 +181,21 @@ export type Database = {
           guest_count: number | null
           id: string
           location_id: string
+          midtrans_order_id: string | null
+          midtrans_snap_token: string | null
+          midtrans_transaction_id: string | null
           notes: string | null
+          paid_at: string | null
+          payment_amount: number
+          payment_method: string | null
+          payment_status: string
+          payment_type: string
+          session_id: string | null
           start_time: string | null
           status: string
+          total_amount: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           admin_notes?: string | null
@@ -199,10 +210,21 @@ export type Database = {
           guest_count?: number | null
           id?: string
           location_id: string
+          midtrans_order_id?: string | null
+          midtrans_snap_token?: string | null
+          midtrans_transaction_id?: string | null
           notes?: string | null
+          paid_at?: string | null
+          payment_amount?: number
+          payment_method?: string | null
+          payment_status?: string
+          payment_type?: string
+          session_id?: string | null
           start_time?: string | null
           status?: string
+          total_amount?: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           admin_notes?: string | null
@@ -217,10 +239,21 @@ export type Database = {
           guest_count?: number | null
           id?: string
           location_id?: string
+          midtrans_order_id?: string | null
+          midtrans_snap_token?: string | null
+          midtrans_transaction_id?: string | null
           notes?: string | null
+          paid_at?: string | null
+          payment_amount?: number
+          payment_method?: string | null
+          payment_status?: string
+          payment_type?: string
+          session_id?: string | null
           start_time?: string | null
           status?: string
+          total_amount?: number
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -228,6 +261,13 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ballroom_bookings_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "venue_sessions"
             referencedColumns: ["id"]
           },
         ]
@@ -384,6 +424,7 @@ export type Database = {
           ballroom_layout_images: string[] | null
           category: string | null
           created_at: string
+          dp_percentage: number
           email: string | null
           facilities: string[] | null
           google_maps_url: string | null
@@ -412,6 +453,7 @@ export type Database = {
           ballroom_layout_images?: string[] | null
           category?: string | null
           created_at?: string
+          dp_percentage?: number
           email?: string | null
           facilities?: string[] | null
           google_maps_url?: string | null
@@ -440,6 +482,7 @@ export type Database = {
           ballroom_layout_images?: string[] | null
           category?: string | null
           created_at?: string
+          dp_percentage?: number
           email?: string | null
           facilities?: string[] | null
           google_maps_url?: string | null
@@ -688,6 +731,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      venue_sessions: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          is_active: boolean
+          location_id: string
+          name: string
+          price: number
+          sort_order: number
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          is_active?: boolean
+          location_id: string
+          name: string
+          price?: number
+          sort_order?: number
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          location_id?: string
+          name?: string
+          price?: number
+          sort_order?: number
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venue_sessions_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       video_testimonials: {
         Row: {
