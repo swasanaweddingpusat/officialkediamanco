@@ -44,16 +44,19 @@ export function PortfolioBentoSection() {
                 <img
                   src={item.photo_url || trainerImage}
                   alt={item.name}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute bottom-4 left-4 right-4 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                  <h3 className="font-serif text-background text-lg leading-tight">{item.name}</h3>
+                {/* Permanent readability gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/40 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
                   {item.specialization && (
-                    <p className="text-primary text-[10px] tracking-widest uppercase mt-1">
+                    <p className="text-primary text-[10px] tracking-widest uppercase mb-1 font-semibold">
                       {item.specialization}
                     </p>
                   )}
+                  <h3 className="font-serif text-background text-lg leading-tight drop-shadow-md">
+                    {item.name}
+                  </h3>
                 </div>
               </Link>
             </motion.div>
@@ -63,7 +66,7 @@ export function PortfolioBentoSection() {
         <div className="text-center mt-12">
           <Link
             to="/portfolio"
-            className="inline-block border border-primary text-primary px-8 py-3 uppercase text-xs tracking-widest font-bold hover:bg-primary hover:text-primary-foreground transition-all"
+            className="inline-block border border-primary bg-primary text-primary-foreground px-8 py-3 uppercase text-xs tracking-widest font-bold hover:bg-transparent hover:text-primary transition-all"
           >
             Lihat Semua Portfolio
           </Link>
