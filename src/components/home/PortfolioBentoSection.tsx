@@ -50,7 +50,7 @@ export function PortfolioBentoSection() {
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/40 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
                   {item.specialization && (
-                    <p className="text-primary text-[10px] tracking-widest uppercase mb-1 font-semibold">
+                    <p className="text-background text-[10px] tracking-widest uppercase mb-1 font-semibold drop-shadow-md">
                       {item.specialization}
                     </p>
                   )}
