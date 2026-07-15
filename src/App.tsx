@@ -32,6 +32,7 @@ import Blog from "./pages/Blog";
 import ArticleDetail from "./pages/ArticleDetail";
 import BookingTrack from "./pages/BookingTrack";
 import NotFound from "./pages/NotFound";
+import OAuthConsent from "./pages/OAuthConsent";
 import { FloatingChat } from "./components/FloatingChat";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const App = () => (
               <Route path="/artikel/:slug" element={<ArticleDetail />} />
               <Route path="/booking/track" element={<BookingTrack />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/hero" element={<AdminHero />} />
               <Route path="/admin/features" element={<AdminFeatures />} />
