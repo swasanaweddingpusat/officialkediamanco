@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Dumbbell, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,13 @@ const authSchema = z.object({
   password: z.string().min(6, 'Password minimal 6 karakter'),
 });
 
+// Validate `next` as a safe same-origin relative path.
+function safeNext(raw: string | null): string {
+  if (!raw) return '/';
+  if (!raw.startsWith('/') || raw.startsWith('//')) return '/';
+  return raw;
+}
+
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -24,12 +31,14 @@ const Auth = () => {
   const { user, signIn, signUp } = useAuth();
   const { data: siteSettings } = useSiteSettings();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const next = safeNext(params.get('next'));
 
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate(next);
     }
-  }, [user, navigate]);
+  }, [user, navigate, next]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +58,7 @@ const Auth = () => {
           toast.error(error.message);
         } else {
           toast.success('Selamat datang kembali!');
-          navigate('/');
+          navigate(next);
         }
       } else {
         const { error } = await signUp(email, password);
@@ -61,7 +70,7 @@ const Auth = () => {
           }
         } else {
           toast.success('Akun berhasil dibuat!');
-          navigate('/');
+          navigate(next);
         }
       }
     } catch (error) {
