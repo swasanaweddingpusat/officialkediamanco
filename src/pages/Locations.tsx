@@ -171,9 +171,25 @@ const Locations = () => {
                         Segera Hadir
                       </p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-16">
                       {comingSoonLocations.map((location, index) => (
                         <LocationCard key={location.id} location={location} index={index} isComingSoon />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {unavailableForDate.length > 0 && (
+                  <>
+                    <div className="mb-10">
+                      <p className="text-destructive text-[11px] tracking-[0.3em] uppercase flex items-center gap-3">
+                        <span className="w-8 h-px bg-destructive" />
+                        Tidak Tersedia Untuk Tanggal Ini
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 opacity-60">
+                      {unavailableForDate.map((location, index) => (
+                        <LocationCard key={location.id} location={location} index={index} />
                       ))}
                     </div>
                   </>
@@ -181,12 +197,25 @@ const Locations = () => {
               </motion.div>
             </AnimatePresence>
           ) : (
-            <div className="text-center py-24">
+            <div className="text-center py-24 space-y-4">
               <p className="text-muted-foreground">
-                {selectedCategory === 'Semua' ? 'Belum ada lokasi tersedia.' : `Tidak ada lokasi di ${selectedCategory}.`}
+                {q || date
+                  ? 'Tidak ada venue yang cocok dengan pencarian Anda.'
+                  : selectedCategory === 'Semua'
+                  ? 'Belum ada lokasi tersedia.'
+                  : `Tidak ada lokasi di ${selectedCategory}.`}
               </p>
+              {(q || date) && (
+                <button
+                  onClick={clearSearch}
+                  className="text-primary text-xs tracking-widest uppercase underline underline-offset-4"
+                >
+                  Reset Pencarian
+                </button>
+              )}
             </div>
           )}
+
         </div>
       </section>
 
