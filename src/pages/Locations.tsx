@@ -107,8 +107,35 @@ const Locations = () => {
               </button>
             ))}
           </motion.div>
+
+          {(q || date) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-6 flex flex-wrap items-center gap-2 text-xs"
+            >
+              <span className="text-muted-foreground uppercase tracking-widest text-[10px]">Filter aktif:</span>
+              {q && (
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary">
+                  Pencarian: <strong>{q}</strong>
+                </span>
+              )}
+              {date && (
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary">
+                  Tanggal: <strong>{new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
+                </span>
+              )}
+              <button
+                onClick={clearSearch}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-border/50 text-muted-foreground hover:text-foreground hover:border-foreground/50 transition-colors"
+              >
+                <X className="w-3 h-3" /> Reset
+              </button>
+            </motion.div>
+          )}
         </div>
       </section>
+
 
       {/* Locations Grid */}
       <section className="pb-24 lg:pb-32">
