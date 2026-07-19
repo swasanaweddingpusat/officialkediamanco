@@ -1,18 +1,21 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, ArrowRight, X } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useLocations } from '@/hooks/useCMS';
 import { useSEO } from '@/hooks/useSEO';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 
 const LOCATION_CATEGORIES = ['Semua', 'Jakarta Selatan', 'Jakarta Timur', 'Bintaro', 'Bandung'] as const;
 
 const Locations = () => {
   const { data: locations, isLoading } = useLocations();
-  
+  const [searchParams, setSearchParams] = useSearchParams();
+  const q = searchParams.get('q')?.trim() || '';
+  const date = searchParams.get('date') || '';
+
   useSEO({
     title: "Kediaman Corp - Lokasi & Venue Kami",
     description: "Kunjungi lokasi-lokasi premium Kediaman Corp di Jakarta, Bintaro, dan Bandung.",
@@ -25,15 +28,48 @@ const Locations = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [unavailableIds, setUnavailableIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!date) { setUnavailableIds(new Set()); return; }
+    let cancelled = false;
+    supabase
+      .from('ballroom_schedules')
+      .select('location_id,status')
+      .eq('schedule_date', date)
+      .in('status', ['booked', 'blocked'])
+      .then(({ data }) => {
+        if (cancelled) return;
+        setUnavailableIds(new Set((data || []).map((r) => r.location_id as string)));
+      });
+    return () => { cancelled = true; };
+  }, [date]);
 
   const activeLocations = locations?.filter(l => l.is_active) || [];
   const filteredLocations = useMemo(() => {
-    if (selectedCategory === 'Semua') return activeLocations;
-    return activeLocations.filter(l => l.category === selectedCategory);
-  }, [activeLocations, selectedCategory]);
+    let list = activeLocations;
+    if (selectedCategory !== 'Semua') list = list.filter(l => l.category === selectedCategory);
+    if (q) {
+      const needle = q.toLowerCase();
+      list = list.filter(
+        (l) =>
+          l.name?.toLowerCase().includes(needle) ||
+          l.address?.toLowerCase().includes(needle) ||
+          l.category?.toLowerCase().includes(needle),
+      );
+    }
+    return list;
+  }, [activeLocations, selectedCategory, q]);
 
   const comingSoonLocations = filteredLocations.filter(l => l.is_coming_soon);
-  const openLocations = filteredLocations.filter(l => !l.is_coming_soon);
+  const openLocations = filteredLocations
+    .filter(l => !l.is_coming_soon)
+    .filter(l => !date || !unavailableIds.has(l.id));
+  const unavailableForDate = date
+    ? filteredLocations.filter(l => !l.is_coming_soon && unavailableIds.has(l.id))
+    : [];
+
+  const clearSearch = () => setSearchParams({});
 
   return (
     <Layout>
