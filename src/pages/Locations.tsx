@@ -1,18 +1,21 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, ArrowRight, X } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useLocations } from '@/hooks/useCMS';
 import { useSEO } from '@/hooks/useSEO';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 
 const LOCATION_CATEGORIES = ['Semua', 'Jakarta Selatan', 'Jakarta Timur', 'Bintaro', 'Bandung'] as const;
 
 const Locations = () => {
   const { data: locations, isLoading } = useLocations();
-  
+  const [searchParams, setSearchParams] = useSearchParams();
+  const q = searchParams.get('q')?.trim() || '';
+  const date = searchParams.get('date') || '';
+
   useSEO({
     title: "Kediaman Corp - Lokasi & Venue Kami",
     description: "Kunjungi lokasi-lokasi premium Kediaman Corp di Jakarta, Bintaro, dan Bandung.",
@@ -25,15 +28,48 @@ const Locations = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [unavailableIds, setUnavailableIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!date) { setUnavailableIds(new Set()); return; }
+    let cancelled = false;
+    supabase
+      .from('ballroom_schedules')
+      .select('location_id,status')
+      .eq('schedule_date', date)
+      .in('status', ['booked', 'blocked'])
+      .then(({ data }) => {
+        if (cancelled) return;
+        setUnavailableIds(new Set((data || []).map((r) => r.location_id as string)));
+      });
+    return () => { cancelled = true; };
+  }, [date]);
 
   const activeLocations = locations?.filter(l => l.is_active) || [];
   const filteredLocations = useMemo(() => {
-    if (selectedCategory === 'Semua') return activeLocations;
-    return activeLocations.filter(l => l.category === selectedCategory);
-  }, [activeLocations, selectedCategory]);
+    let list = activeLocations;
+    if (selectedCategory !== 'Semua') list = list.filter(l => l.category === selectedCategory);
+    if (q) {
+      const needle = q.toLowerCase();
+      list = list.filter(
+        (l) =>
+          l.name?.toLowerCase().includes(needle) ||
+          l.address?.toLowerCase().includes(needle) ||
+          l.category?.toLowerCase().includes(needle),
+      );
+    }
+    return list;
+  }, [activeLocations, selectedCategory, q]);
 
   const comingSoonLocations = filteredLocations.filter(l => l.is_coming_soon);
-  const openLocations = filteredLocations.filter(l => !l.is_coming_soon);
+  const openLocations = filteredLocations
+    .filter(l => !l.is_coming_soon)
+    .filter(l => !date || !unavailableIds.has(l.id));
+  const unavailableForDate = date
+    ? filteredLocations.filter(l => !l.is_coming_soon && unavailableIds.has(l.id))
+    : [];
+
+  const clearSearch = () => setSearchParams({});
 
   return (
     <Layout>
@@ -71,8 +107,35 @@ const Locations = () => {
               </button>
             ))}
           </motion.div>
+
+          {(q || date) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-6 flex flex-wrap items-center gap-2 text-xs"
+            >
+              <span className="text-muted-foreground uppercase tracking-widest text-[10px]">Filter aktif:</span>
+              {q && (
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary">
+                  Pencarian: <strong>{q}</strong>
+                </span>
+              )}
+              {date && (
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary">
+                  Tanggal: <strong>{new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
+                </span>
+              )}
+              <button
+                onClick={clearSearch}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-border/50 text-muted-foreground hover:text-foreground hover:border-foreground/50 transition-colors"
+              >
+                <X className="w-3 h-3" /> Reset
+              </button>
+            </motion.div>
+          )}
         </div>
       </section>
+
 
       {/* Locations Grid */}
       <section className="pb-24 lg:pb-32">
@@ -108,9 +171,25 @@ const Locations = () => {
                         Segera Hadir
                       </p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-16">
                       {comingSoonLocations.map((location, index) => (
                         <LocationCard key={location.id} location={location} index={index} isComingSoon />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {unavailableForDate.length > 0 && (
+                  <>
+                    <div className="mb-10">
+                      <p className="text-destructive text-[11px] tracking-[0.3em] uppercase flex items-center gap-3">
+                        <span className="w-8 h-px bg-destructive" />
+                        Tidak Tersedia Untuk Tanggal Ini
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 opacity-60">
+                      {unavailableForDate.map((location, index) => (
+                        <LocationCard key={location.id} location={location} index={index} />
                       ))}
                     </div>
                   </>
@@ -118,12 +197,25 @@ const Locations = () => {
               </motion.div>
             </AnimatePresence>
           ) : (
-            <div className="text-center py-24">
+            <div className="text-center py-24 space-y-4">
               <p className="text-muted-foreground">
-                {selectedCategory === 'Semua' ? 'Belum ada lokasi tersedia.' : `Tidak ada lokasi di ${selectedCategory}.`}
+                {q || date
+                  ? 'Tidak ada venue yang cocok dengan pencarian Anda.'
+                  : selectedCategory === 'Semua'
+                  ? 'Belum ada lokasi tersedia.'
+                  : `Tidak ada lokasi di ${selectedCategory}.`}
               </p>
+              {(q || date) && (
+                <button
+                  onClick={clearSearch}
+                  className="text-primary text-xs tracking-widest uppercase underline underline-offset-4"
+                >
+                  Reset Pencarian
+                </button>
+              )}
             </div>
           )}
+
         </div>
       </section>
 
