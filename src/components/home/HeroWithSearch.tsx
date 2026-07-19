@@ -1,9 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, Search, Loader2 } from 'lucide-react';
+import { MapPin, Calendar as CalendarIcon, ArrowRight, Loader2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { id as idLocale } from 'date-fns/locale';
 import { useHeroSlides, useLocations } from '@/hooks/useCMS';
 import { supabase } from '@/integrations/supabase/client';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
 import heroImage from '@/assets/hero-gym.jpg';
 
 type Suggestion = {
@@ -18,11 +23,13 @@ export function HeroWithSearch() {
   const { data: slides, isLoading } = useHeroSlides();
   const { data: allLocations } = useLocations();
   const navigate = useNavigate();
+
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [location, setLocation] = useState('');
-  const [date, setDate] = useState('');
+  const [locationQuery, setLocationQuery] = useState('');
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showSuggest, setShowSuggest] = useState(false);
+  const [locFocused, setLocFocused] = useState(false);
   const [checking, setChecking] = useState(false);
   const [unavailableIds, setUnavailableIds] = useState<Set<string>>(new Set());
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -41,24 +48,25 @@ export function HeroWithSearch() {
 
   // Live suggestions from Supabase (client-side filter over cached locations)
   useEffect(() => {
-    const q = location.trim().toLowerCase();
+    const q = locationQuery.trim().toLowerCase();
     const base = (allLocations || []).filter((l) => l.is_active);
     if (!q) {
       setSuggestions(base.slice(0, 6));
       return;
     }
-    const matched = base
-      .filter(
-        (l) =>
-          l.name?.toLowerCase().includes(q) ||
-          l.address?.toLowerCase().includes(q) ||
-          l.category?.toLowerCase().includes(q),
-      )
-      .slice(0, 8);
-    setSuggestions(matched);
-  }, [location, allLocations]);
+    setSuggestions(
+      base
+        .filter(
+          (l) =>
+            l.name?.toLowerCase().includes(q) ||
+            l.address?.toLowerCase().includes(q) ||
+            l.category?.toLowerCase().includes(q),
+        )
+        .slice(0, 8),
+    );
+  }, [locationQuery, allLocations]);
 
-  // When a date is picked, check availability across venues via ballroom_schedules
+  // Availability check against ballroom_schedules
   useEffect(() => {
     if (!date) {
       setUnavailableIds(new Set());
@@ -66,10 +74,11 @@ export function HeroWithSearch() {
     }
     let cancelled = false;
     setChecking(true);
+    const dateStr = format(date, 'yyyy-MM-dd');
     supabase
       .from('ballroom_schedules')
       .select('location_id,status')
-      .eq('schedule_date', date)
+      .eq('schedule_date', dateStr)
       .in('status', ['booked', 'blocked'])
       .then(({ data }) => {
         if (cancelled) return;
@@ -81,7 +90,6 @@ export function HeroWithSearch() {
     };
   }, [date]);
 
-  // Close suggestion dropdown on outside click
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
       if (!wrapperRef.current?.contains(e.target as Node)) setShowSuggest(false);
@@ -90,27 +98,26 @@ export function HeroWithSearch() {
     return () => document.removeEventListener('mousedown', onDown);
   }, []);
 
-  const goToLocation = (id: string) => {
+  const goToLocation = (locId: string) => {
     const params = new URLSearchParams();
-    if (date) params.set('date', date);
-    navigate(`/lokasi/${id}${params.toString() ? `?${params}` : ''}`);
+    if (date) params.set('date', format(date, 'yyyy-MM-dd'));
+    navigate(`/lokasi/${locId}${params.toString() ? `?${params}` : ''}`);
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // If query exactly matches (or has only one match), jump to that venue
-    if (suggestions.length === 1 && location.trim()) {
+    if (suggestions.length === 1 && locationQuery.trim()) {
       goToLocation(suggestions[0].id);
       return;
     }
     const params = new URLSearchParams();
-    if (location) params.set('q', location);
-    if (date) params.set('date', date);
+    if (locationQuery) params.set('q', locationQuery);
+    if (date) params.set('date', format(date, 'yyyy-MM-dd'));
     navigate(`/lokasi${params.toString() ? `?${params}` : ''}`);
   };
 
   return (
-    <section className="relative h-[600px] md:h-[640px] flex items-center justify-center text-center px-6 overflow-hidden -mt-16 lg:-mt-20 pt-16 lg:pt-20">
+    <section className="relative h-[640px] md:h-[720px] flex items-center justify-center text-center px-6 overflow-hidden -mt-16 lg:-mt-20 pt-16 lg:pt-20">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
@@ -121,11 +128,11 @@ export function HeroWithSearch() {
           className="absolute inset-0 z-0"
         >
           {currentImageUrl ? (
-            <img src={currentImageUrl} alt="Kediaman venue" className="w-full h-full object-cover brightness-50" />
+            <img src={currentImageUrl} alt="Kediaman venue" className="w-full h-full object-cover brightness-[0.45]" />
           ) : (
             <div className="w-full h-full bg-muted animate-pulse" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#1a2e22]/40 via-transparent to-[#1a2e22]" />
         </motion.div>
       </AnimatePresence>
 
@@ -135,7 +142,7 @@ export function HeroWithSearch() {
         transition={{ duration: 0.9, delay: 0.15 }}
         className="relative z-10 max-w-4xl w-full"
       >
-        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white mb-6 leading-tight italic">
+        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#edece7] mb-6 leading-tight italic">
           {slide?.title ? (
             slide.title
           ) : (
@@ -145,97 +152,148 @@ export function HeroWithSearch() {
             </>
           )}
         </h1>
-        <p className="text-white/90 text-base md:text-lg mb-10 max-w-xl mx-auto font-light leading-relaxed">
+        <p className="text-[#edece7]/80 text-base md:text-lg mb-12 max-w-xl mx-auto font-light leading-relaxed">
           {slide?.description ||
             'Kurasi venue pernikahan eksklusif dan dekorasi terbaik di seluruh Indonesia untuk momen yang tak terlupakan.'}
         </p>
 
-        <div ref={wrapperRef} className="relative max-w-3xl mx-auto">
+        {/* Luxury Estate Search Bar */}
+        <div ref={wrapperRef} className="relative max-w-4xl mx-auto">
           <form
             onSubmit={handleSearch}
-            className="bg-background p-2 rounded-2xl shadow-[0_20px_50px_rgba(27,48,34,0.25)] flex flex-col md:flex-row items-center gap-2 border border-primary/10"
+            className="relative bg-[#edece7] rounded-full shadow-2xl p-2 flex flex-col md:flex-row items-stretch md:items-center border border-[#dcdad0]"
           >
-            <div className="flex-1 flex items-center gap-3 px-5 py-2 md:border-r border-border w-full">
-              <MapPin className="w-5 h-5 text-primary shrink-0" />
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => {
-                  setLocation(e.target.value);
-                  setShowSuggest(true);
-                }}
-                onFocus={() => setShowSuggest(true)}
-                placeholder="Cari venue, kota, atau area..."
-                className="bg-transparent outline-none w-full text-sm placeholder:text-muted-foreground font-medium text-foreground"
-                autoComplete="off"
-              />
+            {/* Location */}
+            <div
+              className={cn(
+                'flex-1 flex items-center px-6 md:px-8 py-3 md:py-2 md:border-r border-[#d1cfc3] transition-colors',
+                locFocused && 'bg-[#f7f6f2] md:rounded-l-full',
+              )}
+            >
+              <MapPin className="w-5 h-5 text-[#1a2e22] mr-4 shrink-0" strokeWidth={1.5} />
+              <div className="flex flex-col text-left w-full min-w-0">
+                <label className="text-[10px] uppercase tracking-[0.2em] text-[#8c8a7e] font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Lokasi
+                </label>
+                <input
+                  type="text"
+                  value={locationQuery}
+                  onChange={(e) => {
+                    setLocationQuery(e.target.value);
+                    setShowSuggest(true);
+                  }}
+                  onFocus={() => {
+                    setShowSuggest(true);
+                    setLocFocused(true);
+                  }}
+                  onBlur={() => setLocFocused(false)}
+                  placeholder="Cari venue impian..."
+                  autoComplete="off"
+                  className="bg-transparent border-none p-0 text-[#1a2e22] focus:ring-0 focus:outline-none placeholder-[#a19f94] text-base font-medium font-serif w-full"
+                />
+              </div>
             </div>
-            <div className="flex-1 flex items-center gap-3 px-5 py-2 w-full">
-              <Calendar className="w-5 h-5 text-primary shrink-0" />
-              <input
-                type="date"
-                value={date}
-                min={new Date().toISOString().split('T')[0]}
-                onChange={(e) => setDate(e.target.value)}
-                className="bg-transparent outline-none w-full text-sm placeholder:text-muted-foreground font-medium text-foreground"
-              />
-              {checking && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
-            </div>
+
+            {/* Date */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="flex-1 flex items-center px-6 md:px-8 py-3 md:py-2 text-left hover:bg-[#f7f6f2] md:rounded-r-full transition-colors"
+                >
+                  <CalendarIcon className="w-5 h-5 text-[#1a2e22] mr-4 shrink-0" strokeWidth={1.5} />
+                  <div className="flex flex-col w-full min-w-0">
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-[#8c8a7e] font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      Tanggal
+                    </label>
+                    <span
+                      className={cn(
+                        'text-base font-medium font-serif truncate',
+                        date ? 'text-[#1a2e22]' : 'text-[#a19f94]',
+                      )}
+                    >
+                      {date ? format(date, 'EEE, dd MMM yyyy', { locale: idLocale }) : 'Pilih tanggal'}
+                    </span>
+                  </div>
+                  {checking && <Loader2 className="w-4 h-4 animate-spin text-[#bfa37e] ml-2 shrink-0" />}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-[#edece7] border-[#d1cfc3]" align="center">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
+                  initialFocus
+                  className={cn('p-3 pointer-events-auto')}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {/* Submit */}
             <button
               type="submit"
-              className="w-full md:w-auto bg-foreground text-background px-8 py-4 rounded-xl font-semibold hover:bg-primary hover:text-primary-foreground transition-all shadow-lg flex items-center justify-center gap-2 text-sm"
+              className="group mt-2 md:mt-0 md:ml-1 bg-[#1a2e22] text-[#edece7] px-8 py-4 rounded-full font-semibold transition-all hover:bg-[#2a4533] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#bfa37e] focus:ring-offset-2 flex items-center justify-center gap-2"
             >
-              <Search className="w-4 h-4" />
-              Cari Sekarang
+              <span className="font-serif text-lg tracking-wide">Cari Sekarang</span>
+              <ArrowRight className="w-4 h-4 text-[#bfa37e] group-hover:translate-x-1 transition-transform" strokeWidth={2.5} />
             </button>
           </form>
 
+          {/* Autocomplete Suggestions */}
           <AnimatePresence>
             {showSuggest && suggestions.length > 0 && (
               <motion.div
-                initial={{ opacity: 0, y: -6 }}
+                initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                className="absolute left-0 right-0 mt-2 bg-background rounded-xl shadow-2xl border border-border/60 overflow-hidden z-20 text-left"
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+                className="absolute left-2 right-2 md:left-6 md:right-6 mt-3 bg-[#edece7] rounded-2xl shadow-xl border border-[#dcdad0] overflow-hidden z-30 text-left"
               >
-                <div className="px-4 py-2 text-[10px] tracking-[0.2em] uppercase text-muted-foreground border-b border-border/40">
-                  {date ? 'Venue tersedia untuk tanggal ini' : 'Saran Venue'}
+                <div className="px-5 py-3 border-b border-[#d1cfc3] flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-[0.25em] text-[#8c8a7e] font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    {date ? 'Venue tersedia untuk tanggal ini' : 'Rekomendasi venue'}
+                  </span>
+                  <span className="text-[10px] text-[#bfa37e] font-serif italic">{suggestions.length} pilihan</span>
                 </div>
                 <ul className="max-h-80 overflow-y-auto">
                   {suggestions.map((s) => {
                     const unavailable = date && unavailableIds.has(s.id);
                     return (
-                      <li key={s.id}>
+                      <li key={s.id} className="border-b border-[#d1cfc3]/50 last:border-0">
                         <button
                           type="button"
                           disabled={!!unavailable}
                           onClick={() => goToLocation(s.id)}
-                          className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/60 transition-colors ${
-                            unavailable ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
+                          className={cn(
+                            'w-full flex items-center gap-4 px-5 py-3.5 hover:bg-[#f7f6f2] transition-colors group',
+                            unavailable && 'opacity-50 cursor-not-allowed hover:bg-transparent',
+                          )}
                         >
                           {s.image_url ? (
-                            <img src={s.image_url} alt={s.name} className="w-12 h-12 object-cover rounded-md shrink-0" />
+                            <img src={s.image_url} alt={s.name} className="w-11 h-11 object-cover rounded-md shrink-0" />
                           ) : (
-                            <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center shrink-0">
-                              <MapPin className="w-4 h-4 text-muted-foreground" />
+                            <div className="w-11 h-11 rounded-md bg-[#1a2e22]/10 flex items-center justify-center shrink-0">
+                              <MapPin className="w-4 h-4 text-[#1a2e22]" strokeWidth={1.5} />
                             </div>
                           )}
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 text-left">
                             <div className="flex items-center gap-2">
-                              <p className="font-semibold text-sm text-foreground truncate">{s.name}</p>
+                              <p className="font-serif font-semibold text-base text-[#1a2e22] truncate">{s.name}</p>
                               {unavailable && (
-                                <span className="text-[9px] tracking-widest uppercase text-destructive shrink-0">
+                                <span className="text-[9px] tracking-[0.2em] uppercase text-red-700 shrink-0 font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
                                   Terbooking
                                 </span>
                               )}
                             </div>
                             {s.address && (
-                              <p className="text-xs text-muted-foreground truncate">{s.address}</p>
+                              <p className="text-[11px] text-[#8c8a7e] uppercase tracking-wide truncate mt-0.5" style={{ fontFamily: 'Inter, sans-serif' }}>
+                                {s.address}
+                              </p>
                             )}
                           </div>
                           {s.category && (
-                            <span className="text-[10px] tracking-[0.15em] uppercase text-primary shrink-0">
+                            <span className="text-[10px] tracking-[0.2em] uppercase text-[#bfa37e] shrink-0 font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
                               {s.category}
                             </span>
                           )}
@@ -249,15 +307,20 @@ export function HeroWithSearch() {
           </AnimatePresence>
         </div>
 
+        <p className="text-center mt-8 text-[#edece7]/60 text-sm italic font-serif">
+          Temukan kemegahan yang abadi untuk hari spesial Anda
+        </p>
+
         {totalSlides > 1 && (
-          <div className="flex gap-2 justify-center mt-8">
+          <div className="flex gap-2 justify-center mt-6">
             {activeSlides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentSlide(i)}
-                className={`h-1 rounded-full transition-all duration-500 ${
-                  i === currentSlide ? 'w-10 bg-primary' : 'w-2 bg-white/40'
-                }`}
+                className={cn(
+                  'h-1 rounded-full transition-all duration-500',
+                  i === currentSlide ? 'w-10 bg-[#bfa37e]' : 'w-2 bg-[#edece7]/40',
+                )}
                 aria-label={`Slide ${i + 1}`}
               />
             ))}
