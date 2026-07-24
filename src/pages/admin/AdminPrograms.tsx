@@ -19,6 +19,8 @@ type Program = {
   category: string | null;
   sort_order: number | null;
   is_active: boolean | null;
+  cta_label: string | null;
+  cta_link: string | null;
 };
 
 const AdminPrograms = () => {
@@ -39,10 +41,12 @@ const AdminPrograms = () => {
     category: '',
     sort_order: 0,
     is_active: true,
+    cta_label: '',
+    cta_link: '',
   });
 
   const resetForm = () => {
-    setFormData({ name: '', description: '', image_url: '', category: '', sort_order: 0, is_active: true });
+    setFormData({ name: '', description: '', image_url: '', category: '', sort_order: 0, is_active: true, cta_label: '', cta_link: '' });
     setEditingItem(null);
   };
 
