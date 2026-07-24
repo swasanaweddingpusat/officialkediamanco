@@ -163,9 +163,21 @@ const ProgramDetail = () => {
               transition={{ delay: 0.4 }}
               className="mt-12"
             >
-              <Button size="lg" className="w-full md:w-auto">
-                Get This Offer
-              </Button>
+              {program.cta_link ? (
+                <a
+                  href={program.cta_link}
+                  target={program.cta_link.startsWith('http') ? '_blank' : undefined}
+                  rel={program.cta_link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                >
+                  <Button size="lg" className="w-full md:w-auto">
+                    {program.cta_label || 'Get This Offer'}
+                  </Button>
+                </a>
+              ) : (
+                <Button size="lg" className="w-full md:w-auto">
+                  {program.cta_label || 'Get This Offer'}
+                </Button>
+              )}
             </motion.div>
           </div>
         </div>

@@ -19,6 +19,8 @@ type Program = {
   category: string | null;
   sort_order: number | null;
   is_active: boolean | null;
+  cta_label: string | null;
+  cta_link: string | null;
 };
 
 const AdminPrograms = () => {
@@ -39,10 +41,12 @@ const AdminPrograms = () => {
     category: '',
     sort_order: 0,
     is_active: true,
+    cta_label: '',
+    cta_link: '',
   });
 
   const resetForm = () => {
-    setFormData({ name: '', description: '', image_url: '', category: '', sort_order: 0, is_active: true });
+    setFormData({ name: '', description: '', image_url: '', category: '', sort_order: 0, is_active: true, cta_label: '', cta_link: '' });
     setEditingItem(null);
   };
 
@@ -60,6 +64,8 @@ const AdminPrograms = () => {
       category: item.category || '',
       sort_order: item.sort_order || 0,
       is_active: item.is_active ?? true,
+      cta_label: item.cta_label || '',
+      cta_link: item.cta_link || '',
     });
     setFormOpen(true);
   };
@@ -167,6 +173,22 @@ const AdminPrograms = () => {
               type="number"
               value={formData.sort_order}
               onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
+            />
+          </div>
+          <div>
+            <Label>Button Label (CTA)</Label>
+            <Input
+              value={formData.cta_label}
+              onChange={(e) => setFormData({ ...formData, cta_label: e.target.value })}
+              placeholder="Get This Offer"
+            />
+          </div>
+          <div>
+            <Label>Button Link (URL)</Label>
+            <Input
+              value={formData.cta_link}
+              onChange={(e) => setFormData({ ...formData, cta_link: e.target.value })}
+              placeholder="https://wa.me/62... atau /kontak"
             />
           </div>
           <div className="flex items-center gap-2">
