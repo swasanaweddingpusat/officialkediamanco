@@ -175,6 +175,22 @@ const AdminPrograms = () => {
               onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
             />
           </div>
+          <div>
+            <Label>Button Label (CTA)</Label>
+            <Input
+              value={formData.cta_label}
+              onChange={(e) => setFormData({ ...formData, cta_label: e.target.value })}
+              placeholder="Get This Offer"
+            />
+          </div>
+          <div>
+            <Label>Button Link (URL)</Label>
+            <Input
+              value={formData.cta_link}
+              onChange={(e) => setFormData({ ...formData, cta_link: e.target.value })}
+              placeholder="https://wa.me/62... atau /kontak"
+            />
+          </div>
           <div className="flex items-center gap-2">
             <Switch
               checked={formData.is_active}
