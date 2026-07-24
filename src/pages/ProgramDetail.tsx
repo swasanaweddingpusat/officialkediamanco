@@ -178,6 +178,7 @@ const ProgramDetail = () => {
                   {program.cta_label || 'Get This Offer'}
                 </Button>
               )}
+            </motion.div>
           </div>
         </div>
       </section>
