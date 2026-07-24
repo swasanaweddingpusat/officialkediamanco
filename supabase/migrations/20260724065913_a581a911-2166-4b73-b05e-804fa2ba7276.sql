@@ -1,0 +1,1 @@
+ALTER TABLE public.programs ADD COLUMN IF NOT EXISTS cta_label TEXT, ADD COLUMN IF NOT EXISTS cta_link TEXT;
