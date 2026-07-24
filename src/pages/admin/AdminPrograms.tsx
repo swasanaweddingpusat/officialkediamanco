@@ -64,6 +64,8 @@ const AdminPrograms = () => {
       category: item.category || '',
       sort_order: item.sort_order || 0,
       is_active: item.is_active ?? true,
+      cta_label: item.cta_label || '',
+      cta_link: item.cta_link || '',
     });
     setFormOpen(true);
   };
