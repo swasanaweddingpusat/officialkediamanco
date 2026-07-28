@@ -11,6 +11,7 @@ const navLinks = [
   { name: 'Tentang Kami', href: '/tentang-kami' },
   { name: 'Portfolio', href: '/portfolio' },
   { name: 'Lokasi', href: '/lokasi' },
+  { name: 'Paket', href: '/paket' },
   { name: 'Artikel', href: '/artikel' },
 ];
 
