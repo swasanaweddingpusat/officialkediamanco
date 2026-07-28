@@ -47,7 +47,9 @@ const Packages = () => {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return activePrograms.filter((p: any) => {
-      const matchGroup = !activeGroup || p.category === activeGroup;
+      const matchGroup =
+        !activeGroup ||
+        (p.category || '').trim().toLowerCase() === activeGroup.trim().toLowerCase();
       const matchQuery =
         !q ||
         p.name?.toLowerCase().includes(q) ||
