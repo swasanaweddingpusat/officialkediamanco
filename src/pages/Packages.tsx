@@ -36,9 +36,12 @@ const Packages = () => {
   );
 
   const categories = useMemo(() => {
-    const set = new Set<string>();
-    activePrograms.forEach((p: any) => p.category && set.add(p.category));
-    return Array.from(set);
+    const map = new Map<string, string>();
+    activePrograms.forEach((p: any) => {
+      const raw = (p.category || '').trim();
+      if (raw) map.set(raw.toLowerCase(), raw);
+    });
+    return Array.from(map.values());
   }, [activePrograms]);
 
   const filtered = useMemo(() => {
