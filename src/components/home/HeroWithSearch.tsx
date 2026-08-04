@@ -218,7 +218,7 @@ export function HeroWithSearch() {
                   {checking && <Loader2 className="w-4 h-4 animate-spin text-[#bfa37e] ml-2 shrink-0" />}
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-[#edece7] border-[#d1cfc3]" align="center">
+              <PopoverContent className="w-auto p-0 bg-[#edece7] border-[#d1cfc3] shadow-xl" align="center">
                 <Calendar
                   mode="single"
                   selected={date}
@@ -226,6 +226,16 @@ export function HeroWithSearch() {
                   disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
                   initialFocus
                   className={cn('p-3 pointer-events-auto')}
+                  classNames={{
+                    caption_label: 'text-sm font-semibold text-[#1a2e22]',
+                    nav_button: 'h-7 w-7 bg-transparent p-0 text-[#1a2e22] opacity-70 hover:opacity-100 hover:bg-[#dcdad0] rounded-md border border-[#d1cfc3]',
+                    head_cell: 'text-[#6b6a5f] rounded-md w-9 font-normal text-[0.8rem]',
+                    day: 'h-9 w-9 p-0 font-medium text-[#1a2e22] rounded-md hover:bg-[#dcdad0] aria-selected:opacity-100',
+                    day_selected: 'bg-[#1a2e22] text-[#edece7] hover:bg-[#1a2e22] hover:text-[#edece7] focus:bg-[#1a2e22] focus:text-[#edece7]',
+                    day_today: 'bg-[#bfa37e]/25 text-[#1a2e22] font-bold',
+                    day_outside: 'text-[#a19f94] opacity-50',
+                    day_disabled: 'text-[#a19f94] opacity-40 line-through',
+                  }}
                 />
               </PopoverContent>
             </Popover>
