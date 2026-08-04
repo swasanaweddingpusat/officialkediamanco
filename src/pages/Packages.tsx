@@ -80,7 +80,7 @@ const Packages = () => {
               Jadwal &amp; Biaya
             </p>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-5">
-              Paket &amp; Promo Venue
+              News &amp; Promo Venue
             </h1>
             <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
               Pilih paket yang paling sesuai dengan kebutuhan acara Anda. Ketersediaan
