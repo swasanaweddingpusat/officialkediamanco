@@ -176,6 +176,15 @@ export function ImageUpload({ value, onChange, folder = 'general', className }: 
           </div>
         </div>
       )}
+
+      <ImageCropDialog
+        open={cropOpen}
+        onOpenChange={setCropOpen}
+        imageSrc={cropSrc}
+        isSaving={isUploading}
+        onCropped={handleCropped}
+      />
     </div>
+
   );
 }
