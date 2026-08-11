@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
-import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Loader2, Crop } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { ImageCropDialog } from './ImageCropDialog';
 
 interface ImageUploadProps {
   value?: string;
@@ -14,6 +15,9 @@ interface ImageUploadProps {
 export function ImageUpload({ value, onChange, folder = 'general', className }: ImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [cropOpen, setCropOpen] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string>('');
+
 
   const uploadFile = async (file: File) => {
     if (!file.type.startsWith('image/')) {
