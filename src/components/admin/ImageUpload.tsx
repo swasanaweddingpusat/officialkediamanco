@@ -18,8 +18,7 @@ export function ImageUpload({ value, onChange, folder = 'general', className }: 
   const [cropOpen, setCropOpen] = useState(false);
   const [cropSrc, setCropSrc] = useState<string>('');
 
-
-  const uploadFile = async (file: File) => {
+  const uploadFile = async (file: File | Blob) => {
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
       return;
@@ -33,8 +32,9 @@ export function ImageUpload({ value, onChange, folder = 'general', className }: 
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = (file instanceof File ? file.name.split('.').pop() : undefined) || 'jpg';
       const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
 
       const { error: uploadError } = await supabase.storage
         .from('gym-images')
