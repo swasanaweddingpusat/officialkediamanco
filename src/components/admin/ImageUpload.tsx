@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
-import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Loader2, Crop } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { ImageCropDialog } from './ImageCropDialog';
 
 interface ImageUploadProps {
   value?: string;
@@ -14,8 +15,10 @@ interface ImageUploadProps {
 export function ImageUpload({ value, onChange, folder = 'general', className }: ImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [cropOpen, setCropOpen] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string>('');
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = async (file: File | Blob) => {
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
       return;
@@ -29,8 +32,9 @@ export function ImageUpload({ value, onChange, folder = 'general', className }: 
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = (file instanceof File ? file.name.split('.').pop() : undefined) || 'jpg';
       const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
 
       const { error: uploadError } = await supabase.storage
         .from('gym-images')
@@ -82,6 +86,17 @@ export function ImageUpload({ value, onChange, folder = 'general', className }: 
     onChange('');
   };
 
+  const openCrop = () => {
+    if (!value) return;
+    setCropSrc(value);
+    setCropOpen(true);
+  };
+
+  const handleCropped = async (blob: Blob) => {
+    await uploadFile(blob);
+    setCropOpen(false);
+  };
+
   return (
     <div className={cn("space-y-2", className)}>
       {value ? (
@@ -91,15 +106,31 @@ export function ImageUpload({ value, onChange, folder = 'general', className }: 
             alt="Uploaded"
             className="w-full h-48 object-cover rounded-lg border border-border"
           />
-          <button
-            type="button"
-            onClick={handleRemove}
-            className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              type="button"
+              onClick={openCrop}
+              title="Atur cropping"
+              className="p-1.5 bg-primary text-primary-foreground rounded-full"
+            >
+              <Crop className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="p-1.5 bg-destructive text-destructive-foreground rounded-full"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          {isUploading && (
+            <div className="absolute inset-0 bg-background/60 rounded-lg flex items-center justify-center">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          )}
         </div>
       ) : (
+
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -145,6 +176,15 @@ export function ImageUpload({ value, onChange, folder = 'general', className }: 
           </div>
         </div>
       )}
+
+      <ImageCropDialog
+        open={cropOpen}
+        onOpenChange={setCropOpen}
+        imageSrc={cropSrc}
+        isSaving={isUploading}
+        onCropped={handleCropped}
+      />
     </div>
+
   );
 }
