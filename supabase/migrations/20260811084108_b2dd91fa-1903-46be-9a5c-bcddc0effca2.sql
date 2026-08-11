@@ -1,0 +1,1 @@
+ALTER TABLE public.trainers ADD COLUMN IF NOT EXISTS videos text[] DEFAULT '{}'::text[], ADD COLUMN IF NOT EXISTS hero_video_url text;

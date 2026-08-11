@@ -666,6 +666,7 @@ export type Database = {
           bio: string | null
           certifications: string[] | null
           created_at: string
+          hero_video_url: string | null
           id: string
           images: string[] | null
           instagram: string | null
@@ -676,11 +677,13 @@ export type Database = {
           sort_order: number | null
           specialization: string | null
           updated_at: string
+          videos: string[] | null
         }
         Insert: {
           bio?: string | null
           certifications?: string[] | null
           created_at?: string
+          hero_video_url?: string | null
           id?: string
           images?: string[] | null
           instagram?: string | null
@@ -691,11 +694,13 @@ export type Database = {
           sort_order?: number | null
           specialization?: string | null
           updated_at?: string
+          videos?: string[] | null
         }
         Update: {
           bio?: string | null
           certifications?: string[] | null
           created_at?: string
+          hero_video_url?: string | null
           id?: string
           images?: string[] | null
           instagram?: string | null
@@ -706,6 +711,7 @@ export type Database = {
           sort_order?: number | null
           specialization?: string | null
           updated_at?: string
+          videos?: string[] | null
         }
         Relationships: [
           {
