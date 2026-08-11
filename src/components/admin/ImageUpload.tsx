@@ -86,6 +86,17 @@ export function ImageUpload({ value, onChange, folder = 'general', className }: 
     onChange('');
   };
 
+  const openCrop = () => {
+    if (!value) return;
+    setCropSrc(value);
+    setCropOpen(true);
+  };
+
+  const handleCropped = async (blob: Blob) => {
+    await uploadFile(blob);
+    setCropOpen(false);
+  };
+
   return (
     <div className={cn("space-y-2", className)}>
       {value ? (
@@ -95,15 +106,31 @@ export function ImageUpload({ value, onChange, folder = 'general', className }: 
             alt="Uploaded"
             className="w-full h-48 object-cover rounded-lg border border-border"
           />
-          <button
-            type="button"
-            onClick={handleRemove}
-            className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              type="button"
+              onClick={openCrop}
+              title="Atur cropping"
+              className="p-1.5 bg-primary text-primary-foreground rounded-full"
+            >
+              <Crop className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="p-1.5 bg-destructive text-destructive-foreground rounded-full"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          {isUploading && (
+            <div className="absolute inset-0 bg-background/60 rounded-lg flex items-center justify-center">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          )}
         </div>
       ) : (
+
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
