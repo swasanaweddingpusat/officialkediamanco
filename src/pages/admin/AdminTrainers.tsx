@@ -5,6 +5,8 @@ import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
 import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
+import { VideoUpload } from '@/components/admin/VideoUpload';
+import { MultiVideoUpload } from '@/components/admin/MultiVideoUpload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -37,6 +39,8 @@ type Trainer = {
   instagram: string | null;
   certifications: string[] | null;
   images: string[] | null;
+  videos: string[] | null;
+  hero_video_url: string | null;
   location_id: string | null;
   sort_order: number | null;
   is_active: boolean | null;
@@ -60,6 +64,8 @@ const AdminTrainers = () => {
     bio: '',
     photo_url: '',
     images: [] as string[],
+    videos: [] as string[],
+    hero_video_url: '',
     location_id: '',
     sort_order: 0,
     is_active: true,
@@ -72,6 +78,8 @@ const AdminTrainers = () => {
       bio: '', 
       photo_url: '', 
       images: [],
+      videos: [],
+      hero_video_url: '',
       location_id: '',
       sort_order: 0, 
       is_active: true 
@@ -92,6 +100,8 @@ const AdminTrainers = () => {
       bio: item.bio || '',
       photo_url: item.photo_url || '',
       images: item.images || [],
+      videos: item.videos || [],
+      hero_video_url: item.hero_video_url || '',
       location_id: item.location_id || '',
       sort_order: item.sort_order || 0,
       is_active: item.is_active ?? true,
@@ -111,6 +121,8 @@ const AdminTrainers = () => {
       bio: formData.bio || undefined,
       photo_url: formData.photo_url || undefined,
       images: formData.images.length > 0 ? formData.images : undefined,
+      videos: formData.videos,
+      hero_video_url: formData.hero_video_url || null,
       location_id: formData.location_id || null,
       sort_order: formData.sort_order,
       is_active: formData.is_active,
@@ -167,7 +179,7 @@ const AdminTrainers = () => {
       label: 'Gallery',
       render: (item: Trainer) => (
         <span className="text-sm text-muted-foreground">
-          {item.images?.length || 0} foto
+          {item.images?.length || 0} foto{(item.videos?.length || item.hero_video_url) ? ` · ${(item.videos?.length || 0) + (item.hero_video_url ? 1 : 0)} video` : ''}
         </span>
       ),
     },
@@ -280,6 +292,31 @@ const AdminTrainers = () => {
             />
             <p className="text-xs text-muted-foreground">
               Upload foto-foto dokumentasi event (maksimal 20 foto)
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Video Utama (Hero)</Label>
+            <VideoUpload
+              value={formData.hero_video_url}
+              onChange={(url) => setFormData({ ...formData, hero_video_url: url })}
+              folder="portfolio-videos"
+            />
+            <p className="text-xs text-muted-foreground">
+              Video utama yang tampil di bagian atas halaman portfolio (upload file, YouTube, atau TikTok)
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Galeri Video</Label>
+            <MultiVideoUpload
+              value={formData.videos}
+              onChange={(urls) => setFormData({ ...formData, videos: urls })}
+              folder="portfolio-videos"
+              maxVideos={10}
+            />
+            <p className="text-xs text-muted-foreground">
+              Upload video dokumentasi event atau tambahkan link YouTube/TikTok (maksimal 10 video)
             </p>
           </div>
 
