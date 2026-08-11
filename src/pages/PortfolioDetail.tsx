@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronLeft, MapPin, Calendar, Images, Expand, ArrowRight } from 'lucide-react';
+import { ChevronLeft, MapPin, Calendar, Images, Expand, ArrowRight, Video as VideoIcon } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useTrainerById } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { LocationLightbox } from '@/components/location/LocationLightbox';
+import { PortfolioVideo } from '@/components/portfolio/PortfolioVideo';
 import { format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 
@@ -80,8 +81,33 @@ const PortfolioDetail = () => {
         </div>
       </div>
 
+      {/* Hero Video */}
+      {portfolio.hero_video_url && (
+        <section className="pb-8">
+          <div className="container mx-auto px-6 lg:px-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="relative aspect-video lg:aspect-[21/9] rounded-sm overflow-hidden bg-foreground"
+            >
+              <PortfolioVideo
+                url={portfolio.hero_video_url}
+                title={portfolio.name}
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+            <div className="mt-6">
+              {portfolio.specialization && (
+                <span className="text-primary text-[10px] tracking-[0.2em] uppercase block mb-3">{portfolio.specialization}</span>
+              )}
+              <h1 className="font-serif text-3xl lg:text-5xl tracking-tight font-bold">{portfolio.name}</h1>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Hero Image */}
-      {portfolio.photo_url && (
+      {!portfolio.hero_video_url && portfolio.photo_url && (
         <section className="pb-8">
           <div className="container mx-auto px-6 lg:px-12">
             <motion.div
@@ -118,7 +144,7 @@ const PortfolioDetail = () => {
       {/* Content */}
       <section className="pb-24 lg:pb-32">
         <div className="container mx-auto px-6 lg:px-12">
-          {!portfolio.photo_url && (
+          {!portfolio.photo_url && !portfolio.hero_video_url && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
               {portfolio.specialization && (
                 <span className="text-primary text-[10px] tracking-[0.2em] uppercase block mb-3">{portfolio.specialization}</span>
@@ -153,6 +179,12 @@ const PortfolioDetail = () => {
                 {portfolio.images.length} foto
               </span>
             )}
+            {portfolio.videos && portfolio.videos.length > 0 && (
+              <span className="flex items-center gap-2 text-muted-foreground text-sm">
+                <VideoIcon className="w-4 h-4" />
+                {portfolio.videos.length} video
+              </span>
+            )}
           </motion.div>
 
           {/* Gallery */}
@@ -175,6 +207,30 @@ const PortfolioDetail = () => {
                       <Expand className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
                     </div>
                   </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Video Gallery */}
+          {portfolio.videos && portfolio.videos.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mt-16">
+              <h2 className="font-serif text-2xl lg:text-3xl mb-8 font-bold">Galeri Video</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+                {portfolio.videos.map((vid, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.05 * idx }}
+                    className="relative aspect-video rounded-sm overflow-hidden bg-foreground"
+                  >
+                    <PortfolioVideo
+                      url={vid}
+                      title={`${portfolio.name} - video ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
