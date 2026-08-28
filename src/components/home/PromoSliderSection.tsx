@@ -90,7 +90,6 @@ export function PromoSliderSection() {
             style={{ scrollbarWidth: 'none' }}
           >
             {promos.map((promo, i) => {
-              const altStyle = i % 2 === 1;
               return (
                 <motion.div
                   key={promo.id}
