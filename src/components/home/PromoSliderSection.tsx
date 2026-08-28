@@ -100,47 +100,13 @@ export function PromoSliderSection() {
                   transition={{ delay: i * 0.06 }}
                   className="flex-none w-[88%] md:w-[calc(50%-12px)] snap-start group"
                 >
-                  <Link to={`/tentang-kami/${promo.id}`} className="block">
+                  <Link to={`/tentang-kami/${promo.id}`} className="block" aria-label={promo.name}>
                     <div className="relative h-64 md:h-72 rounded-3xl overflow-hidden shadow-xl">
                       <img
                         src={promo.image_url || '/placeholder.svg'}
                         alt={promo.name}
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
-                      <div
-                        className={`absolute inset-0 ${
-                          altStyle
-                            ? 'bg-gradient-to-r from-primary/90 via-primary/50 to-transparent'
-                            : 'bg-gradient-to-r from-foreground/90 via-foreground/50 to-transparent'
-                        }`}
-                      />
-                      <div className="absolute inset-0 p-8 flex flex-col justify-center text-background">
-                        {promo.category && (
-                          <div
-                            className={`text-[10px] font-bold px-3 py-1 rounded-full w-fit mb-3 uppercase tracking-wider ${
-                              altStyle ? 'bg-foreground text-background' : 'bg-primary text-primary-foreground'
-                            }`}
-                          >
-                            {promo.category}
-                          </div>
-                        )}
-                        <h3 className="text-2xl md:text-3xl font-serif font-bold mb-2 leading-tight max-w-[300px]">
-                          {promo.name}
-                        </h3>
-                        {promo.description && (
-                          <p className="text-background/80 text-xs md:text-sm mb-6 max-w-[280px] line-clamp-2">
-                            {promo.description}
-                          </p>
-                        )}
-                        <span className="w-fit text-sm font-semibold flex items-center gap-2 group/btn">
-                          Lihat Penawaran
-                          <span
-                            className={`block w-6 h-px transition-all group-hover/btn:w-10 ${
-                              altStyle ? 'bg-foreground' : 'bg-primary'
-                            }`}
-                          />
-                        </span>
-                      </div>
                     </div>
                   </Link>
                 </motion.div>
