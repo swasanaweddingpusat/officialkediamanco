@@ -605,6 +605,8 @@ export function useCreateBallroomBooking() {
       event_type?: string;
       guest_count?: number;
       notes?: string;
+      session_id?: string;
+
     }) => {
       const { data, error } = await supabase.from('ballroom_bookings').insert(booking).select().single();
       if (error) throw error;
