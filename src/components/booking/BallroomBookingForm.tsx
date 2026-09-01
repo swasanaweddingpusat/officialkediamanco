@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format, isBefore, startOfToday } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
-import { CalendarIcon, CheckCircle, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { CalendarIcon, CheckCircle, Loader2, User, PartyPopper, MessageCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,13 +16,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
-import { useCreateBallroomBooking, useBallroomSchedules } from '@/hooks/useCMS';
+import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings } from '@/hooks/useCMS';
 
 const EVENT_TYPES = [
   'Wedding',
@@ -41,10 +42,10 @@ const bookingSchema = z.object({
   }),
   start_time: z.string().optional(),
   end_time: z.string().optional(),
-  contact_name: z.string().min(2, 'Nama minimal 2 karakter').max(100, 'Nama maksimal 100 karakter'),
-  contact_email: z.string().email('Email tidak valid').max(255, 'Email maksimal 255 karakter'),
-  contact_phone: z.string().min(8, 'Nomor telepon minimal 8 digit').max(20, 'Nomor telepon maksimal 20 karakter'),
-  event_name: z.string().min(2, 'Nama acara minimal 2 karakter').max(200, 'Nama acara maksimal 200 karakter'),
+  contact_name: z.string().trim().min(2, 'Nama minimal 2 karakter').max(100, 'Nama maksimal 100 karakter'),
+  contact_email: z.string().trim().email('Email tidak valid').max(255, 'Email maksimal 255 karakter'),
+  contact_phone: z.string().trim().min(8, 'Nomor telepon minimal 8 digit').max(20, 'Nomor telepon maksimal 20 karakter'),
+  event_name: z.string().trim().min(2, 'Nama acara minimal 2 karakter').max(200, 'Nama acara maksimal 200 karakter'),
   event_type: z.string().optional(),
   guest_count: z.number().min(1, 'Jumlah tamu minimal 1').max(10000, 'Jumlah tamu maksimal 10000').optional(),
   notes: z.string().max(1000, 'Catatan maksimal 1000 karakter').optional(),
@@ -58,10 +59,22 @@ interface BallroomBookingFormProps {
   onClose?: () => void;
 }
 
+const SectionTitle = ({ icon: Icon, title }: { icon: typeof User; title: string }) => (
+  <div className="flex items-center gap-2 pt-2">
+    <span className="p-1.5 rounded-md bg-secondary">
+      <Icon className="w-3.5 h-3.5 text-primary" />
+    </span>
+    <h4 className="text-xs uppercase tracking-[0.12em] text-muted-foreground font-medium">{title}</h4>
+    <span className="flex-1 h-px bg-border" />
+  </div>
+);
+
 export function BallroomBookingForm({ locationId, locationName, onClose }: BallroomBookingFormProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [waLink, setWaLink] = useState<string>('');
   const createBooking = useCreateBallroomBooking();
   const { data: schedules = [] } = useBallroomSchedules(locationId);
+  const { data: settings } = useSiteSettings();
 
   // Get booked dates
   const bookedDates = schedules
@@ -81,12 +94,41 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
   });
 
   const isDateDisabled = (date: Date) => {
-    // Disable past dates
     if (isBefore(date, startOfToday())) return true;
-    // Disable already booked dates
     return bookedDates.some(
       booked => format(booked, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
     );
+  };
+
+  const buildWaLink = (data: BookingFormValues) => {
+    const rawNumber =
+      settings?.phone?.replace(/[^0-9]/g, '') ||
+      settings?.whatsapp_link?.replace(/[^0-9]/g, '') ||
+      '6281117797567';
+    const waNumber = rawNumber.startsWith('0') ? `62${rawNumber.slice(1)}` : rawNumber;
+
+    const lines = [
+      'Halo Kediaman, saya ingin mengajukan reservasi ballroom.',
+      '',
+      `*Venue* : ${locationName}`,
+      `*Tanggal* : ${format(data.booking_date, 'EEEE, dd MMMM yyyy', { locale: idLocale })}`,
+      data.start_time || data.end_time
+        ? `*Waktu* : ${data.start_time || '-'} - ${data.end_time || '-'}`
+        : null,
+      `*Nama Acara* : ${data.event_name}`,
+      data.event_type ? `*Jenis Acara* : ${data.event_type}` : null,
+      data.guest_count ? `*Perkiraan Tamu* : ${data.guest_count} orang` : null,
+      '',
+      '*Data Pemesan*',
+      `Nama : ${data.contact_name}`,
+      `Email : ${data.contact_email}`,
+      `Telepon : ${data.contact_phone}`,
+      data.notes ? `\n*Catatan* : ${data.notes}` : null,
+      '',
+      'Mohon informasi ketersediaan dan penawarannya. Terima kasih.',
+    ].filter(Boolean) as string[];
+
+    return `https://wa.me/${waNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
   };
 
   const onSubmit = async (data: BookingFormValues) => {
@@ -104,7 +146,10 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
         guest_count: data.guest_count || undefined,
         notes: data.notes || undefined,
       });
+      const link = buildWaLink(data);
+      setWaLink(link);
       setIsSubmitted(true);
+      window.open(link, '_blank', 'noopener,noreferrer');
     } catch (error) {
       // Error handled by mutation
     }
@@ -120,10 +165,16 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
         <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
         <h3 className="font-serif text-2xl mb-2 font-bold">Permintaan Booking Terkirim!</h3>
         <p className="text-muted-foreground mb-4">
-          Terima kasih! Tim kami akan menghubungi Anda dalam 1x24 jam untuk konfirmasi.
+          Data Anda tersimpan. Kami juga membuka WhatsApp agar tim kami bisa langsung merespons.
         </p>
+        <a href={waLink} target="_blank" rel="noopener noreferrer" className="block mb-3">
+          <Button className="w-full gap-2" size="lg">
+            <MessageCircle className="w-4 h-4" />
+            Lanjutkan ke WhatsApp
+          </Button>
+        </a>
         <p className="text-sm text-muted-foreground mb-6">
-          Anda dapat mengecek status booking kapan saja di{' '}
+          Cek status booking kapan saja di{' '}
           <a href="/booking/track" className="text-primary hover:underline font-medium">
             halaman tracking
           </a>
@@ -137,11 +188,16 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="text-center mb-4">
-          <h3 className="font-serif text-xl font-bold">Booking {locationName}</h3>
-          <p className="text-sm text-muted-foreground">Isi form berikut untuk mengajukan reservasi</p>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <div className="text-center pb-2 border-b border-border">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-1">Reservasi</p>
+          <h3 className="font-serif text-2xl font-bold">{locationName}</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Isi detail acara Anda — tim kami merespons dalam 1x24 jam.
+          </p>
         </div>
+
+        <SectionTitle icon={CalendarIcon} title="Jadwal Acara" />
 
         {/* Date Picker */}
         <FormField
@@ -156,7 +212,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
                     <Button
                       variant="outline"
                       className={cn(
-                        'w-full pl-3 text-left font-normal',
+                        'w-full h-11 pl-3 text-left font-normal',
                         !field.value && 'text-muted-foreground'
                       )}
                     >
@@ -180,6 +236,9 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
                   />
                 </PopoverContent>
               </Popover>
+              <FormDescription className="text-xs">
+                Tanggal yang sudah terisi otomatis dinonaktifkan.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -194,7 +253,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
               <FormItem>
                 <FormLabel>Jam Mulai</FormLabel>
                 <FormControl>
-                  <Input type="time" {...field} />
+                  <Input type="time" className="h-11" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -207,7 +266,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
               <FormItem>
                 <FormLabel>Jam Selesai</FormLabel>
                 <FormControl>
-                  <Input type="time" {...field} />
+                  <Input type="time" className="h-11" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -215,51 +274,8 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
           />
         </div>
 
-        {/* Contact Info */}
-        <FormField
-          control={form.control}
-          name="contact_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Lengkap *</FormLabel>
-              <FormControl>
-                <Input placeholder="Nama Anda" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <SectionTitle icon={PartyPopper} title="Detail Acara" />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="contact_email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email *</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="email@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="contact_phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>No. Telepon *</FormLabel>
-                <FormControl>
-                  <Input type="tel" placeholder="+62 812 3456 7890" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Event Details */}
         <FormField
           control={form.control}
           name="event_name"
@@ -267,7 +283,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
             <FormItem>
               <FormLabel>Nama Acara *</FormLabel>
               <FormControl>
-                <Input placeholder="Contoh: Wedding Reception John & Jane" {...field} />
+                <Input className="h-11" placeholder="Contoh: Wedding Reception John & Jane" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -283,7 +299,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
                 <FormLabel>Jenis Acara</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue placeholder="Pilih jenis acara" />
                     </SelectTrigger>
                   </FormControl>
@@ -308,10 +324,58 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
                 <FormControl>
                   <Input
                     type="number"
+                    inputMode="numeric"
+                    className="h-11"
                     placeholder="100"
                     {...field}
+                    value={field.value ?? ''}
                     onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <SectionTitle icon={User} title="Data Pemesan" />
+
+        <FormField
+          control={form.control}
+          name="contact_name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nama Lengkap *</FormLabel>
+              <FormControl>
+                <Input className="h-11" placeholder="Nama Anda" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="contact_email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email *</FormLabel>
+                <FormControl>
+                  <Input type="email" className="h-11" placeholder="email@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="contact_phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>No. WhatsApp *</FormLabel>
+                <FormControl>
+                  <Input type="tel" className="h-11" placeholder="0812 3456 7890" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -329,6 +393,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
                 <Textarea
                   placeholder="Tuliskan kebutuhan khusus Anda..."
                   rows={3}
+                  className="resize-none"
                   {...field}
                 />
               </FormControl>
@@ -337,22 +402,30 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
           )}
         />
 
-        <div className="flex gap-3 pt-4">
-          {onClose && (
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-              Batal
-            </Button>
-          )}
-          <Button type="submit" disabled={createBooking.isPending} className="flex-1">
-            {createBooking.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Mengirim...
-              </>
-            ) : (
-              'Kirim Booking'
+        <div className="sticky bottom-0 -mx-6 px-6 pt-4 pb-1 bg-background/95 backdrop-blur border-t border-border">
+          <div className="flex gap-3">
+            {onClose && (
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1 h-11">
+                Batal
+              </Button>
             )}
-          </Button>
+            <Button type="submit" disabled={createBooking.isPending} className="flex-1 h-11 gap-2">
+              {createBooking.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Mengirim...
+                </>
+              ) : (
+                <>
+                  <MessageCircle className="w-4 h-4" />
+                  Kirim & Chat WhatsApp
+                </>
+              )}
+            </Button>
+          </div>
+          <p className="text-[11px] text-center text-muted-foreground mt-2 mb-2">
+            Data tersimpan otomatis, lalu Anda diarahkan ke WhatsApp Kediaman.
+          </p>
         </div>
       </form>
     </Form>
