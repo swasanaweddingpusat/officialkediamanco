@@ -40,8 +40,10 @@ const bookingSchema = z.object({
   booking_date: z.date({
     required_error: 'Tanggal harus dipilih',
   }),
+  session_id: z.string().optional(),
   start_time: z.string().optional(),
   end_time: z.string().optional(),
+
   contact_name: z.string().trim().min(2, 'Nama minimal 2 karakter').max(100, 'Nama maksimal 100 karakter'),
   contact_email: z.string().trim().email('Email tidak valid').max(255, 'Email maksimal 255 karakter'),
   contact_phone: z.string().trim().min(8, 'Nomor telepon minimal 8 digit').max(20, 'Nomor telepon maksimal 20 karakter'),
@@ -69,17 +71,40 @@ const SectionTitle = ({ icon: Icon, title }: { icon: typeof User; title: string 
   </div>
 );
 
+const toMinutes = (t?: string | null) => {
+  if (!t) return null;
+  const [h, m] = t.split(':');
+  return parseInt(h, 10) * 60 + parseInt(m || '0', 10);
+};
+
+const overlaps = (aS: string, aE: string, bS?: string | null, bE?: string | null) => {
+  const bStart = toMinutes(bS);
+  const bEnd = toMinutes(bE);
+  // Jadwal tanpa jam = blok sehari penuh
+  if (bStart === null || bEnd === null) return true;
+  const aStart = toMinutes(aS)!;
+  const aEnd = toMinutes(aE)!;
+  return aStart < bEnd && bStart < aEnd;
+};
+
 export function BallroomBookingForm({ locationId, locationName, onClose }: BallroomBookingFormProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [waLink, setWaLink] = useState<string>('');
   const createBooking = useCreateBallroomBooking();
   const { data: schedules = [] } = useBallroomSchedules(locationId);
+  const { data: sessions = [] } = useVenueSessions(locationId);
   const { data: settings } = useSiteSettings();
 
-  // Get booked dates
-  const bookedDates = schedules
-    .filter(s => s.status === 'booked' || s.status === 'blocked')
-    .map(s => new Date(s.schedule_date));
+  const blockedSchedules = useMemo(
+    () => schedules.filter(s => s.status === 'booked' || s.status === 'blocked'),
+    [schedules]
+  );
+
+  const schedulesForDate = (date: Date) =>
+    blockedSchedules.filter(s => s.schedule_date === format(date, 'yyyy-MM-dd'));
+
+  const isSessionTaken = (date: Date, session: { start_time: string; end_time: string }) =>
+    schedulesForDate(date).some(s => overlaps(session.start_time, session.end_time, s.start_time, s.end_time));
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
@@ -90,14 +115,33 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
       event_name: '',
       event_type: '',
       notes: '',
+      session_id: '',
     },
   });
 
+  const selectedDate = form.watch('booking_date');
+  const selectedSessionId = form.watch('session_id');
+
+  const sessionAvailability = useMemo(() => {
+    if (!selectedDate) return [];
+    return sessions.map(s => ({ ...s, taken: isSessionTaken(selectedDate, s) }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate, sessions, blockedSchedules]);
+
   const isDateDisabled = (date: Date) => {
     if (isBefore(date, startOfToday())) return true;
-    return bookedDates.some(
-      booked => format(booked, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-    );
+    const daySchedules = schedulesForDate(date);
+    if (daySchedules.length === 0) return false;
+    // Tanpa data sesi: satu jadwal apa pun menutup tanggal
+    if (sessions.length === 0) return true;
+    // Dengan sesi: tanggal ditutup hanya jika semua sesi penuh
+    return sessions.every(s => isSessionTaken(date, s));
+  };
+
+  const handleSelectSession = (session: { id: string; start_time: string; end_time: string }) => {
+    form.setValue('session_id', session.id, { shouldValidate: true });
+    form.setValue('start_time', session.start_time.slice(0, 5));
+    form.setValue('end_time', session.end_time.slice(0, 5));
   };
 
   const buildWaLink = (data: BookingFormValues) => {
@@ -106,12 +150,14 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
       settings?.whatsapp_link?.replace(/[^0-9]/g, '') ||
       '6281117797567';
     const waNumber = rawNumber.startsWith('0') ? `62${rawNumber.slice(1)}` : rawNumber;
+    const sessionName = sessions.find(s => s.id === data.session_id)?.name;
 
     const lines = [
       'Halo Kediaman, saya ingin mengajukan reservasi ballroom.',
       '',
       `*Venue* : ${locationName}`,
       `*Tanggal* : ${format(data.booking_date, 'EEEE, dd MMMM yyyy', { locale: idLocale })}`,
+      sessionName ? `*Sesi* : ${sessionName}` : null,
       data.start_time || data.end_time
         ? `*Waktu* : ${data.start_time || '-'} - ${data.end_time || '-'}`
         : null,
@@ -132,10 +178,22 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
   };
 
   const onSubmit = async (data: BookingFormValues) => {
+    if (sessions.length > 0) {
+      const chosen = sessionAvailability.find(s => s.id === data.session_id);
+      if (!chosen) {
+        form.setError('session_id', { message: 'Pilih sesi yang tersedia' });
+        return;
+      }
+      if (chosen.taken) {
+        form.setError('session_id', { message: 'Sesi ini sudah terisi, silakan pilih sesi lain' });
+        return;
+      }
+    }
     try {
       await createBooking.mutateAsync({
         location_id: locationId,
         booking_date: format(data.booking_date, 'yyyy-MM-dd'),
+        session_id: data.session_id || undefined,
         start_time: data.start_time || undefined,
         end_time: data.end_time || undefined,
         contact_name: data.contact_name,
@@ -146,6 +204,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
         guest_count: data.guest_count || undefined,
         notes: data.notes || undefined,
       });
+
       const link = buildWaLink(data);
       setWaLink(link);
       setIsSubmitted(true);

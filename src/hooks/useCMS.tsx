@@ -469,7 +469,32 @@ export function useUpdateSiteSettings() {
   });
 }
 
+// Venue Sessions (slot jadwal)
+export function useVenueSessions(locationId?: string) {
+  return useQuery({
+    queryKey: ['venue-sessions', locationId],
+    queryFn: async () => {
+      let query = supabase
+        .from('venue_sessions')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+        .order('start_time', { ascending: true });
+
+      if (locationId) {
+        query = query.eq('location_id', locationId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!locationId,
+  });
+}
+
 // Ballroom Schedules
+
 export function useBallroomSchedules(locationId?: string) {
   return useQuery({
     queryKey: ['ballroom-schedules', locationId],
@@ -580,6 +605,8 @@ export function useCreateBallroomBooking() {
       event_type?: string;
       guest_count?: number;
       notes?: string;
+      session_id?: string;
+
     }) => {
       const { data, error } = await supabase.from('ballroom_bookings').insert(booking).select().single();
       if (error) throw error;
