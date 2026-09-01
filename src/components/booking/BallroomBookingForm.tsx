@@ -40,8 +40,10 @@ const bookingSchema = z.object({
   booking_date: z.date({
     required_error: 'Tanggal harus dipilih',
   }),
+  session_id: z.string().optional(),
   start_time: z.string().optional(),
   end_time: z.string().optional(),
+
   contact_name: z.string().trim().min(2, 'Nama minimal 2 karakter').max(100, 'Nama maksimal 100 karakter'),
   contact_email: z.string().trim().email('Email tidak valid').max(255, 'Email maksimal 255 karakter'),
   contact_phone: z.string().trim().min(8, 'Nomor telepon minimal 8 digit').max(20, 'Nomor telepon maksimal 20 karakter'),
