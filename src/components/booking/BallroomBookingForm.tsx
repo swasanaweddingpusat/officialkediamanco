@@ -94,17 +94,22 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
   const { data: schedules = [] } = useBallroomSchedules(locationId);
   const { data: sessions = [] } = useVenueSessions(locationId);
   const { data: settings } = useSiteSettings();
+  const { bookedDates } = useExternalBookedDates(locationName);
 
   const blockedSchedules = useMemo(
     () => schedules.filter(s => s.status === 'booked' || s.status === 'blocked'),
     [schedules]
   );
 
+  const isExternallyBooked = (date: Date) => bookedDates.has(format(date, 'yyyy-MM-dd'));
+
   const schedulesForDate = (date: Date) =>
     blockedSchedules.filter(s => s.schedule_date === format(date, 'yyyy-MM-dd'));
 
   const isSessionTaken = (date: Date, session: { start_time: string; end_time: string }) =>
+    isExternallyBooked(date) ||
     schedulesForDate(date).some(s => overlaps(session.start_time, session.end_time, s.start_time, s.end_time));
+
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
