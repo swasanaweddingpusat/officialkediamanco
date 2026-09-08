@@ -131,10 +131,11 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
     if (!selectedDate) return [];
     return sessions.map(s => ({ ...s, taken: isSessionTaken(selectedDate, s) }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDate, sessions, blockedSchedules]);
+  }, [selectedDate, sessions, blockedSchedules, bookedDates]);
 
   const isDateDisabled = (date: Date) => {
     if (isBefore(date, startOfToday())) return true;
+    if (isExternallyBooked(date)) return true;
     const daySchedules = schedulesForDate(date);
     if (daySchedules.length === 0) return false;
     // Tanpa data sesi: satu jadwal apa pun menutup tanggal
@@ -142,6 +143,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
     // Dengan sesi: tanggal ditutup hanya jika semua sesi penuh
     return sessions.every(s => isSessionTaken(date, s));
   };
+
 
   const handleSelectSession = (session: { id: string; start_time: string; end_time: string }) => {
     form.setValue('session_id', session.id, { shouldValidate: true });
