@@ -23,7 +23,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
-import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings } from '@/hooks/useCMS';
+import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings, useVenueSessions } from '@/hooks/useCMS';
 
 const EVENT_TYPES = [
   'Wedding',
