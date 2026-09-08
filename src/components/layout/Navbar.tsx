@@ -12,7 +12,6 @@ const navLinks = [
   { name: 'Portfolio', href: '/portfolio' },
   { name: 'Lokasi', href: '/lokasi' },
   { name: 'NEWS', href: '/paket' },
-  { name: 'Deals', href: '/deals' },
   { name: 'Artikel', href: '/artikel' },
 ];
 

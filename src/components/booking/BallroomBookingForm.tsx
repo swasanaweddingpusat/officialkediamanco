@@ -94,17 +94,22 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
   const { data: schedules = [] } = useBallroomSchedules(locationId);
   const { data: sessions = [] } = useVenueSessions(locationId);
   const { data: settings } = useSiteSettings();
+  const { bookedDates } = useExternalBookedDates(locationName);
 
   const blockedSchedules = useMemo(
     () => schedules.filter(s => s.status === 'booked' || s.status === 'blocked'),
     [schedules]
   );
 
+  const isExternallyBooked = (date: Date) => bookedDates.has(format(date, 'yyyy-MM-dd'));
+
   const schedulesForDate = (date: Date) =>
     blockedSchedules.filter(s => s.schedule_date === format(date, 'yyyy-MM-dd'));
 
   const isSessionTaken = (date: Date, session: { start_time: string; end_time: string }) =>
+    isExternallyBooked(date) ||
     schedulesForDate(date).some(s => overlaps(session.start_time, session.end_time, s.start_time, s.end_time));
+
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
@@ -126,10 +131,11 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
     if (!selectedDate) return [];
     return sessions.map(s => ({ ...s, taken: isSessionTaken(selectedDate, s) }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDate, sessions, blockedSchedules]);
+  }, [selectedDate, sessions, blockedSchedules, bookedDates]);
 
   const isDateDisabled = (date: Date) => {
     if (isBefore(date, startOfToday())) return true;
+    if (isExternallyBooked(date)) return true;
     const daySchedules = schedulesForDate(date);
     if (daySchedules.length === 0) return false;
     // Tanpa data sesi: satu jadwal apa pun menutup tanggal
@@ -137,6 +143,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
     // Dengan sesi: tanggal ditutup hanya jika semua sesi penuh
     return sessions.every(s => isSessionTaken(date, s));
   };
+
 
   const handleSelectSession = (session: { id: string; start_time: string; end_time: string }) => {
     form.setValue('session_id', session.id, { shouldValidate: true });
