@@ -848,3 +848,16 @@ export function useBulkUpdateAboutSectionOrder() {
     onError: () => toast.error('Failed to reorder sections'),
   });
 }
+
+// External Supabase — Deals
+export function useExternalDeals() {
+  return useQuery({
+    queryKey: ['external-deals'],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('external-deals');
+      if (error) throw error;
+      return (data?.deals ?? []) as Record<string, unknown>[];
+    },
+  });
+}
+
