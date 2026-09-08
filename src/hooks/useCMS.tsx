@@ -849,15 +849,54 @@ export function useBulkUpdateAboutSectionOrder() {
   });
 }
 
-// External Supabase — Deals
+// External Supabase — Deals (dipakai untuk menandai tanggal terbooking di kalender)
+export interface ExternalDeal {
+  id: number | string;
+  namaVenue?: string | null;
+  tanggalAcara?: string | null;
+  waktuAcara?: string | null;
+  jenisBooking?: string | null;
+}
+
 export function useExternalDeals() {
   return useQuery({
     queryKey: ['external-deals'],
+    staleTime: 5 * 60 * 1000,
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('external-deals');
       if (error) throw error;
-      return (data?.deals ?? []) as Record<string, unknown>[];
+      return (data?.deals ?? []) as ExternalDeal[];
     },
   });
 }
+
+/** Tanggal yang sudah dibooking berdasarkan data deals eksternal. */
+export function useExternalBookedDates(venueName?: string) {
+  const { data: deals = [], isLoading } = useExternalDeals();
+
+  const bookedDates = useMemo(() => {
+    const normalize = (v?: string | null) => (v ?? '').toLowerCase().trim();
+    const target = normalize(venueName);
+    const matches = target
+      ? deals.filter(d => {
+          const v = normalize(d.namaVenue);
+          return v && (v.includes(target) || target.includes(v));
+        })
+      : [];
+    const source = matches.length > 0 ? matches : target ? [] : deals;
+
+    const map = new Map<string, string[]>();
+    source.forEach(d => {
+      const date = (d.tanggalAcara ?? '').slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+      const list = map.get(date) ?? [];
+      if (d.waktuAcara) list.push(String(d.waktuAcara));
+      map.set(date, list);
+    });
+    return map;
+  }, [deals, venueName]);
+
+  return { bookedDates, isLoading };
+}
+
 
