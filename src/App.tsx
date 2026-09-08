@@ -60,6 +60,7 @@ const App = () => (
               <Route path="/tentang-kami/:id" element={<ProgramDetail />} />
               <Route path="/portfolio" element={<Trainers />} />
               <Route path="/portfolio/:id" element={<PortfolioDetail />} />
+              <Route path="/deals" element={<Deals />} />
               <Route path="/paket" element={<Packages />} />
               <Route path="/lokasi" element={<Locations />} />
               <Route path="/lokasi/:id" element={<LocationDetail />} />
