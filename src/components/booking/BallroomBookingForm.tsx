@@ -288,7 +288,12 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={field.onChange}
+                    onSelect={(d) => {
+                      field.onChange(d);
+                      form.setValue('session_id', '');
+                      form.setValue('start_time', '');
+                      form.setValue('end_time', '');
+                    }}
                     disabled={isDateDisabled}
                     initialFocus
                     className={cn('p-3 pointer-events-auto')}
