@@ -14,6 +14,7 @@ import Classes from "./pages/Classes";
 import ProgramDetail from "./pages/ProgramDetail";
 import Trainers from "./pages/Trainers";
 import PortfolioDetail from "./pages/PortfolioDetail";
+import Deals from "./pages/Deals";
 import Locations from "./pages/Locations";
 import LocationDetail from "./pages/LocationDetail";
 import Auth from "./pages/Auth";
