@@ -2,19 +2,8 @@ import { useExternalDeals } from '@/hooks/useCMS';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { motion } from 'framer-motion';
-import { Loader2, Tag, Calendar, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Loader2, Calendar, Users, MapPin, Tag } from 'lucide-react';
 import { useSEO } from '@/hooks/useSEO';
-
-function formatCurrency(value: unknown) {
-  const num = typeof value === 'string' ? parseFloat(value) : Number(value);
-  if (!num || isNaN(num)) return null;
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(num);
-}
 
 function formatDate(value: unknown) {
   if (!value || typeof value !== 'string') return null;
@@ -27,12 +16,16 @@ function formatDate(value: unknown) {
   });
 }
 
+function getString(value: unknown, fallback = '') {
+  return typeof value === 'string' ? value : fallback;
+}
+
 export default function Deals() {
   const { data: deals, isLoading, error } = useExternalDeals();
 
   useSEO({
-    title: 'Penawaran Spesial | Kediaman',
-    description: 'Temukan penawaran dan deal eksklusif dari Kediaman untuk momen istimewa Anda.',
+    title: 'Deals | Kediaman',
+    description: 'Daftar deal dan booking terbaru dari Kediaman.',
   });
 
   return (
@@ -49,13 +42,13 @@ export default function Deals() {
             className="max-w-3xl mb-12 lg:mb-16"
           >
             <span className="text-primary text-xs tracking-[0.2em] uppercase font-medium">
-              Eksklusif
+              Terbaru
             </span>
             <h1 className="font-serif text-4xl lg:text-6xl text-foreground mt-3 mb-4 leading-tight">
-              Penawaran Spesial
+              Deals
             </h1>
             <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
-              Kumpulan deal dan penawaran terpilih yang kami hadirkan untuk perayaan Anda.
+              Daftar deal dan booking terbaru yang tersambung langsung ke data Kediaman.
             </p>
           </motion.div>
 
@@ -69,14 +62,14 @@ export default function Deals() {
           {/* Error */}
           {error && !isLoading && (
             <div className="text-center py-20 border border-destructive/20 rounded-lg bg-destructive/5">
-              <p className="text-destructive">Gagal memuat penawaran. Silakan coba lagi nanti.</p>
+              <p className="text-destructive">Gagal memuat data deals. Silakan coba lagi nanti.</p>
             </div>
           )}
 
           {/* Empty */}
           {!isLoading && !error && (!deals || deals.length === 0) && (
             <div className="text-center py-20 border border-border/50 rounded-lg bg-muted/20">
-              <p className="text-muted-foreground">Belum ada penawaran tersedia saat ini.</p>
+              <p className="text-muted-foreground">Belum ada data deals tersedia saat ini.</p>
             </div>
           )}
 
@@ -84,102 +77,80 @@ export default function Deals() {
           {!isLoading && !error && deals && deals.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {deals.map((deal, index) => {
-                const title =
-                  typeof deal.name === 'string'
-                    ? deal.name
-                    : typeof deal.title === 'string'
-                    ? deal.title
-                    : 'Penawaran';
-                const description =
-                  typeof deal.description === 'string' ? deal.description : '';
-                const image =
-                  typeof deal.image_url === 'string'
-                    ? deal.image_url
-                    : typeof deal.image === 'string'
-                    ? deal.image
-                    : null;
-                const price = formatCurrency(deal.price ?? deal.amount);
-                const originalPrice = formatCurrency(deal.original_price ?? deal.old_price);
-                const status =
-                  typeof deal.status === 'string' ? deal.status : null;
-                const createdAt = formatDate(deal.created_at);
-                const link =
-                  typeof deal.link === 'string'
-                    ? deal.link
-                    : typeof deal.url === 'string'
-                    ? deal.url
-                    : null;
+                const client = getString(deal.namaClient, 'Klien');
+                const venue = getString(deal.namaVenue);
+                const pax = typeof deal.totalPax === 'number' ? deal.totalPax : null;
+                const eventDate = formatDate(deal.tanggalAcara);
+                const bookingDate = formatDate(deal.tanggalBooking);
+                const eventType = getString(deal.jenisAcara);
+                const bookingType = getString(deal.jenisBooking);
+                const marketing = getString(deal.namaMarketing);
+                const paxName = getString(deal.namaPax);
+                const eventTime = getString(deal.waktuAcara);
 
                 return (
                   <motion.article
                     key={String(deal.id ?? index)}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="group bg-card border border-border/50 rounded-xl overflow-hidden hover:border-primary/30 transition-colors duration-300"
+                    transition={{ duration: 0.5, delay: index * 0.05 }}
+                    className="group bg-card border border-border/50 rounded-xl p-5 lg:p-6 hover:border-primary/30 transition-colors duration-300"
                   >
-                    {/* Image */}
-                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                      {image ? (
-                        <img
-                          src={image}
-                          alt={title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/40">
-                          <Tag className="w-10 h-10" />
-                        </div>
+                    {/* Badges */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {bookingType && (
+                        <span className="px-3 py-1 text-[10px] tracking-[0.12em] uppercase bg-primary text-primary-foreground rounded-full">
+                          {bookingType}
+                        </span>
                       )}
-                      {status && (
-                        <span className="absolute top-3 left-3 px-3 py-1 text-[10px] tracking-[0.15em] uppercase bg-primary text-primary-foreground rounded-full">
-                          {status}
+                      {eventType && (
+                        <span className="px-3 py-1 text-[10px] tracking-[0.12em] uppercase bg-muted text-muted-foreground rounded-full">
+                          {eventType}
                         </span>
                       )}
                     </div>
 
-                    {/* Content */}
-                    <div className="p-5 lg:p-6">
-                      <h2 className="font-serif text-xl lg:text-2xl text-foreground mb-2 leading-tight">
-                        {title}
-                      </h2>
+                    {/* Title */}
+                    <h2 className="font-serif text-2xl lg:text-3xl text-foreground mb-1 leading-tight">
+                      {client}
+                    </h2>
+                    {paxName && (
+                      <p className="text-primary text-sm font-medium mb-4">{paxName}</p>
+                    )}
 
-                      {description && (
-                        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 mb-4">
-                          {description}
-                        </p>
-                      )}
-
-                      <div className="flex items-end gap-3 mb-4">
-                        {price && (
-                          <span className="font-serif text-2xl text-primary">{price}</span>
-                        )}
-                        {originalPrice && (
-                          <span className="text-sm text-muted-foreground line-through mb-1">
-                            {originalPrice}
-                          </span>
-                        )}
+                    {/* Venue */}
+                    {venue && (
+                      <div className="flex items-start gap-2 text-muted-foreground mb-4">
+                        <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
+                        <span className="text-sm leading-relaxed">{venue}</span>
                       </div>
+                    )}
 
-                      {createdAt && (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <span>{createdAt}</span>
+                    {/* Meta */}
+                    <div className="space-y-2 border-t border-border/50 pt-4">
+                      {eventDate && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Calendar className="w-4 h-4 shrink-0" />
+                          <span>{eventDate}</span>
+                          {eventTime && <span className="text-xs">({eventTime})</span>}
                         </div>
                       )}
-
-                      {link && (
-                        <a href={link} target="_blank" rel="noopener noreferrer">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full group/btn text-xs tracking-[0.1em] uppercase"
-                          >
-                            Lihat Detail
-                            <ArrowRight className="w-3.5 h-3.5 ml-2 transition-transform group-hover/btn:translate-x-1" />
-                          </Button>
-                        </a>
+                      {pax !== null && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Users className="w-4 h-4 shrink-0" />
+                          <span>{pax.toLocaleString('id-ID')} pax</span>
+                        </div>
+                      )}
+                      {marketing && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Tag className="w-4 h-4 shrink-0" />
+                          <span>Marketing: {marketing}</span>
+                        </div>
+                      )}
+                      {bookingDate && (
+                        <div className="text-xs text-muted-foreground/60 pt-1">
+                          Booking: {bookingDate}
+                        </div>
                       )}
                     </div>
                   </motion.article>
