@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -23,7 +23,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
-import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings } from '@/hooks/useCMS';
+import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings, useVenueSessions } from '@/hooks/useCMS';
 
 const EVENT_TYPES = [
   'Wedding',
@@ -288,7 +288,12 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={field.onChange}
+                    onSelect={(d) => {
+                      field.onChange(d);
+                      form.setValue('session_id', '');
+                      form.setValue('start_time', '');
+                      form.setValue('end_time', '');
+                    }}
                     disabled={isDateDisabled}
                     initialFocus
                     className={cn('p-3 pointer-events-auto')}
@@ -303,35 +308,90 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
           )}
         />
 
-        {/* Time */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Slot / Sesi */}
+        {sessions.length > 0 ? (
           <FormField
             control={form.control}
-            name="start_time"
-            render={({ field }) => (
+            name="session_id"
+            render={() => (
               <FormItem>
-                <FormLabel>Jam Mulai</FormLabel>
-                <FormControl>
-                  <Input type="time" className="h-11" {...field} />
-                </FormControl>
+                <FormLabel>Pilih Sesi *</FormLabel>
+                {!selectedDate ? (
+                  <p className="text-sm text-muted-foreground border border-dashed border-border rounded-lg p-4">
+                    Pilih tanggal terlebih dahulu untuk melihat sesi yang tersedia.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {sessionAvailability.map((s) => {
+                      const active = selectedSessionId === s.id;
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          disabled={s.taken}
+                          onClick={() => handleSelectSession(s)}
+                          className={cn(
+                            'text-left rounded-xl border p-3 transition-colors',
+                            active
+                              ? 'border-primary bg-primary/10'
+                              : 'border-border hover:border-primary/50',
+                            s.taken && 'opacity-50 cursor-not-allowed line-through hover:border-border'
+                          )}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-medium">{s.name}</span>
+                            <span
+                              className={cn(
+                                'text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full no-underline',
+                                s.taken ? 'bg-muted text-muted-foreground' : 'bg-primary/15 text-primary'
+                              )}
+                            >
+                              {s.taken ? 'Penuh' : 'Tersedia'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {s.start_time.slice(0, 5)} - {s.end_time.slice(0, 5)}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
                 <FormMessage />
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="end_time"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Jam Selesai</FormLabel>
-                <FormControl>
-                  <Input type="time" className="h-11" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="start_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Jam Mulai</FormLabel>
+                  <FormControl>
+                    <Input type="time" className="h-11" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="end_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Jam Selesai</FormLabel>
+                  <FormControl>
+                    <Input type="time" className="h-11" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
 
         <SectionTitle icon={PartyPopper} title="Detail Acara" />
 
