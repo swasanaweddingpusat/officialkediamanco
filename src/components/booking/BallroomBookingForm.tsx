@@ -23,7 +23,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
-import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings, useVenueSessions, useExternalBookedDates } from '@/hooks/useCMS';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings, useVenueSessions, useExternalBookedDates, useLocations } from '@/hooks/useCMS';
 
 const EVENT_TYPES = [
   'Wedding',
@@ -56,8 +57,8 @@ const bookingSchema = z.object({
 type BookingFormValues = z.infer<typeof bookingSchema>;
 
 interface BallroomBookingFormProps {
-  locationId: string;
-  locationName: string;
+  locationId?: string;
+  locationName?: string;
   onClose?: () => void;
 }
 
@@ -87,12 +88,24 @@ const overlaps = (aS: string, aE: string, bS?: string | null, bE?: string | null
   return aStart < bEnd && bStart < aEnd;
 };
 
-export function BallroomBookingForm({ locationId, locationName, onClose }: BallroomBookingFormProps) {
+export function BallroomBookingForm({
+  locationId: propLocationId,
+  locationName: propLocationName,
+  onClose,
+}: BallroomBookingFormProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [waLink, setWaLink] = useState<string>('');
+  const [pickedVenueId, setPickedVenueId] = useState<string>(propLocationId ?? '');
+  const { data: locations = [] } = useLocations();
+
+  const locationId = propLocationId ?? pickedVenueId;
+  const locationName =
+    propLocationName ?? locations.find((l) => l.id === locationId)?.name ?? '';
+  const needsVenuePick = !propLocationId;
+
   const createBooking = useCreateBallroomBooking();
-  const { data: schedules = [] } = useBallroomSchedules(locationId);
-  const { data: sessions = [] } = useVenueSessions(locationId);
+  const { data: schedules = [] } = useBallroomSchedules(locationId || undefined);
+  const { data: sessions = [] } = useVenueSessions(locationId || undefined);
   const { data: settings } = useSiteSettings();
   const { bookedDates } = useExternalBookedDates(locationName);
 
@@ -126,6 +139,17 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
 
   const selectedDate = form.watch('booking_date');
   const selectedSessionId = form.watch('session_id');
+  const watched = form.watch();
+
+  const step1Done = Boolean(locationId && selectedDate && (sessions.length === 0 || selectedSessionId));
+  const step2Done = Boolean(watched.event_name && watched.event_name.trim().length >= 2);
+  const step3Done = Boolean(watched.contact_name && watched.contact_email && watched.contact_phone);
+  const steps = [
+    { label: 'Venue & Jadwal', done: step1Done },
+    { label: 'Detail Acara', done: step2Done },
+    { label: 'Data Pemesan', done: step3Done },
+  ];
+  const currentStep = !step1Done ? 0 : !step2Done ? 1 : 2;
 
   const sessionAvailability = useMemo(() => {
     if (!selectedDate) return [];
@@ -185,6 +209,7 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
   };
 
   const onSubmit = async (data: BookingFormValues) => {
+    if (!locationId) return;
     if (sessions.length > 0) {
       const chosen = sessionAvailability.find(s => s.id === data.session_id);
       if (!chosen) {
@@ -257,13 +282,76 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
         <div className="text-center pb-2 border-b border-border">
           <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-1">Reservasi</p>
-          <h3 className="font-serif text-2xl font-bold">{locationName}</h3>
+          <h3 className="font-serif text-2xl font-bold">{locationName || 'Pilih Venue Anda'}</h3>
           <p className="text-sm text-muted-foreground mt-1">
             Isi detail acara Anda — tim kami merespons dalam 1x24 jam.
           </p>
         </div>
 
-        <SectionTitle icon={CalendarIcon} title="Jadwal Acara" />
+        {/* Step indicator */}
+        <div className="flex items-center gap-2">
+          {steps.map((s, i) => (
+            <div key={s.label} className="flex-1">
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    'w-6 h-6 shrink-0 rounded-full text-[11px] font-medium flex items-center justify-center border',
+                    s.done
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : i === currentStep
+                      ? 'border-primary text-primary'
+                      : 'border-border text-muted-foreground'
+                  )}
+                >
+                  {s.done ? <CheckCircle className="w-3.5 h-3.5" /> : i + 1}
+                </span>
+                <span
+                  className={cn(
+                    'text-[11px] tracking-wide hidden sm:block',
+                    i === currentStep ? 'text-foreground font-medium' : 'text-muted-foreground'
+                  )}
+                >
+                  {s.label}
+                </span>
+              </div>
+              <div className={cn('h-1 rounded-full mt-2', s.done ? 'bg-primary' : 'bg-border')} />
+            </div>
+          ))}
+        </div>
+
+        <SectionTitle icon={CalendarIcon} title="Venue & Jadwal Acara" />
+
+        {/* Venue picker */}
+        {needsVenuePick && (
+          <FormItem>
+            <FormLabel>Pilih Venue *</FormLabel>
+            <Select
+              value={pickedVenueId}
+              onValueChange={(v) => {
+                setPickedVenueId(v);
+                form.setValue('session_id', '');
+                form.setValue('start_time', '');
+                form.setValue('end_time', '');
+              }}
+            >
+              <SelectTrigger className="h-11">
+                <SelectValue placeholder="Pilih venue yang diinginkan" />
+              </SelectTrigger>
+              <SelectContent>
+                {locations
+                  .filter((l) => !l.is_coming_soon)
+                  .map((l) => (
+                    <SelectItem key={l.id} value={l.id}>
+                      {l.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            <FormDescription className="text-xs">
+              Belum yakin? Pilih salah satu dulu, tim kami bantu carikan yang paling cocok.
+            </FormDescription>
+          </FormItem>
+        )}
 
         {/* Date Picker */}
         <FormField
@@ -528,6 +616,30 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
           )}
         />
 
+        {/* FAQ singkat */}
+        <div className="rounded-xl border border-border bg-secondary/40 px-4">
+          <Accordion type="single" collapsible>
+            <AccordionItem value="biaya" className="border-b-0">
+              <AccordionTrigger className="text-sm">Apakah mengisi form ini sudah dikenakan biaya?</AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground">
+                Belum. Form ini adalah permintaan ketersediaan tanggal. Tidak ada biaya sampai Anda setuju dengan penawaran dari tim kami.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="dp" className="border-b-0">
+              <AccordionTrigger className="text-sm">Bagaimana cara mengunci tanggal?</AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground">
+                Tanggal dikunci setelah tanda jadi (DP) dibayarkan sesuai penawaran resmi. Sebelum itu, tanggal masih berstatus sementara.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="konfirmasi" className="border-b-0">
+              <AccordionTrigger className="text-sm">Berapa lama konfirmasinya?</AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground">
+                Maksimal 1x24 jam pada hari kerja. Anda juga bisa memantau status kapan saja di halaman tracking booking.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+
         <div className="sticky bottom-0 -mx-6 px-6 pt-4 pb-1 bg-background/95 backdrop-blur border-t border-border">
           <div className="flex gap-3">
             {onClose && (
@@ -535,7 +647,8 @@ export function BallroomBookingForm({ locationId, locationName, onClose }: Ballr
                 Batal
               </Button>
             )}
-            <Button type="submit" disabled={createBooking.isPending} className="flex-1 h-11 gap-2">
+            <Button type="submit" disabled={createBooking.isPending || !locationId} className="flex-1 h-11 gap-2">
+
               {createBooking.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
