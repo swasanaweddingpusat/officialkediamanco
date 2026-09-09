@@ -114,14 +114,25 @@ export function BallroomBookingForm({
     [schedules]
   );
 
-  const isExternallyBooked = (date: Date) => bookedDates.has(format(date, 'yyyy-MM-dd'));
+  const externalSlot = (date: Date) => bookedDates.get(format(date, 'yyyy-MM-dd'));
+
+  /** Seluruh hari terblokir hanya bila ada booking eksternal tanpa info waktu */
+  const isExternallyFullDay = (date: Date) => externalSlot(date)?.fullDay === true;
+
+  const isExternallyBookedSession = (date: Date, session: { start_time: string; end_time: string }) => {
+    const slot = externalSlot(date);
+    if (!slot) return false;
+    if (slot.fullDay) return true;
+    return slot.ranges.some(r => overlaps(session.start_time, session.end_time, r.start, r.end));
+  };
 
   const schedulesForDate = (date: Date) =>
     blockedSchedules.filter(s => s.schedule_date === format(date, 'yyyy-MM-dd'));
 
   const isSessionTaken = (date: Date, session: { start_time: string; end_time: string }) =>
-    isExternallyBooked(date) ||
+    isExternallyBookedSession(date, session) ||
     schedulesForDate(date).some(s => overlaps(session.start_time, session.end_time, s.start_time, s.end_time));
+
 
 
   const form = useForm<BookingFormValues>({
