@@ -23,7 +23,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
-import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings, useVenueSessions, useExternalBookedDates } from '@/hooks/useCMS';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings, useVenueSessions, useExternalBookedDates, useLocations } from '@/hooks/useCMS';
 
 const EVENT_TYPES = [
   'Wedding',
@@ -56,8 +57,8 @@ const bookingSchema = z.object({
 type BookingFormValues = z.infer<typeof bookingSchema>;
 
 interface BallroomBookingFormProps {
-  locationId: string;
-  locationName: string;
+  locationId?: string;
+  locationName?: string;
   onClose?: () => void;
 }
 
@@ -87,12 +88,24 @@ const overlaps = (aS: string, aE: string, bS?: string | null, bE?: string | null
   return aStart < bEnd && bStart < aEnd;
 };
 
-export function BallroomBookingForm({ locationId, locationName, onClose }: BallroomBookingFormProps) {
+export function BallroomBookingForm({
+  locationId: propLocationId,
+  locationName: propLocationName,
+  onClose,
+}: BallroomBookingFormProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [waLink, setWaLink] = useState<string>('');
+  const [pickedVenueId, setPickedVenueId] = useState<string>(propLocationId ?? '');
+  const { data: locations = [] } = useLocations();
+
+  const locationId = propLocationId ?? pickedVenueId;
+  const locationName =
+    propLocationName ?? locations.find((l) => l.id === locationId)?.name ?? '';
+  const needsVenuePick = !propLocationId;
+
   const createBooking = useCreateBallroomBooking();
-  const { data: schedules = [] } = useBallroomSchedules(locationId);
-  const { data: sessions = [] } = useVenueSessions(locationId);
+  const { data: schedules = [] } = useBallroomSchedules(locationId || undefined);
+  const { data: sessions = [] } = useVenueSessions(locationId || undefined);
   const { data: settings } = useSiteSettings();
   const { bookedDates } = useExternalBookedDates(locationName);
 
