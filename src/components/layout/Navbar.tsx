@@ -146,7 +146,7 @@ export function Navbar() {
                 className="mt-8 pt-8 border-t border-border/30 flex flex-col items-center gap-3"
               >
                 <BookingDialog>
-                  <Button size="lg" className="gap-2 tracking-[0.1em] uppercase text-xs" onClick={() => setIsOpen(false)}>
+                  <Button size="lg" className="gap-2 tracking-[0.1em] uppercase text-xs">
                     <CalendarCheck className="w-4 h-4" />
                     Booking Sekarang
                   </Button>
