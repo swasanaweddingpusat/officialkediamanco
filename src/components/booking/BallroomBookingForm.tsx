@@ -209,6 +209,7 @@ export function BallroomBookingForm({
   };
 
   const onSubmit = async (data: BookingFormValues) => {
+    if (!locationId) return;
     if (sessions.length > 0) {
       const chosen = sessionAvailability.find(s => s.id === data.session_id);
       if (!chosen) {
