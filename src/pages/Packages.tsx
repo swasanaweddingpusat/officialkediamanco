@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Search, MessageCircle } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -157,13 +157,13 @@ const Packages = () => {
                   transition={{ delay: Math.min(index, 5) * 0.06 }}
                   className="group flex flex-col rounded-2xl overflow-hidden border border-border bg-card"
                 >
-                  <Link to={`/tentang-kami/${program.id}`} className="block relative aspect-[4/3] overflow-hidden">
+                  <Link to={`/tentang-kami/${program.id}`} className="block relative aspect-[4/3] overflow-hidden bg-muted">
                     {program.image_url ? (
                       <img
                         src={program.image_url}
                         alt={program.name}
                         loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (
                       <div className="w-full h-full bg-muted" />
@@ -211,41 +211,7 @@ const Packages = () => {
         </div>
       </section>
 
-      {/* WhatsForm embed */}
-      <section id="form" className="py-16 lg:py-24 bg-card border-t border-border">
-        <div className="container mx-auto px-6 lg:px-12">
-          <div className="grid lg:grid-cols-[1fr_1.15fr] gap-10 lg:gap-16 items-start">
-            <div className="lg:sticky lg:top-40">
-              <p className="text-primary text-[11px] tracking-[0.3em] uppercase mb-5">
-                Formulir Pemesanan
-              </p>
-              <h2 className="font-serif text-3xl lg:text-5xl font-bold leading-tight mb-5">
-                Ajukan Penawaran Paket
-              </h2>
-              <p className="text-muted-foreground text-sm lg:text-base leading-relaxed mb-8">
-                Isi formulir di samping — data Anda akan langsung terkirim ke tim kami
-                melalui WhatsApp untuk dibalas dengan penawaran terbaik.
-              </p>
-              <a href={WHATSFORM_URL} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" className="rounded-full px-8 text-xs tracking-[0.05em] uppercase">
-                  <MessageCircle className="mr-2 w-4 h-4" />
-                  Buka Formulir di Tab Baru
-                </Button>
-              </a>
-            </div>
-
-            <div className="rounded-2xl overflow-hidden border border-border bg-background">
-              <iframe
-                src={WHATSFORM_URL}
-                title="Formulir Pemesanan Paket via WhatsApp"
-                className="w-full h-[720px] border-0"
-                loading="lazy"
-                allow="clipboard-write"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+    
     </Layout>
   );
 };
