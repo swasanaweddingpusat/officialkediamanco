@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Settings, LogOut, LogIn } from 'lucide-react';
+import { Menu, X, Settings, LogOut, LogIn, CalendarCheck } from 'lucide-react';
+import { BookingDialog } from '@/components/booking/BookingDialog';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
@@ -67,6 +68,12 @@ export function Navbar() {
 
             {/* Desktop Auth */}
             <div className="hidden lg:flex items-center gap-3">
+              <BookingDialog>
+                <Button size="sm" className="text-xs tracking-[0.1em] uppercase gap-2">
+                  <CalendarCheck className="w-3.5 h-3.5" />
+                  Booking
+                </Button>
+              </BookingDialog>
               {user ? (
                 <>
                   {isAdmin && (
