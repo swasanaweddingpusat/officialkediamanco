@@ -170,14 +170,17 @@ export function BallroomBookingForm({
 
   const isDateDisabled = (date: Date) => {
     if (isBefore(date, startOfToday())) return true;
-    if (isExternallyBooked(date)) return true;
     const daySchedules = schedulesForDate(date);
-    if (daySchedules.length === 0) return false;
-    // Tanpa data sesi: satu jadwal apa pun menutup tanggal
-    if (sessions.length === 0) return true;
+    const external = externalSlot(date);
+    // Tanpa data sesi: booking eksternal atau jadwal apa pun menutup tanggal
+    if (sessions.length === 0) return Boolean(external) || daySchedules.length > 0;
+    // Booking eksternal tanpa info waktu menutup seluruh hari
+    if (isExternallyFullDay(date)) return true;
+    if (daySchedules.length === 0 && !external) return false;
     // Dengan sesi: tanggal ditutup hanya jika semua sesi penuh
     return sessions.every(s => isSessionTaken(date, s));
   };
+
 
 
   const handleSelectSession = (session: { id: string; start_time: string; end_time: string }) => {
