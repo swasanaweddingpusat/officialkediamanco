@@ -136,7 +136,7 @@ const Packages = () => {
           {isLoading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="aspect-[4/5] rounded-2xl" />
+                <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
