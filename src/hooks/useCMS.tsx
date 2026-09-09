@@ -872,6 +872,25 @@ export function useExternalDeals() {
 }
 
 /** Tanggal yang sudah dibooking berdasarkan data deals eksternal. */
+export interface ExternalBookedSlot {
+  /** true bila waktu acara tidak diketahui / mencakup seluruh hari */
+  fullDay: boolean;
+  /** rentang waktu terpakai dalam format HH:mm */
+  ranges: { start: string; end: string }[];
+}
+
+/** Ambil rentang waktu dari teks bebas seperti "10:00 - 14:00" atau "10.00-14.00" */
+function parseExternalTimeRange(raw?: string | null): { start: string; end: string } | null {
+  if (!raw) return null;
+  const matches = String(raw).match(/(\d{1,2})[:.](\d{2})/g);
+  if (!matches || matches.length < 2) return null;
+  const norm = (t: string) => {
+    const [h, m] = t.split(/[:.]/);
+    return `${h.padStart(2, '0')}:${m}`;
+  };
+  return { start: norm(matches[0]), end: norm(matches[1]) };
+}
+
 export function useExternalBookedDates(venueName?: string) {
   const { data: deals = [], isLoading } = useExternalDeals();
 
@@ -881,23 +900,30 @@ export function useExternalBookedDates(venueName?: string) {
     const matches = target
       ? deals.filter(d => {
           const v = normalize(d.namaVenue);
-          return v && (v.includes(target) || target.includes(v));
+          if (!v) return false;
+          if (v === target) return true;
+          // Hindari false-positive dari nama venue yang terlalu pendek/generik
+          if (v.length < 4 || target.length < 4) return false;
+          return v.includes(target) || target.includes(v);
         })
       : [];
     const source = matches.length > 0 ? matches : target ? [] : deals;
 
-    const map = new Map<string, string[]>();
+    const map = new Map<string, ExternalBookedSlot>();
     source.forEach(d => {
       const date = (d.tanggalAcara ?? '').slice(0, 10);
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-      const list = map.get(date) ?? [];
-      if (d.waktuAcara) list.push(String(d.waktuAcara));
-      map.set(date, list);
+      const slot = map.get(date) ?? { fullDay: false, ranges: [] };
+      const range = parseExternalTimeRange(d.waktuAcara as string | null | undefined);
+      if (range) slot.ranges.push(range);
+      else slot.fullDay = true;
+      map.set(date, slot);
     });
     return map;
   }, [deals, venueName]);
 
   return { bookedDates, isLoading };
 }
+
 
 
