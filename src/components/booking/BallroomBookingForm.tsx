@@ -616,6 +616,30 @@ export function BallroomBookingForm({
           )}
         />
 
+        {/* FAQ singkat */}
+        <div className="rounded-xl border border-border bg-secondary/40 px-4">
+          <Accordion type="single" collapsible>
+            <AccordionItem value="biaya" className="border-b-0">
+              <AccordionTrigger className="text-sm">Apakah mengisi form ini sudah dikenakan biaya?</AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground">
+                Belum. Form ini adalah permintaan ketersediaan tanggal. Tidak ada biaya sampai Anda setuju dengan penawaran dari tim kami.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="dp" className="border-b-0">
+              <AccordionTrigger className="text-sm">Bagaimana cara mengunci tanggal?</AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground">
+                Tanggal dikunci setelah tanda jadi (DP) dibayarkan sesuai penawaran resmi. Sebelum itu, tanggal masih berstatus sementara.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="konfirmasi" className="border-b-0">
+              <AccordionTrigger className="text-sm">Berapa lama konfirmasinya?</AccordionTrigger>
+              <AccordionContent className="text-sm text-muted-foreground">
+                Maksimal 1x24 jam pada hari kerja. Anda juga bisa memantau status kapan saja di halaman tracking booking.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+
         <div className="sticky bottom-0 -mx-6 px-6 pt-4 pb-1 bg-background/95 backdrop-blur border-t border-border">
           <div className="flex gap-3">
             {onClose && (
@@ -623,7 +647,8 @@ export function BallroomBookingForm({
                 Batal
               </Button>
             )}
-            <Button type="submit" disabled={createBooking.isPending} className="flex-1 h-11 gap-2">
+            <Button type="submit" disabled={createBooking.isPending || !locationId} className="flex-1 h-11 gap-2">
+
               {createBooking.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
