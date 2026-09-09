@@ -139,6 +139,17 @@ export function BallroomBookingForm({
 
   const selectedDate = form.watch('booking_date');
   const selectedSessionId = form.watch('session_id');
+  const watched = form.watch();
+
+  const step1Done = Boolean(locationId && selectedDate && (sessions.length === 0 || selectedSessionId));
+  const step2Done = Boolean(watched.event_name && watched.event_name.trim().length >= 2);
+  const step3Done = Boolean(watched.contact_name && watched.contact_email && watched.contact_phone);
+  const steps = [
+    { label: 'Venue & Jadwal', done: step1Done },
+    { label: 'Detail Acara', done: step2Done },
+    { label: 'Data Pemesan', done: step3Done },
+  ];
+  const currentStep = !step1Done ? 0 : !step2Done ? 1 : 2;
 
   const sessionAvailability = useMemo(() => {
     if (!selectedDate) return [];
