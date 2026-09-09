@@ -282,13 +282,76 @@ export function BallroomBookingForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
         <div className="text-center pb-2 border-b border-border">
           <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-1">Reservasi</p>
-          <h3 className="font-serif text-2xl font-bold">{locationName}</h3>
+          <h3 className="font-serif text-2xl font-bold">{locationName || 'Pilih Venue Anda'}</h3>
           <p className="text-sm text-muted-foreground mt-1">
             Isi detail acara Anda — tim kami merespons dalam 1x24 jam.
           </p>
         </div>
 
-        <SectionTitle icon={CalendarIcon} title="Jadwal Acara" />
+        {/* Step indicator */}
+        <div className="flex items-center gap-2">
+          {steps.map((s, i) => (
+            <div key={s.label} className="flex-1">
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    'w-6 h-6 shrink-0 rounded-full text-[11px] font-medium flex items-center justify-center border',
+                    s.done
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : i === currentStep
+                      ? 'border-primary text-primary'
+                      : 'border-border text-muted-foreground'
+                  )}
+                >
+                  {s.done ? <CheckCircle className="w-3.5 h-3.5" /> : i + 1}
+                </span>
+                <span
+                  className={cn(
+                    'text-[11px] tracking-wide hidden sm:block',
+                    i === currentStep ? 'text-foreground font-medium' : 'text-muted-foreground'
+                  )}
+                >
+                  {s.label}
+                </span>
+              </div>
+              <div className={cn('h-1 rounded-full mt-2', s.done ? 'bg-primary' : 'bg-border')} />
+            </div>
+          ))}
+        </div>
+
+        <SectionTitle icon={CalendarIcon} title="Venue & Jadwal Acara" />
+
+        {/* Venue picker */}
+        {needsVenuePick && (
+          <FormItem>
+            <FormLabel>Pilih Venue *</FormLabel>
+            <Select
+              value={pickedVenueId}
+              onValueChange={(v) => {
+                setPickedVenueId(v);
+                form.setValue('session_id', '');
+                form.setValue('start_time', '');
+                form.setValue('end_time', '');
+              }}
+            >
+              <SelectTrigger className="h-11">
+                <SelectValue placeholder="Pilih venue yang diinginkan" />
+              </SelectTrigger>
+              <SelectContent>
+                {locations
+                  .filter((l) => !l.is_coming_soon)
+                  .map((l) => (
+                    <SelectItem key={l.id} value={l.id}>
+                      {l.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            <FormDescription className="text-xs">
+              Belum yakin? Pilih salah satu dulu, tim kami bantu carikan yang paling cocok.
+            </FormDescription>
+          </FormItem>
+        )}
 
         {/* Date Picker */}
         <FormField
