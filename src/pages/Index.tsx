@@ -4,6 +4,7 @@ import { PromoSliderSection } from '@/components/home/PromoSliderSection';
 import { VenueCollectionSection } from '@/components/home/VenueCollectionSection';
 import { PortfolioBentoSection } from '@/components/home/PortfolioBentoSection';
 import { JournalSection } from '@/components/home/JournalSection';
+import { BookingGuideSection } from '@/components/home/BookingGuideSection';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { CTASection } from '@/components/home/CTASection';
 import { useSEO } from '@/hooks/useSEO';
