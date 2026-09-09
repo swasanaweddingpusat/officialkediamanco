@@ -159,21 +159,12 @@ const Packages = () => {
                 >
                   <Link to={`/tentang-kami/${program.id}`} className="block relative aspect-[4/3] overflow-hidden bg-muted">
                     {program.image_url ? (
-                      <>
-                        <img
-                          src={program.image_url}
-                          alt=""
-                          aria-hidden="true"
-                          loading="lazy"
-                          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-40"
-                        />
-                        <img
-                          src={program.image_url}
-                          alt={program.name}
-                          loading="lazy"
-                          className="relative w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-[1.03]"
-                        />
-                      </>
+                      <img
+                        src={program.image_url}
+                        alt={program.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                      />
                     ) : (
                       <div className="w-full h-full bg-muted" />
                     )}
