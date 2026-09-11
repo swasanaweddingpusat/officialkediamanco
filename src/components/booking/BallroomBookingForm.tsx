@@ -345,6 +345,8 @@ export function BallroomBookingForm({
               value={pickedVenueId}
               onValueChange={(v) => {
                 setPickedVenueId(v);
+                // Tanggal harus dipilih ulang sesuai ketersediaan venue baru
+                form.resetField('booking_date');
                 form.setValue('session_id', '');
                 form.setValue('start_time', '');
                 form.setValue('end_time', '');
