@@ -42,6 +42,8 @@ const LocationDetail = () => {
     const imgs = [...images];
     if (location?.loading_area_images) imgs.push(...location.loading_area_images);
     if (location?.ballroom_layout_images) imgs.push(...location.ballroom_layout_images);
+    const fi = (location as any)?.facility_items as { image_url?: string }[] | undefined;
+    if (Array.isArray(fi)) fi.forEach(f => { if (f?.image_url) imgs.push(f.image_url); });
     portfolios.forEach(p => { if (p.images) imgs.push(...p.images); });
     return imgs;
   }, [images, location, portfolios]);
