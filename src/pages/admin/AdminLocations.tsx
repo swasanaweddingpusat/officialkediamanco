@@ -6,6 +6,7 @@ import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
 import { VideoUpload } from '@/components/admin/VideoUpload';
 import { Matterport360Input } from '@/components/admin/Matterport360Input';
+import { FacilityItemsEditor, type FacilityItem } from '@/components/admin/FacilityItemsEditor';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
