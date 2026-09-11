@@ -6,6 +6,7 @@ import { DeleteConfirmDialog } from '@/components/admin/DeleteConfirmDialog';
 import { MultiImageUpload } from '@/components/admin/MultiImageUpload';
 import { VideoUpload } from '@/components/admin/VideoUpload';
 import { Matterport360Input } from '@/components/admin/Matterport360Input';
+import { FacilityItemsEditor, type FacilityItem } from '@/components/admin/FacilityItemsEditor';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -31,6 +32,7 @@ type Location = {
   image_url: string | null;
   images: string[] | null;
   facilities: string[] | null;
+  facility_items?: unknown;
   is_coming_soon: boolean | null;
   sort_order: number | null;
   is_active: boolean | null;
@@ -66,6 +68,7 @@ const AdminLocations = () => {
     google_maps_url: '',
     images: [] as string[],
     facilities: '',
+    facility_items: [] as FacilityItem[],
     is_coming_soon: false,
     sort_order: 0,
     is_active: true,
@@ -91,6 +94,7 @@ const AdminLocations = () => {
       google_maps_url: '', 
       images: [], 
       facilities: '', 
+      facility_items: [],
       is_coming_soon: false, 
       sort_order: 0, 
       is_active: true,
@@ -124,6 +128,7 @@ const AdminLocations = () => {
       google_maps_url: item.google_maps_url || '',
       images: item.images || (item.image_url ? [item.image_url] : []),
       facilities: item.facilities?.join(', ') || '',
+      facility_items: Array.isArray((item as any).facility_items) ? ((item as any).facility_items as FacilityItem[]) : [],
       is_coming_soon: item.is_coming_soon ?? false,
       sort_order: item.sort_order || 0,
       is_active: item.is_active ?? true,
@@ -157,6 +162,7 @@ const AdminLocations = () => {
       image_url: formData.images[0] || null,
       images: formData.images,
       facilities: formData.facilities ? formData.facilities.split(',').map(s => s.trim()).filter(Boolean) : null,
+      facility_items: formData.facility_items.filter((f) => f.name.trim() || f.image_url) as any,
       is_coming_soon: formData.is_coming_soon,
       sort_order: formData.sort_order,
       is_active: formData.is_active,
@@ -334,6 +340,16 @@ const AdminLocations = () => {
               placeholder="Sauna, Swimming Pool, Parking"
             />
           </div>
+
+          {/* Facilities with photos */}
+          <div className="border-t pt-4 mt-4">
+            <h3 className="font-semibold text-lg mb-3">Foto Fasilitas</h3>
+            <FacilityItemsEditor
+              value={formData.facility_items}
+              onChange={(items) => setFormData({ ...formData, facility_items: items })}
+            />
+          </div>
+
 
           {/* Loading Area Section */}
           <div className="border-t pt-4 mt-4">

@@ -42,6 +42,8 @@ const LocationDetail = () => {
     const imgs = [...images];
     if (location?.loading_area_images) imgs.push(...location.loading_area_images);
     if (location?.ballroom_layout_images) imgs.push(...location.ballroom_layout_images);
+    const fi = (location as any)?.facility_items as { image_url?: string }[] | undefined;
+    if (Array.isArray(fi)) fi.forEach(f => { if (f?.image_url) imgs.push(f.image_url); });
     portfolios.forEach(p => { if (p.images) imgs.push(...p.images); });
     return imgs;
   }, [images, location, portfolios]);
@@ -130,7 +132,11 @@ const LocationDetail = () => {
         <div className="container mx-auto px-6 lg:px-12">
           <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
             <div className="lg:col-span-2 space-y-8">
-              <LocationFacilities facilities={location.facilities || []} />
+              <LocationFacilities
+                facilities={location.facilities || []}
+                facilityItems={((location as any).facility_items as any[]) || []}
+                onOpenLightbox={setLightboxImage}
+              />
               <LocationGalleryGrid images={images} onOpenLightbox={setLightboxImage} />
               <LocationAreaSection title="Loading Area" description={location.loading_area_description} capacity={location.loading_area_capacity} dimensions={location.loading_area_dimensions} images={location.loading_area_images} onOpenLightbox={setLightboxImage} />
               <LocationAreaSection title="Ballroom Layout" description={location.ballroom_layout_description} capacity={location.ballroom_layout_capacity} dimensions={location.ballroom_layout_dimensions} images={location.ballroom_layout_images} onOpenLightbox={setLightboxImage} />

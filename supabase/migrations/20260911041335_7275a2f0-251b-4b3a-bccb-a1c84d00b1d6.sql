@@ -1,0 +1,1 @@
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS facility_items jsonb NOT NULL DEFAULT '[]'::jsonb;
