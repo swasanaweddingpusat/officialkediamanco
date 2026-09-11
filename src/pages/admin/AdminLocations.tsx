@@ -94,6 +94,7 @@ const AdminLocations = () => {
       google_maps_url: '', 
       images: [], 
       facilities: '', 
+      facility_items: [],
       is_coming_soon: false, 
       sort_order: 0, 
       is_active: true,
