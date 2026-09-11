@@ -162,6 +162,7 @@ const AdminLocations = () => {
       image_url: formData.images[0] || null,
       images: formData.images,
       facilities: formData.facilities ? formData.facilities.split(',').map(s => s.trim()).filter(Boolean) : null,
+      facility_items: formData.facility_items.filter((f) => f.name.trim() || f.image_url) as any,
       is_coming_soon: formData.is_coming_soon,
       sort_order: formData.sort_order,
       is_active: formData.is_active,
