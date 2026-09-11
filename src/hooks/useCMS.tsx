@@ -907,7 +907,8 @@ export function useExternalBookedDates(venueName?: string) {
           return v.includes(target) || target.includes(v);
         })
       : [];
-    const source = matches.length > 0 ? matches : target ? [] : deals;
+    // Tanpa nama venue, jangan blokir tanggal venue mana pun
+    const source = target ? matches : [];
 
     const map = new Map<string, ExternalBookedSlot>();
     source.forEach(d => {
