@@ -170,6 +170,8 @@ export function BallroomBookingForm({
 
   const isDateDisabled = (date: Date) => {
     if (isBefore(date, startOfToday())) return true;
+    // Sebelum venue dipilih, jangan tandai tanggal apa pun sebagai penuh
+    if (!locationId) return false;
     const daySchedules = schedulesForDate(date);
     const external = externalSlot(date);
     // Tanpa data sesi: booking eksternal atau jadwal apa pun menutup tanggal
