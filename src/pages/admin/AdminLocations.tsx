@@ -335,6 +335,16 @@ const AdminLocations = () => {
             />
           </div>
 
+          {/* Facilities with photos */}
+          <div className="border-t pt-4 mt-4">
+            <h3 className="font-semibold text-lg mb-3">Foto Fasilitas</h3>
+            <FacilityItemsEditor
+              value={formData.facility_items}
+              onChange={(items) => setFormData({ ...formData, facility_items: items })}
+            />
+          </div>
+
+
           {/* Loading Area Section */}
           <div className="border-t pt-4 mt-4">
             <h3 className="font-semibold text-lg mb-3">Loading Area</h3>
