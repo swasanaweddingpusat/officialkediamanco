@@ -128,6 +128,7 @@ const AdminLocations = () => {
       google_maps_url: item.google_maps_url || '',
       images: item.images || (item.image_url ? [item.image_url] : []),
       facilities: item.facilities?.join(', ') || '',
+      facility_items: Array.isArray((item as any).facility_items) ? ((item as any).facility_items as FacilityItem[]) : [],
       is_coming_soon: item.is_coming_soon ?? false,
       sort_order: item.sort_order || 0,
       is_active: item.is_active ?? true,
