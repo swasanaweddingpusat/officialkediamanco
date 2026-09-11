@@ -130,7 +130,11 @@ const LocationDetail = () => {
         <div className="container mx-auto px-6 lg:px-12">
           <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
             <div className="lg:col-span-2 space-y-8">
-              <LocationFacilities facilities={location.facilities || []} />
+              <LocationFacilities
+                facilities={location.facilities || []}
+                facilityItems={((location as any).facility_items as any[]) || []}
+                onOpenLightbox={setLightboxImage}
+              />
               <LocationGalleryGrid images={images} onOpenLightbox={setLightboxImage} />
               <LocationAreaSection title="Loading Area" description={location.loading_area_description} capacity={location.loading_area_capacity} dimensions={location.loading_area_dimensions} images={location.loading_area_images} onOpenLightbox={setLightboxImage} />
               <LocationAreaSection title="Ballroom Layout" description={location.ballroom_layout_description} capacity={location.ballroom_layout_capacity} dimensions={location.ballroom_layout_dimensions} images={location.ballroom_layout_images} onOpenLightbox={setLightboxImage} />
