@@ -32,7 +32,7 @@ type Location = {
   image_url: string | null;
   images: string[] | null;
   facilities: string[] | null;
-  facility_items?: FacilityItem[] | null;
+  facility_items?: unknown;
   is_coming_soon: boolean | null;
   sort_order: number | null;
   is_active: boolean | null;
