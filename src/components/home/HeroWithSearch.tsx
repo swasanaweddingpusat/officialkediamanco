@@ -117,7 +117,7 @@ export function HeroWithSearch() {
   };
 
   return (
-    <section className="relative h-[640px] md:h-[720px] flex items-center justify-center text-center px-6 overflow-hidden -mt-16 lg:-mt-20 pt-16 lg:pt-20">
+    <section className="relative min-h-[720px] md:h-[720px] flex items-center justify-center text-center px-4 sm:px-6 overflow-hidden -mt-16 lg:-mt-20 pt-20 pb-8 lg:pt-20 lg:pb-0">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
@@ -142,7 +142,7 @@ export function HeroWithSearch() {
         transition={{ duration: 0.9, delay: 0.15 }}
         className="relative z-10 max-w-4xl w-full"
       >
-        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#edece7] mb-6 leading-tight italic">
+        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#edece7] mb-4 md:mb-6 leading-tight italic">
           {slide?.title ? (
             slide.title
           ) : (
@@ -152,7 +152,7 @@ export function HeroWithSearch() {
             </>
           )}
         </h1>
-        <p className="text-[#edece7]/80 text-base md:text-lg mb-12 max-w-xl mx-auto font-light leading-relaxed">
+        <p className="text-[#edece7]/80 text-sm sm:text-base md:text-lg mb-7 md:mb-12 max-w-xl mx-auto font-light leading-relaxed">
           {slide?.description ||
             'Kurasi venue pernikahan eksklusif dan dekorasi terbaik di seluruh Indonesia untuk momen yang tak terlupakan.'}
         </p>
@@ -161,12 +161,12 @@ export function HeroWithSearch() {
         <div ref={wrapperRef} className="relative max-w-4xl mx-auto">
           <form
             onSubmit={handleSearch}
-            className="relative bg-[#edece7] rounded-full shadow-2xl p-2 flex flex-col md:flex-row items-stretch md:items-center border border-[#dcdad0]"
+            className="relative bg-[#edece7] rounded-lg md:rounded-full shadow-2xl p-2 flex flex-col md:flex-row items-stretch md:items-center border border-[#dcdad0]"
           >
             {/* Location */}
             <div
               className={cn(
-                'flex-1 flex items-center px-6 md:px-8 py-3 md:py-2 md:border-r border-[#d1cfc3] transition-colors',
+                'flex-1 flex items-center min-h-[64px] px-4 sm:px-5 md:px-8 py-2 md:border-r border-b md:border-b-0 border-[#d1cfc3] transition-colors rounded-md md:rounded-none',
                 locFocused && 'bg-[#f7f6f2] md:rounded-l-full',
               )}
             >
@@ -189,7 +189,7 @@ export function HeroWithSearch() {
                   onBlur={() => setLocFocused(false)}
                   placeholder="Cari venue impian..."
                   autoComplete="off"
-                  className="bg-transparent border-none p-0 text-[#1a2e22] focus:ring-0 focus:outline-none placeholder-[#a19f94] text-base font-medium font-serif w-full"
+                  className="bg-transparent border-none p-0 text-[#1a2e22] focus:ring-0 focus:outline-none placeholder-[#a19f94] text-base font-medium font-serif w-full min-w-0"
                 />
               </div>
             </div>
@@ -199,7 +199,7 @@ export function HeroWithSearch() {
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="flex-1 flex items-center px-6 md:px-8 py-3 md:py-2 text-left hover:bg-[#f7f6f2] md:rounded-r-full transition-colors"
+                  className="flex-1 flex items-center min-h-[64px] px-4 sm:px-5 md:px-8 py-2 text-left hover:bg-[#f7f6f2] rounded-md md:rounded-r-full transition-colors"
                 >
                   <CalendarIcon className="w-5 h-5 text-[#1a2e22] mr-4 shrink-0" strokeWidth={1.5} />
                   <div className="flex flex-col w-full min-w-0">
@@ -243,7 +243,7 @@ export function HeroWithSearch() {
             {/* Submit */}
             <button
               type="submit"
-              className="group mt-2 md:mt-0 md:ml-1 bg-[#1a2e22] text-[#edece7] px-8 py-4 rounded-full font-semibold transition-all hover:bg-[#2a4533] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#bfa37e] focus:ring-offset-2 flex items-center justify-center gap-2"
+              className="group mt-2 md:mt-0 md:ml-1 min-h-[52px] bg-[#1a2e22] text-[#edece7] px-6 md:px-8 py-3 md:py-4 rounded-md md:rounded-full font-semibold transition-all hover:bg-[#2a4533] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#bfa37e] focus:ring-offset-2 flex items-center justify-center gap-2"
             >
               <span className="font-serif text-lg tracking-wide">Cari Sekarang</span>
               <ArrowRight className="w-4 h-4 text-[#bfa37e] group-hover:translate-x-1 transition-transform" strokeWidth={2.5} />
@@ -258,7 +258,7 @@ export function HeroWithSearch() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
-                className="absolute left-2 right-2 md:left-6 md:right-6 mt-3 bg-[#edece7] rounded-2xl shadow-xl border border-[#dcdad0] overflow-hidden z-30 text-left"
+                className="absolute left-0 right-0 md:left-6 md:right-6 mt-2 md:mt-3 bg-[#edece7] rounded-lg shadow-xl border border-[#dcdad0] overflow-hidden z-30 text-left"
               >
                 <div className="px-5 py-3 border-b border-[#d1cfc3] flex items-center justify-between">
                   <span className="text-[10px] uppercase tracking-[0.25em] text-[#8c8a7e] font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -266,7 +266,7 @@ export function HeroWithSearch() {
                   </span>
                   <span className="text-[10px] text-[#bfa37e] font-serif italic">{suggestions.length} pilihan</span>
                 </div>
-                <ul className="max-h-80 overflow-y-auto">
+                <ul className="max-h-60 md:max-h-80 overflow-y-auto">
                   {suggestions.map((s) => {
                     const unavailable = date && unavailableIds.has(s.id);
                     return (
@@ -276,7 +276,7 @@ export function HeroWithSearch() {
                           disabled={!!unavailable}
                           onClick={() => goToLocation(s.id)}
                           className={cn(
-                            'w-full flex items-center gap-4 px-5 py-3.5 hover:bg-[#f7f6f2] transition-colors group',
+                            'w-full flex items-center gap-3 md:gap-4 px-4 md:px-5 py-3.5 hover:bg-[#f7f6f2] transition-colors group',
                             unavailable && 'opacity-50 cursor-not-allowed hover:bg-transparent',
                           )}
                         >
@@ -303,7 +303,7 @@ export function HeroWithSearch() {
                             )}
                           </div>
                           {s.category && (
-                            <span className="text-[10px] tracking-[0.2em] uppercase text-[#bfa37e] shrink-0 font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            <span className="hidden sm:inline text-[10px] tracking-[0.2em] uppercase text-[#bfa37e] shrink-0 font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
                               {s.category}
                             </span>
                           )}
@@ -317,7 +317,7 @@ export function HeroWithSearch() {
           </AnimatePresence>
         </div>
 
-        <p className="text-center mt-8 text-[#edece7]/60 text-sm italic font-serif">
+        <p className="text-center mt-5 md:mt-8 text-[#edece7]/60 text-sm italic font-serif">
           Temukan kemegahan yang abadi untuk hari spesial Anda
         </p>
 
