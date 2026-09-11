@@ -427,6 +427,7 @@ export type Database = {
           dp_percentage: number
           email: string | null
           facilities: string[] | null
+          facility_items: Json
           google_maps_url: string | null
           hero_video_url: string | null
           id: string
@@ -456,6 +457,7 @@ export type Database = {
           dp_percentage?: number
           email?: string | null
           facilities?: string[] | null
+          facility_items?: Json
           google_maps_url?: string | null
           hero_video_url?: string | null
           id?: string
@@ -485,6 +487,7 @@ export type Database = {
           dp_percentage?: number
           email?: string | null
           facilities?: string[] | null
+          facility_items?: Json
           google_maps_url?: string | null
           hero_video_url?: string | null
           id?: string
