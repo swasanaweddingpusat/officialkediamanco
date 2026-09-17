@@ -17,6 +17,15 @@ import { LocationLightbox } from '@/components/location/LocationLightbox';
 import { LocationPortfolioSection } from '@/components/location/LocationPortfolioSection';
 import { Matterport360Embed } from '@/components/location/Matterport360Embed';
 import { useRef } from 'react';
+import { useSEO } from '@/hooks/useSEO';
+
+const SITE_URL = 'https://official.kediaman.co';
+
+function buildVenueDescription(name: string, category?: string | null, address?: string | null) {
+  const details = [category, address].filter(Boolean).join(' di ');
+  const description = `Temukan ${name}${details ? `, venue ${details}` : ''}. Lihat fasilitas, galeri, jadwal tersedia, dan ajukan pemesanan langsung di Kediaman Corp.`;
+  return description.length <= 160 ? description : `${description.slice(0, 157).trimEnd()}...`;
+}
 
 const LocationDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +39,24 @@ const LocationDetail = () => {
   const detailsRef = useRef<HTMLDivElement>(null);
 
   const location = locations?.find(l => l.id === id);
+
+  const canonicalUrl = `${SITE_URL}/lokasi/${id || ''}`;
+  useSEO({
+    title: location ? `${location.name} | Kediaman Corp` : 'Detail Venue | Kediaman Corp',
+    description: location
+      ? buildVenueDescription(location.name, location.category, location.address)
+      : 'Lihat detail venue Kediaman Corp, fasilitas, galeri, jadwal tersedia, dan informasi pemesanan.',
+    image: location?.image_url || undefined,
+    url: canonicalUrl,
+    type: 'website',
+    breadcrumbs: location
+      ? [
+          { name: 'Beranda', url: `${SITE_URL}/` },
+          { name: 'Lokasi', url: `${SITE_URL}/lokasi` },
+          { name: location.name, url: canonicalUrl },
+        ]
+      : [],
+  });
 
   const images = useMemo(() => {
     if (!location) return [];

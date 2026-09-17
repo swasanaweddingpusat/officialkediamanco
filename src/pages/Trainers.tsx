@@ -16,10 +16,10 @@ const Trainers = () => {
   useSEO({
     title: "Kediaman Corp - Portfolio Kami",
     description: "Temukan inspirasi dari berbagai acara yang telah kami selenggarakan.",
-    url: "https://kediamancorp.com/portfolio",
+    url: "https://official.kediaman.co/portfolio",
     breadcrumbs: [
-      { name: "Home", url: "https://kediamancorp.com/" },
-      { name: "Portfolio", url: "https://kediamancorp.com/portfolio" }
+      { name: "Home", url: "https://official.kediaman.co/" },
+      { name: "Portfolio", url: "https://official.kediaman.co/portfolio" }
     ]
   });
 

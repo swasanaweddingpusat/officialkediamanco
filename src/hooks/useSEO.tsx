@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 
+const SITE_URL = 'https://official.kediaman.co';
+
 interface Breadcrumb {
   name: string;
   url: string;
@@ -29,6 +31,8 @@ export function useSEO({
   breadcrumbs = [],
 }: SEOOptions) {
   useEffect(() => {
+    const canonicalUrl = `${SITE_URL}${window.location.pathname === '/' ? '/' : window.location.pathname.replace(/\/$/, '')}`;
+
     // Update document title
     document.title = title;
 
@@ -58,8 +62,16 @@ export function useSEO({
     updateMetaTag('og:title', title);
     updateMetaTag('og:description', description);
     updateMetaTag('og:image', image);
-    updateMetaTag('og:url', url);
+    updateMetaTag('og:url', canonicalUrl);
     updateMetaTag('og:type', type);
+
+    // Keep one self-referencing canonical URL for the active route.
+    const canonicalLinks = Array.from(document.querySelectorAll<HTMLLinkElement>('link[rel="canonical"]'));
+    const canonicalLink = canonicalLinks[0] ?? document.createElement('link');
+    canonicalLink.setAttribute('rel', 'canonical');
+    canonicalLink.setAttribute('href', canonicalUrl);
+    if (!canonicalLink.parentNode) document.head.appendChild(canonicalLink);
+    canonicalLinks.slice(1).forEach((link) => link.remove());
 
     // Update Twitter tags
     const updateTwitterTag = (name: string, content: string | undefined) => {
@@ -85,7 +97,7 @@ export function useSEO({
         '@context': 'https://schema.org',
         '@type': 'Organization',
         name: 'Kediaman Corp',
-        url: 'https://kediamancorp.com',
+        url: SITE_URL,
       });
     }
 
@@ -94,7 +106,7 @@ export function useSEO({
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: 'Kediaman Corp',
-        url: 'https://kediamancorp.com',
+        url: SITE_URL,
       });
     }
 
@@ -103,7 +115,7 @@ export function useSEO({
         '@context': 'https://schema.org',
         '@type': 'LocalBusiness',
         name: 'Kediaman Corp',
-        url: 'https://kediamancorp.com',
+        url: SITE_URL,
       });
     }
 
