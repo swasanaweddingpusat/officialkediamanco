@@ -125,7 +125,9 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
             {images.slice(0, 8).map((img, i) => (
               <button
                 key={i}
+                type="button"
                 onClick={() => onOpenLightbox(img)}
+                aria-label={`Buka foto galeri ${location.name} ${i + 1}`}
                 className="aspect-square rounded-md sm:rounded-lg overflow-hidden hover:ring-2 ring-primary transition-all"
               >
                 <img src={img} alt="" className="w-full h-full object-cover" />
@@ -175,7 +177,9 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
                         {location.loading_area_images.map((img, i) => (
                           <button
                             key={i}
+                            type="button"
                             onClick={() => onOpenLightbox(img)}
+                            aria-label={`Buka foto loading area ${location.name} ${i + 1}`}
                             className="aspect-video rounded-md sm:rounded-lg overflow-hidden hover:ring-2 ring-primary transition-all"
                           >
                             <img src={img} alt="" className="w-full h-full object-cover" />
@@ -231,7 +235,9 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
                         {location.ballroom_layout_images.map((img, i) => (
                           <button
                             key={i}
+                            type="button"
                             onClick={() => onOpenLightbox(img)}
+                            aria-label={`Buka foto layout ballroom ${location.name} ${i + 1}`}
                             className="aspect-video rounded-md sm:rounded-lg overflow-hidden hover:ring-2 ring-primary transition-all"
                           >
                             <img src={img} alt="" className="w-full h-full object-cover" />
@@ -426,6 +432,8 @@ export function FullLocationsSection() {
             onClick={() => setLightboxImage(null)}
           >
             <button
+              type="button"
+              aria-label="Tutup galeri foto"
               className="absolute top-2 right-2 sm:top-4 sm:right-4 p-2 bg-secondary rounded-full z-10"
               onClick={() => setLightboxImage(null)}
             >
@@ -436,7 +444,7 @@ export function FullLocationsSection() {
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
               src={lightboxImage}
-              alt="Gallery"
+              alt="Foto galeri venue dalam tampilan penuh"
               className="max-w-full max-h-[85vh] sm:max-h-[90vh] rounded-lg object-contain"
             />
           </motion.div>

@@ -20,7 +20,7 @@ const LandingPage = () => {
             {siteSettings?.logo_url ? (
               <img 
                 src={siteSettings.logo_url} 
-                alt={siteSettings.site_name || 'Logo'} 
+                alt={`${siteSettings.site_name || 'Kediaman Corp'} logo`} 
                 className="h-8 sm:h-10 w-auto object-contain"
               />
             ) : (
@@ -65,7 +65,7 @@ const LandingPage = () => {
           {siteSettings?.logo_url && (
             <img 
               src={siteSettings.logo_url} 
-              alt={siteSettings.site_name || 'Logo'} 
+              alt={`${siteSettings.site_name || 'Kediaman Corp'} logo`} 
               className="h-10 sm:h-12 w-auto object-contain mx-auto mb-3 sm:mb-4"
             />
           )}
