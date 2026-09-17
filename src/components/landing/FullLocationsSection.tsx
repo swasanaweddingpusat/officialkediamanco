@@ -432,6 +432,8 @@ export function FullLocationsSection() {
             onClick={() => setLightboxImage(null)}
           >
             <button
+              type="button"
+              aria-label="Tutup galeri foto"
               className="absolute top-2 right-2 sm:top-4 sm:right-4 p-2 bg-secondary rounded-full z-10"
               onClick={() => setLightboxImage(null)}
             >
@@ -442,7 +444,7 @@ export function FullLocationsSection() {
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
               src={lightboxImage}
-              alt="Gallery"
+              alt="Foto galeri venue dalam tampilan penuh"
               className="max-w-full max-h-[85vh] sm:max-h-[90vh] rounded-lg object-contain"
             />
           </motion.div>
