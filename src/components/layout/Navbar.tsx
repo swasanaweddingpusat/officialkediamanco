@@ -24,7 +24,7 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border/50">
+      <nav aria-label="Navigasi utama" className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border/50">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
@@ -32,7 +32,7 @@ export function Navbar() {
               {siteSettings?.logo_url ? (
                 <img
                   src={siteSettings.logo_url}
-                  alt={siteSettings.site_name || 'Logo'}
+                  alt={`${siteSettings.site_name || 'Kediaman Corp'} logo`}
                   className="h-8 lg:h-10 w-auto object-contain"
                 />
               ) : (
@@ -118,7 +118,7 @@ export function Navbar() {
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-40 bg-background flex flex-col justify-center items-center"
           >
-            <nav className="flex flex-col items-center gap-1">
+            <nav aria-label="Navigasi utama seluler" className="flex flex-col items-center gap-1">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.name}
