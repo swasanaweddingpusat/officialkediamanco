@@ -125,7 +125,9 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
             {images.slice(0, 8).map((img, i) => (
               <button
                 key={i}
+                type="button"
                 onClick={() => onOpenLightbox(img)}
+                aria-label={`Buka foto galeri ${location.name} ${i + 1}`}
                 className="aspect-square rounded-md sm:rounded-lg overflow-hidden hover:ring-2 ring-primary transition-all"
               >
                 <img src={img} alt="" className="w-full h-full object-cover" />
@@ -175,7 +177,9 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
                         {location.loading_area_images.map((img, i) => (
                           <button
                             key={i}
+                            type="button"
                             onClick={() => onOpenLightbox(img)}
+                            aria-label={`Buka foto loading area ${location.name} ${i + 1}`}
                             className="aspect-video rounded-md sm:rounded-lg overflow-hidden hover:ring-2 ring-primary transition-all"
                           >
                             <img src={img} alt="" className="w-full h-full object-cover" />
@@ -231,7 +235,9 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
                         {location.ballroom_layout_images.map((img, i) => (
                           <button
                             key={i}
+                            type="button"
                             onClick={() => onOpenLightbox(img)}
+                            aria-label={`Buka foto layout ballroom ${location.name} ${i + 1}`}
                             className="aspect-video rounded-md sm:rounded-lg overflow-hidden hover:ring-2 ring-primary transition-all"
                           >
                             <img src={img} alt="" className="w-full h-full object-cover" />

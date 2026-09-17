@@ -41,7 +41,9 @@ export function HeroSection() {
           {currentImageUrl ? (
             <img
               src={currentImageUrl}
-              alt="Hero"
+              alt={slide?.title
+                ? `Interior venue mewah modern untuk ${slide.title}`
+                : 'Interior venue mewah modern Kediaman Corp'}
               className="w-full h-full object-cover"
             />
           ) : (
