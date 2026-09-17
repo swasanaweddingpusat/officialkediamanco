@@ -9,11 +9,12 @@ const TikTokIcon = ({ className }: { className?: string }) => (
 );
 
 const footerLinks = [
+  { name: 'Beranda', href: '/' },
   { name: 'Tentang Kami', href: '/tentang-kami' },
   { name: 'Portfolio', href: '/portfolio' },
   { name: 'Lokasi', href: '/lokasi' },
+  { name: 'News & Promo', href: '/paket' },
   { name: 'Artikel', href: '/artikel' },
-  { name: 'Booking', href: '/booking/track' },
 ];
 
 export function Footer() {
@@ -35,7 +36,7 @@ export function Footer() {
           <div className="lg:col-span-5 space-y-6">
             <Link to="/" className="inline-block">
               {settings?.logo_url ? (
-                <img src={settings.logo_url} alt={settings?.site_name || "Logo"} className="h-10 w-auto" />
+                <img src={settings.logo_url} alt={`${settings?.site_name || "Kediaman Corp"} logo`} className="h-10 w-auto" />
               ) : (
                 <span className="font-serif text-2xl tracking-[0.15em] font-bold uppercase">
                   {settings?.site_name || "Kediaman"}
@@ -57,18 +58,20 @@ export function Footer() {
           {/* Links Column */}
           <div className="lg:col-span-3">
             <h4 className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-6">Navigasi</h4>
-            <ul className="space-y-3">
-              {footerLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-foreground/80 hover:text-primary transition-colors duration-300"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <nav aria-label="Navigasi footer">
+              <ul className="space-y-3">
+                {footerLinks.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      to={link.href}
+                      className="text-sm text-foreground/80 hover:text-primary transition-colors duration-300"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
 
           {/* Contact Column */}
