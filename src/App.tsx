@@ -35,6 +35,7 @@ import BookingTrack from "./pages/BookingTrack";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 import { FloatingChat } from "./components/FloatingChat";
+import { RouteIndexingManager } from "./components/RouteIndexingManager";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <RouteIndexingManager />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/landing" element={<LandingPage />} />
