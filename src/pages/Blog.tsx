@@ -22,10 +22,10 @@ const Blog = () => {
   useSEO({
     title: "Kediaman Corp Blog - Artikel & Tips",
     description: "Baca artikel terbaru, tips, dan informasi seputar venue dan event management.",
-    url: "https://kediamancorp.com/blog",
+    url: "https://official.kediaman.co/artikel",
     breadcrumbs: [
-      { name: "Home", url: "https://kediamancorp.com/" },
-      { name: "Blog", url: "https://kediamancorp.com/blog" }
+      { name: "Home", url: "https://official.kediaman.co/" },
+      { name: "Artikel", url: "https://official.kediaman.co/artikel" }
     ]
   });
 

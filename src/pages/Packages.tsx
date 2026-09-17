@@ -23,10 +23,10 @@ const Packages = () => {
   useSEO({
     title: `Paket & Promo Venue ${siteName}`,
     description: `Daftar lengkap paket dan promo venue ${siteName}. Pilih kategori, cek detail, dan ajukan penawaran langsung lewat formulir WhatsApp.`,
-    url: 'https://kediamancorp.com/paket',
+    url: 'https://official.kediaman.co/paket',
     breadcrumbs: [
-      { name: 'Home', url: 'https://kediamancorp.com/' },
-      { name: 'Paket', url: 'https://kediamancorp.com/paket' },
+      { name: 'Home', url: 'https://official.kediaman.co/' },
+      { name: 'Paket', url: 'https://official.kediaman.co/paket' },
     ],
   });
 

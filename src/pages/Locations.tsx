@@ -19,10 +19,10 @@ const Locations = () => {
   useSEO({
     title: "Kediaman Corp - Lokasi & Venue Kami",
     description: "Kunjungi lokasi-lokasi premium Kediaman Corp di Jakarta, Bintaro, dan Bandung.",
-    url: "https://kediamancorp.com/locations",
+    url: "https://official.kediaman.co/lokasi",
     breadcrumbs: [
-      { name: "Home", url: "https://kediamancorp.com/" },
-      { name: "Locations", url: "https://kediamancorp.com/locations" }
+      { name: "Home", url: "https://official.kediaman.co/" },
+      { name: "Lokasi", url: "https://official.kediaman.co/lokasi" }
     ]
   });
 

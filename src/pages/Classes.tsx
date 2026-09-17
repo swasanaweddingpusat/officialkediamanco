@@ -43,10 +43,10 @@ const Classes = () => {
   useSEO({
     title: `${siteName} - Tentang Kami`,
     description: `Kenali lebih dekat ${siteName}, penyedia venue dan layanan event premium terpercaya.`,
-    url: 'https://kediamancorp.com/classes',
+    url: 'https://official.kediaman.co/tentang-kami',
     breadcrumbs: [
-      { name: 'Home', url: 'https://kediamancorp.com/' },
-      { name: 'Tentang Kami', url: 'https://kediamancorp.com/classes' },
+      { name: 'Home', url: 'https://official.kediaman.co/' },
+      { name: 'Tentang Kami', url: 'https://official.kediaman.co/tentang-kami' },
     ],
   });
 
