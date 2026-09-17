@@ -1,19 +1,36 @@
-import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Phone } from 'lucide-react';
+import { useState } from 'react';
+import { MessageCircle, X, Phone, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSiteSettings } from '@/hooks/useCMS';
-import ReactMarkdown from 'react-markdown';
 import { useLocation } from 'react-router-dom';
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from '@/components/ai-elements/conversation';
+import {
+  Message,
+  MessageContent,
+  MessageResponse,
+} from '@/components/ai-elements/message';
+import {
+  PromptInput,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  type PromptInputMessage,
+} from '@/components/ai-elements/prompt-input';
+import { Shimmer } from '@/components/ai-elements/shimmer';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
 const QUICK_QUESTIONS = [
-  '📍 Lokasi venue tersedia?',
-  '💰 Berapa harga sewa venue?',
-  '📅 Cara booking venue?',
+  'Saya ingin lihat pilihan venue',
+  'Boleh info kisaran harganya?',
+  'Bagaimana cara booking?',
 ];
 
 export function FloatingChat() {
@@ -22,17 +39,10 @@ export function FloatingChat() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
   const { data: settings } = useSiteSettings();
 
   const waNumber = settings?.phone?.replace(/[^0-9]/g, '') || '6281117797567';
   const waLink = settings?.whatsapp_link || `https://wa.me/${waNumber}`;
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isLoading]);
 
   if (location.pathname === '/venue-only') return null;
 
@@ -106,21 +116,31 @@ export function FloatingChat() {
     }
   };
 
+  const handleSubmit = ({ text }: PromptInputMessage) => {
+    sendMessage(text);
+  };
+
   return (
     <>
       {/* Floating Button */}
       <AnimatePresence>
         {!open && (
-          <motion.button
+          <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-[#25D366] text-white shadow-xl flex items-center justify-center hover:scale-110 transition-transform"
-            aria-label="Buka chat"
+            className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6"
           >
-            <MessageCircle className="w-7 h-7" />
-          </motion.button>
+            <Button
+              type="button"
+              size="icon"
+              onClick={() => setOpen(true)}
+              className="size-14 rounded-2xl shadow-2xl transition-transform hover:scale-105"
+              aria-label="Buka concierge Kediaman"
+            >
+              <MessageCircle className="size-6" />
+            </Button>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -131,111 +151,133 @@ export function FloatingChat() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-6 z-50 w-[360px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-3rem)] bg-background border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            role="dialog"
+            aria-label="Concierge Kediaman"
+            className="fixed bottom-3 right-3 z-50 flex h-[min(640px,calc(100dvh-1.5rem))] w-[min(368px,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-[2rem] border border-border bg-card shadow-2xl sm:bottom-6 sm:right-6"
           >
             {/* Header */}
-            <div className="bg-[#25D366] text-white px-4 py-3 flex items-center justify-between shrink-0">
+            <div className="relative flex shrink-0 items-center justify-between bg-secondary px-5 pb-8 pt-5 text-secondary-foreground">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5" />
+                <div className="relative">
+                  <div className="flex size-12 items-center justify-center overflow-hidden rounded-2xl bg-background ring-4 ring-background/20">
+                    {settings?.logo_url ? (
+                      <img
+                        src={settings.logo_url}
+                        alt="Logo Kediaman Corp"
+                        className="size-full object-contain p-1.5"
+                      />
+                    ) : (
+                      <span className="font-serif text-lg font-bold text-foreground">K</span>
+                    )}
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full border-2 border-secondary bg-primary" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="font-semibold text-sm">{settings?.site_name || 'Kediaman Corp'}</p>
-                  <p className="text-xs text-white/80">Asisten Virtual</p>
+                  <p className="font-serif text-lg font-semibold leading-tight">Tim Kediaman</p>
+                  <p className="mt-0.5 text-xs text-secondary-foreground/75">Online · Siap membantu</p>
                 </div>
               </div>
-              <button onClick={() => setOpen(false)} className="p-1 hover:bg-white/20 rounded-full transition-colors">
-                <X className="w-5 h-5" />
-              </button>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={() => setOpen(false)}
+                aria-label="Tutup concierge"
+                className="min-h-11 min-w-11 rounded-full text-secondary-foreground hover:bg-background/10 hover:text-secondary-foreground"
+              >
+                <X className="size-5" />
+              </Button>
             </div>
 
             {/* Messages */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-muted/30">
-              {messages.length === 0 && (
-                <div className="text-center space-y-4 pt-4">
-                  <p className="text-muted-foreground text-sm">
-                    Halo! 👋 Ada yang bisa kami bantu tentang venue?
-                  </p>
-                  <div className="space-y-2">
-                    {QUICK_QUESTIONS.map((q) => (
-                      <button
-                        key={q}
-                        onClick={() => sendMessage(q)}
-                        className="block w-full text-left text-sm px-3 py-2 rounded-xl bg-background border border-border hover:bg-accent transition-colors"
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {messages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div
-                    className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
-                      msg.role === 'user'
-                        ? 'bg-[#25D366] text-white rounded-br-md'
-                        : 'bg-background border border-border rounded-bl-md'
-                    }`}
-                  >
-                    {msg.role === 'assistant' ? (
-                      <div className="prose prose-sm max-w-none dark:prose-invert [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </div>
-                    ) : (
-                      msg.content
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
-                <div className="flex justify-start">
-                  <div className="bg-background border border-border rounded-2xl rounded-bl-md px-4 py-3">
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce [animation-delay:0ms]" />
-                      <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce [animation-delay:150ms]" />
-                      <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce [animation-delay:300ms]" />
+            <Conversation className="-mt-4 rounded-t-[2rem] bg-background">
+              <ConversationContent className="gap-4 px-5 pb-5 pt-7">
+                {messages.length === 0 && (
+                  <div className="space-y-5">
+                    <Message from="assistant" className="max-w-[92%]">
+                      <MessageContent className="text-[15px] leading-relaxed">
+                        <p>Halo, selamat datang.</p>
+                        <p className="text-muted-foreground">Sedang mencari venue untuk acara apa? Ceritakan sedikit, kami bantu arahkan pilihan yang paling cocok.</p>
+                      </MessageContent>
+                    </Message>
+                    <div className="space-y-2" aria-label="Pertanyaan yang sering ditanyakan">
+                      <p className="text-xs text-muted-foreground">Anda bisa mulai dari sini:</p>
+                      {QUICK_QUESTIONS.map((question) => (
+                        <Button
+                          key={question}
+                          type="button"
+                          variant="outline"
+                          onClick={() => sendMessage(question)}
+                          className="h-auto min-h-11 w-full justify-between whitespace-normal rounded-xl px-3 py-2.5 text-left text-sm font-normal"
+                        >
+                          <span>{question}</span>
+                          <ArrowUp className="size-3.5 rotate-45 text-primary" />
+                        </Button>
+                      ))}
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+
+                {messages.map((message, index) => (
+                  <Message key={`${message.role}-${index}`} from={message.role}>
+                    <MessageContent className={message.role === 'user'
+                      ? 'rounded-2xl rounded-br-sm bg-primary px-3.5 py-2.5 text-primary-foreground'
+                      : 'px-0 py-0 text-[15px] leading-relaxed'}
+                    >
+                      {message.role === 'assistant' ? (
+                        <MessageResponse>{message.content}</MessageResponse>
+                      ) : (
+                        message.content
+                      )}
+                    </MessageContent>
+                  </Message>
+                ))}
+
+                {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
+                  <div className="flex items-center gap-2 text-xs" role="status" aria-live="polite">
+                    <span className="flex gap-1" aria-hidden="true">
+                      <span className="size-1.5 animate-bounce rounded-full bg-primary" />
+                      <span className="size-1.5 animate-bounce rounded-full bg-primary [animation-delay:150ms]" />
+                      <span className="size-1.5 animate-bounce rounded-full bg-primary [animation-delay:300ms]" />
+                    </span>
+                    <Shimmer className="font-medium">Tim Kediaman sedang menyiapkan jawaban...</Shimmer>
+                  </div>
+                )}
+              </ConversationContent>
+              <ConversationScrollButton aria-label="Lihat pesan terbaru" className="bottom-2" />
+            </Conversation>
 
             {/* WhatsApp CTA */}
             <a
               href={waLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="mx-4 mt-2 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#25D366]/10 text-[#25D366] text-xs font-medium hover:bg-[#25D366]/20 transition-colors"
+              className="mx-4 mt-2 flex min-h-11 items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-primary/15"
             >
               <Phone className="w-3.5 h-3.5" />
-              Butuh bantuan langsung? Chat via WhatsApp
+              Ingin dibantu langsung? Lanjut ke WhatsApp
             </a>
 
             {/* Input */}
-            <div className="p-3 border-t border-border shrink-0">
-              <form
-                onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
-                className="flex gap-2"
-              >
-                <input
+            <div className="shrink-0 bg-background p-3 pt-2">
+              <PromptInput onSubmit={handleSubmit} className="rounded-2xl border-border bg-card shadow-sm">
+                <PromptInputTextarea
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ketik pesan..."
-                  className="flex-1 bg-muted rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#25D366]/50 placeholder:text-muted-foreground"
+                  onChange={(event) => setInput(event.target.value)}
+                  placeholder="Ceritakan kebutuhan acara Anda..."
                   disabled={isLoading}
+                  className="min-h-11 max-h-24 text-sm placeholder:text-muted-foreground"
                 />
-                <Button
-                  type="submit"
-                  size="icon"
-                  disabled={!input.trim() || isLoading}
-                  className="rounded-xl bg-[#25D366] hover:bg-[#20BD5A] shrink-0"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
-              </form>
+                <PromptInputFooter className="justify-end px-2 pb-2">
+                  <PromptInputSubmit
+                    status={isLoading ? 'streaming' : 'ready'}
+                    disabled={!input.trim() || isLoading}
+                    aria-label="Kirim pesan"
+                    className="size-9 rounded-xl"
+                  />
+                </PromptInputFooter>
+              </PromptInput>
+              <p className="mt-2 text-center text-[10px] text-muted-foreground">Biasanya merespons dalam beberapa saat</p>
             </div>
           </motion.div>
         )}
