@@ -6,3 +6,6 @@
 - [x] Samakan tautan navigasi utama di header dan footer untuk sinyal sitelink.
 - [x] Tambahkan data terstruktur navigasi situs yang dapat dibaca crawler.
 - [x] Verifikasi markup dan build setelah perubahan SEO.
+- [x] Audit robots.txt, canonical, dan aturan noindex untuk sitelink Google.
+- [x] Tambahkan canonical terpusat untuk seluruh halaman publik.
+- [x] Batasi indeks halaman admin, autentikasi, pelacakan booking, dan halaman 404.
