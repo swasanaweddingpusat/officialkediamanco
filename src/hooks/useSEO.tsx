@@ -97,7 +97,7 @@ export function useSEO({
         '@context': 'https://schema.org',
         '@type': 'Organization',
         name: 'Kediaman Corp',
-        url: 'https://kediamancorp.com',
+        url: SITE_URL,
       });
     }
 
@@ -106,7 +106,7 @@ export function useSEO({
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: 'Kediaman Corp',
-        url: 'https://kediamancorp.com',
+        url: SITE_URL,
       });
     }
 
@@ -115,7 +115,7 @@ export function useSEO({
         '@context': 'https://schema.org',
         '@type': 'LocalBusiness',
         name: 'Kediaman Corp',
-        url: 'https://kediamancorp.com',
+        url: SITE_URL,
       });
     }
 
