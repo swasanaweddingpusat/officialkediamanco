@@ -280,6 +280,9 @@ export type Database = {
           id: string
           location_id: string
           notes: string | null
+          promo_expires_at: string | null
+          promo_label: string | null
+          promo_type: string | null
           schedule_date: string
           start_time: string | null
           status: string
@@ -292,6 +295,9 @@ export type Database = {
           id?: string
           location_id: string
           notes?: string | null
+          promo_expires_at?: string | null
+          promo_label?: string | null
+          promo_type?: string | null
           schedule_date: string
           start_time?: string | null
           status?: string
@@ -304,6 +310,9 @@ export type Database = {
           id?: string
           location_id?: string
           notes?: string | null
+          promo_expires_at?: string | null
+          promo_label?: string | null
+          promo_type?: string | null
           schedule_date?: string
           start_time?: string | null
           status?: string
@@ -747,6 +756,41 @@ export type Database = {
         }
         Relationships: []
       }
+      venue_interest_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          location_id: string
+          schedule_date: string | null
+          visitor_key: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          location_id: string
+          schedule_date?: string | null
+          visitor_key: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          location_id?: string
+          schedule_date?: string | null
+          visitor_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venue_interest_events_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       venue_sessions: {
         Row: {
           created_at: string
@@ -835,12 +879,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_venue_interest: {
+        Args: { _location_id?: string }
+        Returns: {
+          booking_count: number
+          date_click_count: number
+          location_id: string
+          schedule_date: string
+          view_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      track_venue_interest: {
+        Args: {
+          _event_type: string
+          _location_id: string
+          _schedule_date?: string
+          _visitor_key: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
