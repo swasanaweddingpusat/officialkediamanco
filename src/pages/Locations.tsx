@@ -3,15 +3,18 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, ArrowRight, X } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
-import { useLocations } from '@/hooks/useCMS';
+import { useBallroomSchedules, useLocations, useVenueInterest } from '@/hooks/useCMS';
 import { useSEO } from '@/hooks/useSEO';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
+import { VenueInterestBadge } from '@/components/venue/VenueInterestBadge';
 
 const LOCATION_CATEGORIES = ['Semua', 'Jakarta Selatan', 'Jakarta Timur', 'Bintaro', 'Bandung'] as const;
 
 const Locations = () => {
   const { data: locations, isLoading } = useLocations();
+  const { data: schedules = [] } = useBallroomSchedules();
+  const { data: interest = {} } = useVenueInterest();
   const [searchParams, setSearchParams] = useSearchParams();
   const q = searchParams.get('q')?.trim() || '';
   const date = searchParams.get('date') || '';
@@ -158,7 +161,7 @@ const Locations = () => {
                 {openLocations.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-16">
                     {openLocations.map((location, index) => (
-                      <LocationCard key={location.id} location={location} index={index} />
+                      <LocationCard key={location.id} location={location} index={index} views={interest[location.id]?.views} promoLabel={getPromoLabel(schedules, location.id)} />
                     ))}
                   </div>
                 )}
@@ -189,7 +192,7 @@ const Locations = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 opacity-60">
                       {unavailableForDate.map((location, index) => (
-                        <LocationCard key={location.id} location={location} index={index} />
+                        <LocationCard key={location.id} location={location} index={index} views={interest[location.id]?.views} promoLabel={getPromoLabel(schedules, location.id)} />
                       ))}
                     </div>
                   </>
@@ -251,9 +254,16 @@ interface LocationCardProps {
   };
   index: number;
   isComingSoon?: boolean;
+  views?: number;
+  promoLabel?: string | null;
 }
 
-const LocationCard = ({ location, index, isComingSoon }: LocationCardProps) => {
+const getPromoLabel = (schedules: { location_id: string; promo_type: string | null; promo_label: string | null; promo_expires_at: string | null }[], locationId: string) => {
+  const promo = schedules.find((schedule) => schedule.location_id === locationId && schedule.promo_type && (!schedule.promo_expires_at || new Date(schedule.promo_expires_at) >= new Date()));
+  return promo?.promo_label || (promo?.promo_type === 'limited_offer' ? 'Limited Offer' : promo?.promo_type ? 'Special Offer' : null);
+};
+
+const LocationCard = ({ location, index, isComingSoon, views, promoLabel }: LocationCardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -284,6 +294,8 @@ const LocationCard = ({ location, index, isComingSoon }: LocationCardProps) => {
             Segera Hadir
           </div>
         )}
+
+        {!isComingSoon && <VenueInterestBadge views={views} promoLabel={promoLabel} compact className="absolute left-4 top-4 max-w-[75%]" />}
 
         <div className="absolute bottom-0 left-0 right-0 p-6">
           {location.category && (

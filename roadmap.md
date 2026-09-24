@@ -8,7 +8,8 @@
 - [x] Verifikasi markup dan build setelah perubahan SEO.
 - [x] Audit robots.txt, canonical, dan aturan noindex untuk sitelink Google.
 - [x] Tambahkan canonical terpusat untuk seluruh halaman publik.
-- [x] Batasi indeks halaman admin, autentikasi, pelacakan booking, dan halaman 404.- [ ] Catat minat nyata untuk buka venue, pilih tanggal, dan pengajuan booking.
-- [ ] Tambahkan label Special Offer/Limited Offer pada CMS jadwal.
-- [ ] Tampilkan indikator minat dan promo di kalender, detail, dan daftar venue.
+- [x] Batasi indeks halaman admin, autentikasi, pelacakan booking, dan halaman 404.
+- [x] Catat minat nyata untuk buka venue, pilih tanggal, dan pengajuan booking.
+- [x] Tambahkan label Special Offer/Limited Offer pada CMS jadwal.
+- [x] Tampilkan indikator minat dan promo di kalender, detail, dan daftar venue.
 - [ ] Verifikasi privasi, tampilan mobile/desktop, booking, dan build.

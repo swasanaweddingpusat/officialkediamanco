@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format, isBefore, startOfToday } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
-import { CalendarIcon, CheckCircle, Loader2, User, PartyPopper, MessageCircle } from 'lucide-react';
+import { CalendarIcon, CheckCircle, Eye, Flame, Loader2, User, PartyPopper, MessageCircle, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings, useVenueSessions, useExternalBookedDates, useLocations } from '@/hooks/useCMS';
+import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings, useVenueSessions, useExternalBookedDates, useLocations, useTrackVenueInterest, useVenueInterest } from '@/hooks/useCMS';
 
 const EVENT_TYPES = [
   'Wedding',
@@ -83,8 +83,9 @@ const overlaps = (aS: string, aE: string, bS?: string | null, bE?: string | null
   const bEnd = toMinutes(bE);
   // Jadwal tanpa jam = blok sehari penuh
   if (bStart === null || bEnd === null) return true;
-  const aStart = toMinutes(aS)!;
-  const aEnd = toMinutes(aE)!;
+  const aStart = toMinutes(aS);
+  const aEnd = toMinutes(aE);
+  if (aStart === null || aEnd === null) return true;
   return aStart < bEnd && bStart < aEnd;
 };
 
@@ -108,6 +109,8 @@ export function BallroomBookingForm({
   const { data: sessions = [] } = useVenueSessions(locationId || undefined);
   const { data: settings } = useSiteSettings();
   const { bookedDates } = useExternalBookedDates(locationName);
+  const { data: interest = {} } = useVenueInterest(locationId || undefined);
+  const trackInterest = useTrackVenueInterest();
 
   const blockedSchedules = useMemo(
     () => schedules.filter(s => s.status === 'booked' || s.status === 'blocked'),
@@ -161,6 +164,19 @@ export function BallroomBookingForm({
     { label: 'Data Pemesan', done: step3Done },
   ];
   const currentStep = !step1Done ? 0 : !step2Done ? 1 : 2;
+  const venueInterest = locationId ? interest[locationId] : undefined;
+  const selectedDateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : '';
+  const selectedDateInterest = selectedDateKey ? venueInterest?.dates[selectedDateKey] : undefined;
+
+  const activePromoSchedules = useMemo(
+    () => schedules.filter((schedule) => schedule.promo_type && (!schedule.promo_expires_at || new Date(schedule.promo_expires_at) >= new Date())),
+    [schedules]
+  );
+  const promoDates = useMemo(() => activePromoSchedules.map((schedule) => new Date(`${schedule.schedule_date}T12:00:00`)), [activePromoSchedules]);
+  const popularDates = useMemo(() => Object.entries(venueInterest?.dates || {})
+    .filter(([, activity]) => activity.clicks + activity.bookings >= 3)
+    .map(([date]) => new Date(`${date}T12:00:00`)), [venueInterest]);
+  const selectedPromo = selectedDateKey ? activePromoSchedules.find((schedule) => schedule.schedule_date === selectedDateKey) : undefined;
 
   const sessionAvailability = useMemo(() => {
     if (!selectedDate) return [];
@@ -251,6 +267,11 @@ export function BallroomBookingForm({
         event_type: data.event_type || undefined,
         guest_count: data.guest_count || undefined,
         notes: data.notes || undefined,
+      });
+      trackInterest.mutate({
+        locationId,
+        eventType: 'booking_request',
+        scheduleDate: format(data.booking_date, 'yyyy-MM-dd'),
       });
 
       const link = buildWaLink(data);
@@ -406,8 +427,20 @@ export function BallroomBookingForm({
                       form.setValue('session_id', '');
                       form.setValue('start_time', '');
                       form.setValue('end_time', '');
+                      if (d && locationId) {
+                        trackInterest.mutate({
+                          locationId,
+                          eventType: 'date_click',
+                          scheduleDate: format(d, 'yyyy-MM-dd'),
+                        });
+                      }
                     }}
                     disabled={isDateDisabled}
+                    modifiers={{ promo: promoDates, popular: popularDates }}
+                    modifiersClassNames={{
+                      promo: 'ring-2 ring-primary ring-offset-1 ring-offset-background font-semibold',
+                      popular: 'bg-accent text-accent-foreground font-semibold',
+                    }}
                     initialFocus
                     className={cn('p-3 pointer-events-auto')}
                   />
@@ -416,6 +449,30 @@ export function BallroomBookingForm({
               <FormDescription className="text-xs">
                 Tanggal yang sudah terisi otomatis dinonaktifkan.
               </FormDescription>
+              {locationId && (activePromoSchedules.length > 0 || popularDates.length > 0) && (
+                <div className="flex flex-wrap gap-3 pt-1 text-[11px] text-muted-foreground">
+                  {activePromoSchedules.length > 0 && <span className="inline-flex items-center gap-1"><Tag className="h-3 w-3 text-primary" /> Tanggal promo</span>}
+                  {popularDates.length > 0 && <span className="inline-flex items-center gap-1"><Flame className="h-3 w-3 text-primary" /> Banyak diminati</span>}
+                </div>
+              )}
+              {selectedDate && (selectedPromo || selectedDateInterest) && (
+                <div className="mt-2 rounded-lg border border-primary/25 bg-primary/5 p-3 text-xs">
+                  {selectedPromo && (
+                    <p className="flex items-center gap-1.5 font-semibold text-primary">
+                      <Tag className="h-3.5 w-3.5" />
+                      {selectedPromo.promo_label || (selectedPromo.promo_type === 'limited_offer' ? 'Limited Offer' : 'Special Offer')}
+                    </p>
+                  )}
+                  {selectedDateInterest && selectedDateInterest.clicks + selectedDateInterest.bookings > 0 && (
+                    <p className="mt-1 flex items-center gap-1.5 text-muted-foreground">
+                      <Eye className="h-3.5 w-3.5" />
+                      {selectedDateInterest.clicks + selectedDateInterest.bookings >= 3
+                        ? `${selectedDateInterest.clicks + selectedDateInterest.bookings} pengunjung memilih tanggal ini dalam 7 hari terakhir`
+                        : 'Tanggal ini mulai diminati'}
+                    </p>
+                  )}
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}

@@ -517,6 +517,74 @@ export function useBallroomSchedules(locationId?: string) {
   });
 }
 
+export type VenueInterestSummary = {
+  locationId: string;
+  views: number;
+  dates: Record<string, { clicks: number; bookings: number }>;
+};
+
+const getVisitorKey = () => {
+  const storageKey = 'kediaman-visitor-key';
+  const existing = window.localStorage.getItem(storageKey);
+  if (existing) return existing;
+  const created = crypto.randomUUID();
+  window.localStorage.setItem(storageKey, created);
+  return created;
+};
+
+export function useVenueInterest(locationId?: string) {
+  return useQuery({
+    queryKey: ['venue-interest', locationId || 'all'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_venue_interest', {
+        _location_id: locationId || undefined,
+      });
+      if (error) throw error;
+
+      return (data || []).reduce<Record<string, VenueInterestSummary>>((acc, row) => {
+        const current = acc[row.location_id] || { locationId: row.location_id, views: 0, dates: {} };
+        current.views = Math.max(current.views, Number(row.view_count || 0));
+        if (row.schedule_date) {
+          current.dates[row.schedule_date] = {
+            clicks: Number(row.date_click_count || 0),
+            bookings: Number(row.booking_count || 0),
+          };
+        }
+        acc[row.location_id] = current;
+        return acc;
+      }, {});
+    },
+    staleTime: 60_000,
+  });
+}
+
+export function useTrackVenueInterest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      locationId,
+      eventType,
+      scheduleDate,
+    }: {
+      locationId: string;
+      eventType: 'venue_view' | 'date_click' | 'booking_request';
+      scheduleDate?: string;
+    }) => {
+      const { error } = await supabase.rpc('track_venue_interest', {
+        _location_id: locationId,
+        _event_type: eventType,
+        _visitor_key: getVisitorKey(),
+        _schedule_date: scheduleDate,
+      });
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['venue-interest', variables.locationId] });
+      queryClient.invalidateQueries({ queryKey: ['venue-interest', 'all'] });
+    },
+  });
+}
+
 export function useCreateBallroomSchedule() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -528,6 +596,9 @@ export function useCreateBallroomSchedule() {
       status?: string; 
       event_name?: string; 
       notes?: string;
+      promo_type?: string | null;
+      promo_label?: string | null;
+      promo_expires_at?: string | null;
     }) => {
       const { error } = await supabase.from('ballroom_schedules').insert(schedule);
       if (error) throw error;

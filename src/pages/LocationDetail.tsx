@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, MapPin } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
-import { useLocations, useBallroomSchedules, usePortfoliosByLocation } from '@/hooks/useCMS';
+import { useLocations, useBallroomSchedules, usePortfoliosByLocation, useTrackVenueInterest, useVenueInterest } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { isBefore, startOfToday } from 'date-fns';
@@ -18,6 +18,7 @@ import { LocationPortfolioSection } from '@/components/location/LocationPortfoli
 import { Matterport360Embed } from '@/components/location/Matterport360Embed';
 import { useRef } from 'react';
 import { useSEO } from '@/hooks/useSEO';
+import { VenueInterestBadge } from '@/components/venue/VenueInterestBadge';
 
 const SITE_URL = 'https://official.kediaman.co';
 
@@ -32,6 +33,8 @@ const LocationDetail = () => {
   const { data: locations, isLoading } = useLocations();
   const { data: schedules = [] } = useBallroomSchedules(id);
   const { data: portfolios = [] } = usePortfoliosByLocation(id);
+  const { data: interest = {} } = useVenueInterest(id);
+  const trackInterest = useTrackVenueInterest();
   
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -39,6 +42,13 @@ const LocationDetail = () => {
   const detailsRef = useRef<HTMLDivElement>(null);
 
   const location = locations?.find(l => l.id === id);
+  const activePromo = schedules.find((schedule) => schedule.promo_type && (!schedule.promo_expires_at || new Date(schedule.promo_expires_at) >= new Date()));
+
+  useEffect(() => {
+    if (id) trackInterest.mutate({ locationId: id, eventType: 'venue_view' });
+    // One event is deduplicated per visitor and day by the database.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const canonicalUrl = `${SITE_URL}/lokasi/${id || ''}`;
   useSEO({
@@ -173,6 +183,11 @@ const LocationDetail = () => {
             </div>
 
             <div>
+              <VenueInterestBadge
+                views={interest[location.id]?.views}
+                promoLabel={activePromo?.promo_label || (activePromo?.promo_type === 'limited_offer' ? 'Limited Offer' : activePromo?.promo_type ? 'Special Offer' : null)}
+                className="mb-4"
+              />
               <LocationContactCard location={location} bookingOpen={bookingOpen} onBookingChange={setBookingOpen} />
             </div>
           </div>
