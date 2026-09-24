@@ -596,9 +596,9 @@ export function useCreateBallroomSchedule() {
       status?: string; 
       event_name?: string; 
       notes?: string;
-      promo_type?: string;
-      promo_label?: string;
-      promo_expires_at?: string;
+      promo_type?: string | null;
+      promo_label?: string | null;
+      promo_expires_at?: string | null;
     }) => {
       const { error } = await supabase.from('ballroom_schedules').insert(schedule);
       if (error) throw error;

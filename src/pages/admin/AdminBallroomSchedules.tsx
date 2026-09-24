@@ -118,9 +118,9 @@ const AdminBallroomSchedules = () => {
       status: formData.status,
       event_name: formData.event_name || undefined,
       notes: formData.notes || undefined,
-      promo_type: formData.promo_type === 'none' ? undefined : formData.promo_type,
-      promo_label: formData.promo_type === 'none' ? undefined : formData.promo_label || undefined,
-      promo_expires_at: formData.promo_type === 'none' ? undefined : formData.promo_expires_at || undefined,
+      promo_type: formData.promo_type === 'none' ? null : formData.promo_type,
+      promo_label: formData.promo_type === 'none' ? null : formData.promo_label || null,
+      promo_expires_at: formData.promo_type === 'none' ? null : formData.promo_expires_at || null,
     };
 
     if (editingItem) {

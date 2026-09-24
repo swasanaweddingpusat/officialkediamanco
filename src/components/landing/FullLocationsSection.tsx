@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Phone, Mail, ExternalLink, Users, Ruler, ChevronDown, X } from 'lucide-react';
-import { useLocations, useBallroomSchedules, usePortfoliosByLocation } from '@/hooks/useCMS';
+import { useLocations, useBallroomSchedules, usePortfoliosByLocation, useVenueInterest } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { LocationScheduleSection } from '@/components/location/LocationScheduleS
 import { LocationPortfolioSection } from '@/components/location/LocationPortfolioSection';
 import { BallroomBookingForm } from '@/components/booking/BallroomBookingForm';
 import { isBefore, startOfToday } from 'date-fns';
+import { VenueInterestBadge } from '@/components/venue/VenueInterestBadge';
 
 interface LocationDetailCardProps {
   location: {
@@ -39,6 +40,7 @@ interface LocationDetailCardProps {
 function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProps) {
   const { data: schedules = [] } = useBallroomSchedules(location.id);
   const { data: portfolios = [] } = usePortfoliosByLocation(location.id);
+  const { data: interest = {} } = useVenueInterest(location.id);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [bookingOpen, setBookingOpen] = useState(false);
 
@@ -52,6 +54,7 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
     schedules.filter(s => !isBefore(new Date(s.schedule_date), startOfToday())),
     [schedules]
   );
+  const activePromo = schedules.find((schedule) => schedule.promo_type && (!schedule.promo_expires_at || new Date(schedule.promo_expires_at) >= new Date()));
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -84,6 +87,10 @@ function LocationDetailCard({ location, onOpenLightbox }: LocationDetailCardProp
       </div>
 
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
+        <VenueInterestBadge
+          views={interest[location.id]?.views}
+          promoLabel={activePromo?.promo_label || (activePromo?.promo_type === 'limited_offer' ? 'Limited Offer' : activePromo?.promo_type ? 'Special Offer' : null)}
+        />
         {/* Address & Contact - Stack on mobile */}
         <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
           {location.address && (

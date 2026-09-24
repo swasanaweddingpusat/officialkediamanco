@@ -7,6 +7,7 @@ import { useBallroomSchedules, useLocations, useVenueInterest } from '@/hooks/us
 import { useSEO } from '@/hooks/useSEO';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
+import { VenueInterestBadge } from '@/components/venue/VenueInterestBadge';
 
 const LOCATION_CATEGORIES = ['Semua', 'Jakarta Selatan', 'Jakarta Timur', 'Bintaro', 'Bandung'] as const;
 
