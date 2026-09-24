@@ -27,6 +27,9 @@ type BallroomSchedule = {
   status: string;
   event_name: string | null;
   notes: string | null;
+  promo_type: string | null;
+  promo_label: string | null;
+  promo_expires_at: string | null;
 };
 
 const STATUS_OPTIONS = [
@@ -57,6 +60,9 @@ const AdminBallroomSchedules = () => {
     status: 'available',
     event_name: '',
     notes: '',
+    promo_type: 'none',
+    promo_label: '',
+    promo_expires_at: '',
   });
 
   const resetForm = () => {
@@ -68,6 +74,9 @@ const AdminBallroomSchedules = () => {
       status: 'available',
       event_name: '',
       notes: '',
+      promo_type: 'none',
+      promo_label: '',
+      promo_expires_at: '',
     });
     setEditingItem(null);
   };
@@ -88,6 +97,9 @@ const AdminBallroomSchedules = () => {
       status: item.status,
       event_name: item.event_name || '',
       notes: item.notes || '',
+      promo_type: item.promo_type || 'none',
+      promo_label: item.promo_label || '',
+      promo_expires_at: item.promo_expires_at ? item.promo_expires_at.slice(0, 16) : '',
     });
     setFormOpen(true);
   };
@@ -106,6 +118,9 @@ const AdminBallroomSchedules = () => {
       status: formData.status,
       event_name: formData.event_name || undefined,
       notes: formData.notes || undefined,
+      promo_type: formData.promo_type === 'none' ? undefined : formData.promo_type,
+      promo_label: formData.promo_type === 'none' ? undefined : formData.promo_label || undefined,
+      promo_expires_at: formData.promo_type === 'none' ? undefined : formData.promo_expires_at || undefined,
     };
 
     if (editingItem) {
@@ -137,6 +152,13 @@ const AdminBallroomSchedules = () => {
   };
 
   const columns = [
+    {
+      key: 'promotion',
+      label: 'Promo',
+      render: (item: BallroomSchedule) => item.promo_type ? (
+        <Badge variant="outline">{item.promo_label || (item.promo_type === 'limited_offer' ? 'Limited Offer' : 'Special Offer')}</Badge>
+      ) : '-',
+    },
     {
       key: 'schedule_date',
       label: 'Tanggal',
@@ -304,6 +326,44 @@ const AdminBallroomSchedules = () => {
               placeholder="Catatan tambahan..."
               rows={3}
             />
+          </div>
+
+          <div className="border-t border-border pt-4 space-y-4">
+            <div>
+              <Label>Penanda Promo</Label>
+              <Select
+                value={formData.promo_type}
+                onValueChange={(value) => setFormData({ ...formData, promo_type: value })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Tanpa promo</SelectItem>
+                  <SelectItem value="special_offer">Special Offer</SelectItem>
+                  <SelectItem value="limited_offer">Limited Offer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {formData.promo_type !== 'none' && (
+              <>
+                <div>
+                  <Label>Label yang Ditampilkan</Label>
+                  <Input
+                    value={formData.promo_label}
+                    onChange={(e) => setFormData({ ...formData, promo_label: e.target.value })}
+                    placeholder={formData.promo_type === 'limited_offer' ? 'Limited Offer' : 'Special Offer'}
+                    maxLength={40}
+                  />
+                </div>
+                <div>
+                  <Label>Berlaku Sampai</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.promo_expires_at}
+                    onChange={(e) => setFormData({ ...formData, promo_expires_at: e.target.value })}
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </AdminFormDialog>
