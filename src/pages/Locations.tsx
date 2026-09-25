@@ -13,7 +13,7 @@ const LOCATION_CATEGORIES = ['Semua', 'Jakarta Selatan', 'Jakarta Timur', 'Binta
 
 const Locations = () => {
   const { data: locations, isLoading } = useLocations();
-  const { data: schedules = [] } = useBallroomSchedules();
+  const { data: schedules = [] } = useBallroomSchedules(undefined, true);
   const { data: interest = {} } = useVenueInterest();
   const [searchParams, setSearchParams] = useSearchParams();
   const q = searchParams.get('q')?.trim() || '';
