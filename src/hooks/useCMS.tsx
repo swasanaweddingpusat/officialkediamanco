@@ -496,7 +496,7 @@ export function useVenueSessions(locationId?: string) {
 
 // Ballroom Schedules
 
-export function useBallroomSchedules(locationId?: string) {
+export function useBallroomSchedules(locationId?: string, fetchAll = false) {
   return useQuery({
     queryKey: ['ballroom-schedules', locationId],
     queryFn: async () => {
@@ -513,7 +513,7 @@ export function useBallroomSchedules(locationId?: string) {
       if (error) throw error;
       return data;
     },
-    enabled: locationId !== undefined,
+    enabled: fetchAll || locationId !== undefined,
   });
 }
 
