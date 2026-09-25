@@ -12,4 +12,4 @@
 - [x] Catat minat nyata untuk buka venue, pilih tanggal, dan pengajuan booking.
 - [x] Tambahkan label Special Offer/Limited Offer pada CMS jadwal.
 - [x] Tampilkan indikator minat dan promo di kalender, detail, dan daftar venue.
-- [ ] Verifikasi privasi, tampilan mobile/desktop, booking, dan build.
+- [x] Verifikasi privasi, tampilan mobile/desktop, booking, dan build.
