@@ -153,6 +153,48 @@
 }
 
 @layer components {
+  .editorial-site, .editorial-nav, .editorial-menu, .editorial-popover {
+    --background: 150 6% 4%;
+    --foreground: 0 0% 100%;
+    --card: 150 5% 8%;
+    --card-foreground: 0 0% 100%;
+    --popover: 150 5% 8%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 150 6% 4%;
+    --secondary: 150 5% 14%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 150 5% 14%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 150 5% 20%;
+    --accent-foreground: 0 0% 100%;
+    --border: 0 0% 100% / .18;
+    --input: 0 0% 100% / .25;
+    --ring: 0 0% 100%;
+    --editorial-overlay: linear-gradient(180deg, hsl(150 6% 4% / .5), hsl(150 6% 4% / .25) 40%, hsl(150 6% 4% / .8));
+    font-family: 'Montserrat', sans-serif;
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+    letter-spacing: 0;
+  }
+  .editorial-site h1, .editorial-site h2, .editorial-site h3 { font-family: 'Playfair Display', serif; letter-spacing: 0; font-weight: 400; }
+  .editorial-site .font-serif { font-family: 'Playfair Display', serif; }
+  .editorial-site button, .editorial-site input, .editorial-nav *, .editorial-menu * { letter-spacing: 0; }
+  .editorial-site > main > section:not(:first-child) { border-top: 1px solid hsl(var(--border)); }
+  .editorial-site .rounded-2xl, .editorial-site .rounded-3xl { border-radius: .25rem; }
+  .editorial-hero { min-height: 760px; height: calc(100svh - 64px); max-height: 1100px; }
+  .editorial-hero-overlay { background: var(--editorial-overlay); }
+  .editorial-nav { background: transparent; transition: background-color .3s; }
+  .editorial-nav.is-solid { background: hsl(var(--background) / .96); border-bottom: 1px solid hsl(var(--border)); }
+  .editorial-hero-title { font-size: 72px; line-height: 1.12; }
+  .editorial-scroll { height: 64px; width: 1px; background: hsl(var(--foreground) / .5); }
+  @media (max-width: 767px) {
+    .editorial-hero { min-height: 780px; height: auto; }
+    .editorial-hero-title { font-size: 40px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .editorial-site *, .editorial-menu * { animation: none !important; transition: none !important; }
+  }
   .venue-detail {
     --background: var(--venue-background);
     --foreground: var(--venue-foreground);
