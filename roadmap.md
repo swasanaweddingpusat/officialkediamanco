@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Terapkan Editorial Tegas pada beranda dan navigasi publik, tetap menjaga pencarian dan booking.
+- [ ] Verifikasi foto, menu, pencarian, dan pembukaan booking pada tampilan lebar serta sempit.
+
 - [x] Pilih dan terapkan tampilan baru detail venue.
 - [x] Gunakan slug nama venue yang ramah SEO dengan dukungan tautan lama.
 - [x] Selaraskan tautan venue, canonical, dan sitemap; verifikasi halaman serta pembukaan formulir pemesanan.

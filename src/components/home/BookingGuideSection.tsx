@@ -29,7 +29,7 @@ const steps = [
 
 export function BookingGuideSection() {
   return (
-    <section className="py-20 lg:py-28 border-t border-border/50">
+    <section id="panduan-booking" className="py-20 lg:py-28 border-t border-border/50 scroll-mt-24">
       <div className="container mx-auto px-6 lg:px-12">
         <div className="max-w-2xl mb-14">
           <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground mb-4">
