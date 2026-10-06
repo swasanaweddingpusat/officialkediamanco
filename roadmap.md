@@ -3,8 +3,10 @@
 - [x] Rapikan slug portfolio dan promosi, pertahankan tautan lama, serta selaraskan canonical dan sitemap.
 - [x] Verifikasi tautan nama dan pengalihan alamat lama pada data publik asli.
 
-- [ ] Terapkan Editorial Tegas pada beranda dan navigasi publik, tetap menjaga pencarian dan booking.
-- [ ] Verifikasi foto, menu, pencarian, dan pembukaan booking pada tampilan lebar serta sempit.
+- [x] Terapkan Editorial Tegas pada beranda dan navigasi publik, tetap menjaga pencarian dan booking.
+- [x] Ganti latar gelap ke hijau tua dan verifikasi keterbacaan teks pada beranda, daftar venue, serta menu.
+- [ ] Verifikasi foto, menu, pencarian, dan pembukaan booking pada tampilan sempit.
+
 
 - [x] Pilih dan terapkan tampilan baru detail venue.
 - [x] Gunakan slug nama venue yang ramah SEO dengan dukungan tautan lama.
