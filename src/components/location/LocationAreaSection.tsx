@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Users, Ruler, Expand } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface LocationAreaSectionProps {
   title: string;
@@ -27,7 +28,7 @@ export const LocationAreaSection = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="bg-card border border-border rounded-2xl p-6 md:p-8"
+      className="venue-section bg-card border border-border rounded-lg p-6 md:p-8"
     >
       <h2 className="font-serif text-2xl mb-4 font-bold">{title}</h2>
       
@@ -56,26 +57,25 @@ export const LocationAreaSection = ({
       )}
       
       {images && images.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+        <div className={`grid gap-4 ${images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
           {images.map((img, i) => (
-            <motion.button
+            <Button
               key={i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.05 * i }}
-              whileHover={{ scale: 1.02 }}
+              variant="ghost"
+              aria-label={`Perbesar foto ${title} ${i + 1}`}
               onClick={() => onOpenLightbox(img)}
-              className="relative aspect-[4/3] rounded-xl overflow-hidden group"
+              className="relative w-full h-auto p-0 aspect-[4/3] rounded-none overflow-hidden group border border-primary/15"
             >
               <img 
                 src={img} 
-                alt={`${title} ${i + 1}`} 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                alt={`${title} ${i + 1}`}
+                loading="lazy" 
+                className="w-full h-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.03]" 
               />
               <div className="absolute inset-0 bg-background/0 group-hover:bg-background/40 transition-colors duration-300 flex items-center justify-center">
-                <Expand className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-lg" />
+                <Expand className="w-6 h-6 text-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-lg" />
               </div>
-            </motion.button>
+            </Button>
           ))}
         </div>
       )}
