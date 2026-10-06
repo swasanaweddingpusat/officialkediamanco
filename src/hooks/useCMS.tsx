@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { isUuidAddress } from '@/lib/content-url';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -306,7 +307,7 @@ export function useTrainerById(id?: string) {
       const { data, error } = await supabase
         .from('trainers')
         .select('*, locations(id, name, slug)')
-        .eq('id', id)
+        .eq(isUuidAddress(id || '') ? 'id' : 'slug', id)
         .maybeSingle();
       if (error) throw error;
       return data;

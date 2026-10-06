@@ -558,6 +558,7 @@ export type Database = {
           image_url: string | null
           is_active: boolean | null
           name: string
+          slug: string | null
           sort_order: number | null
           updated_at: string
         }
@@ -571,6 +572,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           name: string
+          slug?: string | null
           sort_order?: number | null
           updated_at?: string
         }
@@ -584,6 +586,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           name?: string
+          slug?: string | null
           sort_order?: number | null
           updated_at?: string
         }
@@ -689,6 +692,7 @@ export type Database = {
           location_id: string | null
           name: string
           photo_url: string | null
+          slug: string | null
           sort_order: number | null
           specialization: string | null
           updated_at: string
@@ -706,6 +710,7 @@ export type Database = {
           location_id?: string | null
           name: string
           photo_url?: string | null
+          slug?: string | null
           sort_order?: number | null
           specialization?: string | null
           updated_at?: string
@@ -723,6 +728,7 @@ export type Database = {
           location_id?: string | null
           name?: string
           photo_url?: string | null
+          slug?: string | null
           sort_order?: number | null
           specialization?: string | null
           updated_at?: string

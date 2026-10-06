@@ -1,6 +1,8 @@
 import { venuePath } from '@/lib/venue-url';
-import { useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { portfolioPath } from '@/lib/content-url';
+import { useSEO } from '@/hooks/useSEO';
 import { motion } from 'framer-motion';
 import { ChevronLeft, MapPin, Calendar, Images, Expand, ArrowRight, Video as VideoIcon } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
@@ -16,6 +18,20 @@ const PortfolioDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { data: portfolio, isLoading } = useTrainerById(id);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const currentLocation = useLocation();
+
+  useEffect(() => {
+    if (portfolio?.slug && currentLocation.pathname !== portfolioPath(portfolio)) {
+      navigate(`${portfolioPath(portfolio)}${currentLocation.search}${currentLocation.hash}`, { replace: true });
+    }
+  }, [portfolio, currentLocation.pathname, currentLocation.search, currentLocation.hash, navigate]);
+
+  useSEO({
+    title: portfolio ? `${portfolio.name} | Portfolio Kediaman Corp` : 'Portfolio | Kediaman Corp',
+    description: portfolio?.bio || 'Dokumentasi acara dan inspirasi perayaan di venue Kediaman Corp.',
+    image: portfolio?.photo_url || undefined,
+  });
 
   const allImages = useMemo(() => {
     const imgs: string[] = [];
@@ -115,7 +131,7 @@ const PortfolioDetail = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="relative aspect-[21/9] rounded-sm overflow-hidden group cursor-pointer"
-              onClick={() => setLightboxImage(portfolio.photo_url!)}
+              onClick={() => setLightboxImage(portfolio.photo_url)}
             >
               <img src={portfolio.photo_url} alt={portfolio.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />

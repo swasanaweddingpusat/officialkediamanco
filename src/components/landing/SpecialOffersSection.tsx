@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { promotionPath } from '@/lib/content-url';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { usePrograms } from '@/hooks/useCMS';
@@ -55,7 +56,7 @@ export function SpecialOffersSection() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link to={`/tentang-kami/${program.id}`} className="group block">
+                <Link to={promotionPath(program)} className="group block">
                   <div className="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/5]">
                     <img
                       src={program.image_url || fallbackImages[index % fallbackImages.length]}

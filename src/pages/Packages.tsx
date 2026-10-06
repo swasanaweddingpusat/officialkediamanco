@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { promotionPath } from '@/lib/content-url';
 import { motion } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Search } from 'lucide-react';
@@ -157,7 +158,7 @@ const Packages = () => {
                   transition={{ delay: Math.min(index, 5) * 0.06 }}
                   className="group flex flex-col rounded-2xl overflow-hidden border border-border bg-card"
                 >
-                  <Link to={`/tentang-kami/${program.id}`} className="block relative aspect-[4/3] overflow-hidden bg-muted">
+                  <Link to={promotionPath(program)} className="block relative aspect-[4/3] overflow-hidden bg-muted">
                     {program.image_url ? (
                       <img
                         src={program.image_url}
@@ -178,7 +179,7 @@ const Packages = () => {
 
                   <div className="flex flex-col flex-1 p-6">
                     <h2 className="font-serif text-xl lg:text-2xl font-semibold leading-snug mb-3 group-hover:text-primary transition-colors">
-                      <Link to={`/tentang-kami/${program.id}`}>{program.name}</Link>
+                      <Link to={promotionPath(program)}>{program.name}</Link>
                     </h2>
                     {program.description && (
                       <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 mb-6">
@@ -186,7 +187,7 @@ const Packages = () => {
                       </p>
                     )}
                     <div className="mt-auto flex items-center gap-3">
-                      <Link to={`/tentang-kami/${program.id}`} className="flex-1">
+                      <Link to={promotionPath(program)} className="flex-1">
                         <Button variant="outline" className="w-full rounded-full text-xs tracking-[0.05em] uppercase">
                           Detail
                           <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />

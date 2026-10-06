@@ -1,4 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import { promotionPath } from '@/lib/content-url';
+import { useSEO } from '@/hooks/useSEO';
 import { motion } from 'framer-motion';
 import { Layout } from '@/components/layout/Layout';
 import { usePrograms } from '@/hooks/useCMS';
@@ -16,8 +20,21 @@ const ProgramDetail = () => {
   const navigate = useNavigate();
   const { data: programs, isLoading } = usePrograms();
 
-  const program = programs?.find(p => p.id === id);
-  const programIndex = programs?.findIndex(p => p.id === id) || 0;
+  const program = programs?.find(p => p.slug === id || p.id === id);
+  const programIndex = Math.max(0, programs?.findIndex(p => p.slug === id || p.id === id) ?? 0);
+  const currentLocation = useLocation();
+
+  useEffect(() => {
+    if (program?.slug && currentLocation.pathname !== promotionPath(program)) {
+      navigate(`${promotionPath(program)}${currentLocation.search}${currentLocation.hash}`, { replace: true });
+    }
+  }, [program, currentLocation.pathname, currentLocation.search, currentLocation.hash, navigate]);
+
+  useSEO({
+    title: program ? `${program.name} | Promosi Kediaman Corp` : 'Promosi | Kediaman Corp',
+    description: program?.description || 'Penawaran dan paket venue Kediaman Corp untuk acara Anda.',
+    image: program?.image_url || undefined,
+  });
 
   if (isLoading) {
     return (

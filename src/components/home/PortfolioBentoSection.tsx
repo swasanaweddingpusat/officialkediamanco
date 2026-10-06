@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { portfolioPath } from '@/lib/content-url';
 import { Link } from 'react-router-dom';
 import { useTrainers } from '@/hooks/useCMS';
 import trainerImage from '@/assets/trainer-1.jpg';
@@ -40,7 +41,7 @@ export function PortfolioBentoSection() {
               transition={{ delay: i * 0.1 }}
               className={layouts[i] || 'col-span-1 row-span-1'}
             >
-              <Link to={`/portfolio/${item.id}`} className="block w-full h-full group relative overflow-hidden rounded-sm">
+              <Link to={portfolioPath(item)} className="block w-full h-full group relative overflow-hidden rounded-sm">
                 <img
                   src={item.photo_url || trainerImage}
                   alt={item.name}

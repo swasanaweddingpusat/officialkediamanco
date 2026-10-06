@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { portfolioPath } from '@/lib/content-url';
 import { Link } from 'react-router-dom';
 import { Images, ArrowRight } from 'lucide-react';
 import { useTrainers } from '@/hooks/useCMS';
@@ -54,7 +55,7 @@ export function PortfolioSection() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Link to={`/portfolio/${portfolio.id}`} className="group block">
+                  <Link to={portfolioPath(portfolio)} className="group block">
                     <div className="relative overflow-hidden rounded-sm aspect-[3/4] mb-3">
                       <img
                         src={portfolio.photo_url || trainerImage}

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { portfolioPath } from '@/lib/content-url';
 import { Link } from 'react-router-dom';
 import { Images, ArrowRight, Expand } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +7,7 @@ import { Button } from '@/components/ui/button';
 
 interface Portfolio {
   id: string;
+  slug?: string | null;
   name: string;
   specialization: string | null;
   bio: string | null;
@@ -66,7 +68,7 @@ export const LocationPortfolioSection = ({
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-serif text-xl mb-2 text-foreground"><Link to={`/portfolio/${portfolio.id}`} className="hover:text-primary">{portfolio.name}</Link></h3>
+                  <h3 className="font-serif text-xl mb-2 text-foreground"><Link to={portfolioPath(portfolio)} className="hover:text-primary">{portfolio.name}</Link></h3>
                   {portfolio.specialization && (
                     <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/30">
                       {portfolio.specialization}

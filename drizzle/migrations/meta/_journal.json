@@ -15,6 +15,13 @@
       "when": 1791278663698,
       "tag": "0001_add_stable_venue_seo_slugs",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791302110186,
+      "tag": "0002_add_portfolio_promotion_seo_slugs",
+      "breakpoints": true
     }
   ]
 }
