@@ -97,9 +97,7 @@ export const LocationNetflixHero = ({ videoUrl, posterImage, locationName, categ
         ) : youtubeId && !reduceMotion ? (
           <>
             {posterImage && <img src={posterImage} alt={`Interior venue ${locationName}`} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${ytReady ? 'opacity-0' : 'opacity-100'}`} fetchPriority="high" />}
-            <YouTubeCover videoId={youtubeId} title={`Video ${locationName}`} onReady={() => setYtReady(true)} />
-            {/* Hidden control frame handle for YouTube postMessage commands */}
-            <iframe ref={ytFrameRef} src="" title="" className="hidden" aria-hidden="true" tabIndex={-1} />
+            <YouTubeCover videoId={youtubeId} title={`Video ${locationName}`} frameRef={ytFrameRef} onReady={() => setYtReady(true)} />
           </>
         ) : posterImage ? <img src={posterImage} alt={`Interior venue ${locationName}`} className="w-full h-full object-cover" fetchPriority="high" /> : null}
       </div>
