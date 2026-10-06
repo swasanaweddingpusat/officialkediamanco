@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
-import { Play, Pause, Volume2, VolumeX, MapPin, CalendarDays, ArrowDown } from 'lucide-react';
+import { Play, MapPin, CalendarDays, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
@@ -14,10 +14,6 @@ interface LocationNetflixHeroProps {
   onScrollToDetails?: () => void;
   onBook?: () => void;
 }
-
-const ytCommand = (iframe: HTMLIFrameElement | null, func: string, args: unknown[] = []) => {
-  iframe?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), '*');
-};
 
 /** 16:9 iframe sized to cover its container, centered — no letterboxing. */
 const YouTubeCover = ({ videoId, title, frameRef, onReady }: { videoId: string; title: string; frameRef: React.RefObject<HTMLIFrameElement | null>; onReady?: () => void }) => {
@@ -64,8 +60,6 @@ export const LocationNetflixHero = ({ videoUrl, posterImage, locationName, categ
   const videoRef = useRef<HTMLVideoElement>(null);
   const ytFrameRef = useRef<HTMLIFrameElement>(null);
   const reduceMotion = useReducedMotion();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
   const [ytReady, setYtReady] = useState(false);
   const [youtubeOpen, setYoutubeOpen] = useState(false);
