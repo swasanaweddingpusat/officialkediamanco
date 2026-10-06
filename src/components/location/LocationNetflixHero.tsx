@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, MapPin, CalendarDays, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,12 +15,60 @@ interface LocationNetflixHeroProps {
   onBook?: () => void;
 }
 
+const ytCommand = (iframe: HTMLIFrameElement | null, func: string, args: unknown[] = []) => {
+  iframe?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), '*');
+};
+
+/** 16:9 iframe sized to cover its container, centered — no letterboxing. */
+const YouTubeCover = ({ videoId, title, onReady }: { videoId: string; title: string; onReady?: () => void }) => {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const cover = () => {
+      const wrap = wrapRef.current;
+      if (!wrap) return;
+      const { width: w, height: h } = wrap.getBoundingClientRect();
+      if (!w || !h) return;
+      // Cover: scale the 16:9 frame until both dimensions are filled.
+      const width = Math.max(w, (h * 16) / 9);
+      const height = width * (9 / 16);
+      const iframe = iframeRef.current;
+      if (iframe) {
+        iframe.style.width = `${Math.ceil(width + 2)}px`;
+        iframe.style.height = `${Math.ceil(height + 2)}px`;
+      }
+    };
+    cover();
+    const ro = new ResizeObserver(cover);
+    if (wrapRef.current) ro.observe(wrapRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <div ref={wrapRef} className="absolute inset-0 overflow-hidden">
+      <iframe
+        ref={iframeRef}
+        src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&playsinline=1&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1`}
+        title={title}
+        allow="autoplay; encrypted-media; picture-in-picture"
+        onLoad={() => { setLoaded(true); onReady?.(); }}
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none border-0 transition-opacity duration-1000"
+        style={{ opacity: loaded ? 1 : 0, width: '100%', height: '100%' }}
+      />
+    </div>
+  );
+};
+
 export const LocationNetflixHero = ({ videoUrl, posterImage, locationName, category, address, isComingSoon, onScrollToDetails, onBook }: LocationNetflixHeroProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const ytFrameRef = useRef<HTMLIFrameElement>(null);
   const reduceMotion = useReducedMotion();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [ytReady, setYtReady] = useState(false);
   const [youtubeOpen, setYoutubeOpen] = useState(false);
   const youtubeId = videoUrl?.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/)?.[1];
   const directVideo = videoUrl && !youtubeId && !videoUrl.includes('tiktok.com') && !videoFailed;
@@ -32,12 +80,28 @@ export const LocationNetflixHero = ({ videoUrl, posterImage, locationName, categ
     if (video.paused) { try { await video.play(); } catch { setIsPlaying(false); } }
     else video.pause();
   };
+  const ytTogglePlay = () => {
+    if (isPlaying) { ytCommand(ytFrameRef.current, 'pauseVideo'); setIsPlaying(false); }
+    else { ytCommand(ytFrameRef.current, 'playVideo'); ytCommand(ytFrameRef.current, 'unMute'); setIsMuted(false); setIsPlaying(true); }
+  };
+  const ytToggleMute = () => {
+    if (isMuted) { ytCommand(ytFrameRef.current, 'unMute'); setIsMuted(false); }
+    else { ytCommand(ytFrameRef.current, 'mute'); setIsMuted(true); }
+  };
+  const ytControls = !!youtubeId && !reduceMotion;
 
   return (
     <section className="relative w-full h-[70svh] min-h-[520px] max-h-[760px] overflow-hidden bg-background flex items-end">
       <div className="absolute inset-0">
         {directVideo ? (
           <video ref={videoRef} src={videoUrl || undefined} poster={posterImage} autoPlay={!reduceMotion} muted={isMuted} loop playsInline onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onError={() => setVideoFailed(true)} aria-label={`Video ${locationName}`} className="w-full h-full object-cover" />
+        ) : youtubeId && !reduceMotion ? (
+          <>
+            {posterImage && <img src={posterImage} alt={`Interior venue ${locationName}`} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${ytReady ? 'opacity-0' : 'opacity-100'}`} fetchPriority="high" />}
+            <YouTubeCover videoId={youtubeId} title={`Video ${locationName}`} onReady={() => setYtReady(true)} />
+            {/* Hidden control frame handle for YouTube postMessage commands */}
+            <iframe ref={ytFrameRef} src="" title="" className="hidden" aria-hidden="true" tabIndex={-1} />
+          </>
         ) : posterImage ? <img src={posterImage} alt={`Interior venue ${locationName}`} className="w-full h-full object-cover" fetchPriority="high" /> : null}
       </div>
       <div className="absolute inset-0 venue-hero-overlay pointer-events-none" />
@@ -64,6 +128,10 @@ export const LocationNetflixHero = ({ videoUrl, posterImage, locationName, categ
       {directVideo && <div className="absolute bottom-4 right-6 lg:right-8 z-20 flex gap-2">
         <Button variant="outline" size="icon" onClick={togglePlay} title={isPlaying ? 'Jeda video' : 'Putar video'} aria-label={isPlaying ? 'Jeda video' : 'Putar video'} className="bg-background/70 border-foreground/30">{isPlaying ? <Pause /> : <Play />}</Button>
         <Button variant="outline" size="icon" onClick={() => setIsMuted(m => !m)} title={isMuted ? 'Aktifkan suara' : 'Matikan suara'} aria-label={isMuted ? 'Aktifkan suara' : 'Matikan suara'} className="bg-background/70 border-foreground/30">{isMuted ? <VolumeX /> : <Volume2 />}</Button>
+      </div>}
+      {ytControls && <div className="absolute bottom-4 right-6 lg:right-8 z-20 flex gap-2">
+        <Button variant="outline" size="icon" onClick={ytTogglePlay} title={isPlaying ? 'Jeda video' : 'Putar video'} aria-label={isPlaying ? 'Jeda video' : 'Putar video'} className="bg-background/70 border-foreground/30">{isPlaying ? <Pause /> : <Play />}</Button>
+        <Button variant="outline" size="icon" onClick={ytToggleMute} title={isMuted ? 'Aktifkan suara' : 'Matikan suara'} aria-label={isMuted ? 'Aktifkan suara' : 'Matikan suara'} className="bg-background/70 border-foreground/30">{isMuted ? <VolumeX /> : <Volume2 />}</Button>
       </div>}
       {youtubeId && <Dialog open={youtubeOpen} onOpenChange={setYoutubeOpen}><DialogContent className="max-w-5xl p-6"><DialogTitle className="font-serif">Video {locationName}</DialogTitle>{youtubeOpen && <iframe src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&playsinline=1&rel=0`} allow="autoplay; encrypted-media; fullscreen" allowFullScreen title={`Video ${locationName}`} className="w-full aspect-video" />}</DialogContent></Dialog>}
     </section>
