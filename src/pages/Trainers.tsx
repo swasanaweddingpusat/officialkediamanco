@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { portfolioPath } from '@/lib/content-url';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Images, Search, X, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -146,7 +147,7 @@ const Trainers = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
                       >
-                        <Link to={`/portfolio/${portfolio.id}`} className="group block">
+                        <Link to={portfolioPath(portfolio)} className="group block">
                           <div className="relative overflow-hidden aspect-[3/4] rounded-sm mb-4">
                             <img
                               src={portfolio.photo_url || trainerImage}

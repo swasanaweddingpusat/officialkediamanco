@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { promotionPath } from '@/lib/content-url';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -99,7 +100,7 @@ export function PromoSliderSection() {
                   transition={{ delay: i * 0.06 }}
                   className="flex-none w-[88%] md:w-[calc(50%-12px)] snap-start group"
                 >
-                  <Link to={`/tentang-kami/${promo.id}`} className="block" aria-label={promo.name}>
+                  <Link to={promotionPath(promo)} className="block" aria-label={promo.name}>
                     <div className="relative h-64 md:h-72 rounded-3xl overflow-hidden shadow-xl">
                       <img
                         src={promo.image_url || '/placeholder.svg'}

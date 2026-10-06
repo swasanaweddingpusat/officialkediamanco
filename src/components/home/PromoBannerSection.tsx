@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { promotionPath } from '@/lib/content-url';
 import { Link } from 'react-router-dom';
 import { usePrograms } from '@/hooks/useCMS';
 
@@ -37,7 +38,7 @@ export function PromoBannerSection() {
               <p className="text-background/70 mb-8 line-clamp-3">{promo.description}</p>
             )}
             <Link
-              to={`/tentang-kami/${promo.id}`}
+              to={promotionPath(promo)}
               className="inline-block border border-primary text-primary px-8 py-3 uppercase text-xs tracking-widest font-bold hover:bg-primary hover:text-primary-foreground transition-all"
             >
               Pelajari Detail
