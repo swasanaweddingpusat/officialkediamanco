@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, MapPin, CalendarDays, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 interface LocationNetflixHeroProps {
   videoUrl?: string | null;
@@ -20,6 +21,7 @@ export const LocationNetflixHero = ({ videoUrl, posterImage, locationName, categ
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [youtubeOpen, setYoutubeOpen] = useState(false);
   const youtubeId = videoUrl?.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/)?.[1];
   const directVideo = videoUrl && !youtubeId && !videoUrl.includes('tiktok.com') && !videoFailed;
   const words = locationName.split(' ');
@@ -36,8 +38,6 @@ export const LocationNetflixHero = ({ videoUrl, posterImage, locationName, categ
       <div className="absolute inset-0">
         {directVideo ? (
           <video ref={videoRef} src={videoUrl || undefined} poster={posterImage} autoPlay={!reduceMotion} muted={isMuted} loop playsInline onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onError={() => setVideoFailed(true)} aria-label={`Video ${locationName}`} className="w-full h-full object-cover" />
-        ) : youtubeId && !reduceMotion ? (
-          <iframe src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&controls=1&loop=1&playlist=${youtubeId}&playsinline=1&rel=0`} allow="autoplay; encrypted-media" title={`Video ${locationName}`} className="w-full h-full" />
         ) : posterImage ? <img src={posterImage} alt={`Interior venue ${locationName}`} className="w-full h-full object-cover" fetchPriority="high" /> : null}
       </div>
       <div className="absolute inset-0 venue-hero-overlay pointer-events-none" />
@@ -56,6 +56,7 @@ export const LocationNetflixHero = ({ videoUrl, posterImage, locationName, categ
             <div className="flex flex-wrap gap-3">
               {onBook && <Button onClick={onBook} size="lg" className="rounded-none text-xs uppercase font-semibold h-12 px-5 sm:px-8"><CalendarDays />Reservasi Sekarang</Button>}
               {onScrollToDetails && <Button onClick={onScrollToDetails} size="lg" variant="outline" className="rounded-none text-xs uppercase h-12 px-5 sm:px-8 bg-background/20 border-foreground/30"><ArrowDown />Lihat Detail</Button>}
+              {youtubeId && <Button onClick={() => setYoutubeOpen(true)} size="icon" variant="outline" title="Tonton video venue" aria-label="Tonton video venue" className="h-12 w-12 rounded-none bg-background/20 border-foreground/30"><Play /></Button>}
             </div>
           </div>
         </div>
@@ -64,6 +65,7 @@ export const LocationNetflixHero = ({ videoUrl, posterImage, locationName, categ
         <Button variant="outline" size="icon" onClick={togglePlay} title={isPlaying ? 'Jeda video' : 'Putar video'} aria-label={isPlaying ? 'Jeda video' : 'Putar video'} className="bg-background/70 border-foreground/30">{isPlaying ? <Pause /> : <Play />}</Button>
         <Button variant="outline" size="icon" onClick={() => setIsMuted(m => !m)} title={isMuted ? 'Aktifkan suara' : 'Matikan suara'} aria-label={isMuted ? 'Aktifkan suara' : 'Matikan suara'} className="bg-background/70 border-foreground/30">{isMuted ? <VolumeX /> : <Volume2 />}</Button>
       </div>}
+      {youtubeId && <Dialog open={youtubeOpen} onOpenChange={setYoutubeOpen}><DialogContent className="max-w-5xl p-6"><DialogTitle className="font-serif">Video {locationName}</DialogTitle>{youtubeOpen && <iframe src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&playsinline=1&rel=0`} allow="autoplay; encrypted-media; fullscreen" allowFullScreen title={`Video ${locationName}`} className="w-full aspect-video" />}</DialogContent></Dialog>}
     </section>
   );
 };
