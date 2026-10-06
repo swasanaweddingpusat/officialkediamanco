@@ -1,8 +1,8 @@
 # Roadmap
 
-- [ ] Pilih dan terapkan tampilan baru detail venue.
-- [ ] Gunakan slug nama venue yang ramah SEO dengan dukungan tautan lama.
-- [ ] Selaraskan tautan venue, canonical, dan sitemap; verifikasi halaman serta pemesanan.
+- [x] Pilih dan terapkan tampilan baru detail venue.
+- [x] Gunakan slug nama venue yang ramah SEO dengan dukungan tautan lama.
+- [x] Selaraskan tautan venue, canonical, dan sitemap; verifikasi halaman serta pembukaan formulir pemesanan.
 
 - [x] Terapkan tampilan floating chat bergaya Warm Humanized.
 - [x] Buat sapaan, pilihan pertanyaan, status mengetik, dan respons terasa lebih natural.

@@ -31,14 +31,14 @@ export const LocationContactCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="bg-card border border-border rounded-2xl p-6 lg:sticky lg:top-24 shadow-sm"
+      className="relative border border-primary/30 p-6 lg:p-8"
     >
-      <h3 className="font-serif text-xl mb-5 font-bold">Informasi Kontak</h3>
+      <h3 className="absolute -top-4 left-5 px-3 bg-background font-serif text-2xl italic text-primary">Informasi</h3>
 
-      <div className="space-y-4">
+      <div className="space-y-6 mt-4">
         {location.address && (
-          <div className="flex items-start gap-3 text-muted-foreground group">
-            <div className="p-2 bg-secondary rounded-lg group-hover:bg-primary/10 transition-colors">
+          <div className="flex items-start gap-3 text-foreground/80 group">
+            <div className="p-2 bg-primary/5 rounded-none group-hover:bg-primary/10 transition-colors">
               <MapPin className="w-4 h-4 text-primary" />
             </div>
             <span className="text-sm leading-relaxed pt-1.5">{location.address}</span>
@@ -48,9 +48,9 @@ export const LocationContactCard = ({
         {location.phone && (
           <a
             href={`tel:${location.phone}`}
-            className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors group"
+            className="flex items-center gap-3 text-foreground/80 hover:text-foreground transition-colors group"
           >
-            <div className="p-2 bg-secondary rounded-lg group-hover:bg-primary/10 transition-colors">
+            <div className="p-2 bg-primary/5 rounded-none group-hover:bg-primary/10 transition-colors">
               <Phone className="w-4 h-4 text-primary" />
             </div>
             <span className="text-sm">{location.phone}</span>
@@ -60,9 +60,9 @@ export const LocationContactCard = ({
         {location.email && (
           <a
             href={`mailto:${location.email}`}
-            className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors group"
+            className="flex items-center gap-3 text-foreground/80 hover:text-foreground transition-colors group"
           >
-            <div className="p-2 bg-secondary rounded-lg group-hover:bg-primary/10 transition-colors">
+            <div className="p-2 bg-primary/5 rounded-none group-hover:bg-primary/10 transition-colors">
               <Mail className="w-4 h-4 text-primary" />
             </div>
             <span className="text-sm break-all">{location.email}</span>
@@ -70,8 +70,8 @@ export const LocationContactCard = ({
         )}
 
         {location.operating_hours && (
-          <div className="flex items-start gap-3 text-muted-foreground group">
-            <div className="p-2 bg-secondary rounded-lg">
+          <div className="flex items-start gap-3 text-foreground/80 group">
+            <div className="p-2 bg-primary/5 rounded-none">
               <Clock className="w-4 h-4 text-primary" />
             </div>
             <div className="min-w-0 pt-1">
@@ -88,7 +88,7 @@ export const LocationContactCard = ({
       </div>
 
       {/* Actions */}
-      <div className="mt-6 space-y-3">
+      <div className="mt-8 space-y-3">
         {/* Map Link */}
         {location.google_maps_url && !location.is_coming_soon && (
           <a
@@ -97,7 +97,7 @@ export const LocationContactCard = ({
             rel="noopener noreferrer"
             className="block"
           >
-            <Button variant="outline" className="w-full gap-2">
+            <Button variant="outline" className="w-full gap-2 rounded-none text-xs uppercase h-12">
               <ExternalLink className="w-4 h-4" />
               Lihat di Google Maps
             </Button>
@@ -108,7 +108,7 @@ export const LocationContactCard = ({
         {!location.is_coming_soon && (
           <Dialog open={bookingOpen} onOpenChange={onBookingChange}>
             <DialogTrigger asChild>
-              <Button className="w-full gap-2" size="lg">
+              <Button className="w-full gap-2 rounded-none text-xs uppercase h-12" size="lg">
                 <CalendarDays className="w-4 h-4" />
                 Booking Ballroom
               </Button>

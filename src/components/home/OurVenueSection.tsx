@@ -1,3 +1,4 @@
+import { venuePath } from '@/lib/venue-url';
 import { motion } from 'framer-motion';
 import { ArrowRight, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -44,7 +45,7 @@ export function OurVenueSection() {
               transition={{ delay: index * 0.08 }}
             >
               <Link
-                to={`/lokasi/${location.id}`}
+                to={venuePath(location)}
                 className="group block relative overflow-hidden aspect-[3/4] rounded-sm"
               >
                 <img

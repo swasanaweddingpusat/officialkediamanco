@@ -29,14 +29,14 @@ export const LocationPortfolioSection = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      className="bg-card border border-border rounded-2xl p-6 md:p-8"
+      className="venue-section bg-card border border-border rounded-lg p-6 md:p-8"
     >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-primary/10 rounded-xl">
+          <div className="p-2.5 bg-primary/10 rounded-lg">
             <Images className="w-5 h-5 text-primary" />
           </div>
-          <h2 className="font-serif text-2xl font-bold">Our Portfolio</h2>
+          <h2 className="font-serif text-2xl font-bold">Dokumentasi Acara</h2>
         </div>
         <Link to="/portfolio">
           <Button variant="ghost" size="sm" className="gap-2">
@@ -46,14 +46,14 @@ export const LocationPortfolioSection = ({
         </Link>
       </div>
 
-      <div className="grid gap-6">
+      <div className="grid sm:grid-cols-2 gap-6">
         {portfolios.map((portfolio, i) => (
           <motion.div
             key={portfolio.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 * i }}
-            className="border border-border rounded-xl overflow-hidden bg-background"
+            className="border border-border rounded-lg overflow-hidden bg-background"
           >
             {/* Header */}
             <div className="p-4 border-b border-border">
@@ -66,7 +66,7 @@ export const LocationPortfolioSection = ({
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-serif font-bold text-lg mb-2 text-foreground">{portfolio.name}</h3>
+                  <h3 className="font-serif text-xl mb-2 text-foreground"><Link to={`/portfolio/${portfolio.id}`} className="hover:text-primary">{portfolio.name}</Link></h3>
                   {portfolio.specialization && (
                     <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/30">
                       {portfolio.specialization}
@@ -84,21 +84,22 @@ export const LocationPortfolioSection = ({
             {/* Gallery Preview */}
             {portfolio.images && portfolio.images.length > 0 && (
               <div className="p-4">
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   {portfolio.images.slice(0, 5).map((img, idx) => (
-                    <motion.button
+                    <Button
                       key={idx}
-                      whileHover={{ scale: 1.05 }}
+                      variant="ghost"
+                      aria-label={`Perbesar foto ${idx + 1} ${portfolio.name}`}
                       onClick={() => onOpenLightbox(img)}
-                      className="relative aspect-square rounded-lg overflow-hidden group"
+                      className="relative h-auto w-full p-0 aspect-square rounded-sm overflow-hidden group"
                     >
                       <img
                         src={img}
                         alt={`${portfolio.name} ${idx + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        loading="lazy" className="w-full h-full object-cover transition-transform duration-300 motion-safe:group-hover:scale-[1.03]"
                       />
                       <div className="absolute inset-0 bg-background/0 group-hover:bg-background/40 transition-colors flex items-center justify-center">
-                        <Expand className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
+                        <Expand className="w-5 h-5 text-foreground opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
                       </div>
                       {/* Show count on last visible image */}
                       {idx === 4 && portfolio.images && portfolio.images.length > 5 && (
@@ -108,7 +109,7 @@ export const LocationPortfolioSection = ({
                           </span>
                         </div>
                       )}
-                    </motion.button>
+                    </Button>
                   ))}
                 </div>
                 <p className="text-sm font-medium text-foreground mt-3 text-center">

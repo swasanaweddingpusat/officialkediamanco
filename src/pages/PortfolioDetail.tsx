@@ -1,3 +1,4 @@
+import { venuePath } from '@/lib/venue-url';
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -67,7 +68,7 @@ const PortfolioDetail = () => {
     );
   }
 
-  const location = portfolio.locations as { id: string; name: string } | null;
+  const location = portfolio.locations as { id: string; name: string; slug?: string | null } | null;
 
   return (
     <Layout>
@@ -162,7 +163,7 @@ const PortfolioDetail = () => {
           {/* Meta */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="flex flex-wrap items-center gap-6 mb-12 pb-12 border-b border-border/50">
             {location && (
-              <Link to={`/lokasi/${location.id}`} className="flex items-center gap-2 text-muted-foreground text-sm hover:text-primary transition-colors">
+              <Link to={venuePath(location)} className="flex items-center gap-2 text-muted-foreground text-sm hover:text-primary transition-colors">
                 <MapPin className="w-4 h-4" />
                 {location.name}
               </Link>
@@ -245,7 +246,7 @@ const PortfolioDetail = () => {
                   <MapPin className="w-5 h-5 text-primary" />
                   <h3 className="font-serif text-xl font-bold">{location.name}</h3>
                 </div>
-                <Link to={`/lokasi/${location.id}`}>
+                <Link to={venuePath(location)}>
                   <Button className="rounded-full px-6 text-xs tracking-[0.05em] uppercase">
                     Lihat Venue
                     <ArrowRight className="w-3.5 h-3.5 ml-2" />

@@ -305,7 +305,7 @@ export function useTrainerById(id?: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('trainers')
-        .select('*, locations(id, name)')
+        .select('*, locations(id, name, slug)')
         .eq('id', id)
         .maybeSingle();
       if (error) throw error;

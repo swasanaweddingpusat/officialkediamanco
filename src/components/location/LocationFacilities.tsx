@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export interface FacilityItem {
   name: string;
@@ -22,7 +23,7 @@ export const LocationFacilities = ({ facilities, facilityItems = [], onOpenLight
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="bg-card border border-border rounded-2xl p-6 md:p-8"
+      className="venue-section bg-card border border-border rounded-lg p-6 md:p-8"
     >
       <h2 className="font-serif text-2xl mb-6 font-bold">Fasilitas</h2>
 
@@ -34,10 +35,10 @@ export const LocationFacilities = ({ facilities, facilityItems = [], onOpenLight
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.05 * i }}
-              className="flex items-center gap-3 px-4 py-3 bg-secondary/50 rounded-xl hover:bg-secondary transition-colors"
+              className="flex items-center gap-3 px-4 py-3 bg-secondary/50 rounded-lg hover:bg-secondary transition-colors"
             >
               <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
-              <span className="text-sm font-medium line-clamp-1">{facility}</span>
+              <span className="text-sm font-medium break-words">{facility}</span>
             </motion.div>
           ))}
         </div>
@@ -51,13 +52,15 @@ export const LocationFacilities = ({ facilities, facilityItems = [], onOpenLight
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 * i }}
-              className="group overflow-hidden rounded-xl border border-border bg-secondary/30"
+              className="group overflow-hidden rounded-lg border border-border bg-secondary/30"
             >
               {item.image_url && (
-                <button
+                <Button
+                  variant="ghost"
                   type="button"
-                  onClick={() => onOpenLightbox?.(item.image_url!)}
-                  className="block w-full aspect-[4/3] overflow-hidden"
+                  aria-label={`Perbesar foto ${item.name || 'fasilitas venue'}`}
+                  onClick={() => { if (item.image_url) onOpenLightbox?.(item.image_url); }}
+                  className="block w-full h-auto p-0 rounded-none aspect-[4/3] overflow-hidden"
                 >
                   <img
                     src={item.image_url}
@@ -65,7 +68,7 @@ export const LocationFacilities = ({ facilities, facilityItems = [], onOpenLight
                     loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                </button>
+                </Button>
               )}
               <div className="p-4">
                 {item.name && <h3 className="font-medium text-sm">{item.name}</h3>}

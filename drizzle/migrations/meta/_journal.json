@@ -8,6 +8,13 @@
       "when": 1790146865303,
       "tag": "0000_add_venue_interest_and_schedule_promotions",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791278663698,
+      "tag": "0001_add_stable_venue_seo_slugs",
+      "breakpoints": true
     }
   ]
 }

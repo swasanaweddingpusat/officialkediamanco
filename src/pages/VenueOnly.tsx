@@ -1,3 +1,4 @@
+import { venuePath } from '@/lib/venue-url';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Phone, MapPin, ArrowRight, Check, Star, Users, Calendar, Shield, Sparkles, Building2 } from 'lucide-react';
@@ -278,7 +279,7 @@ export default function VenueOnly() {
                         Tanya Harga
                       </Button>
                     </a>
-                    <Link to={`/lokasi/${location.id}`} className="flex-1">
+                    <Link to={venuePath(location)} className="flex-1">
                       <Button variant="outline" className="w-full text-xs tracking-[0.1em] uppercase gap-2 border-foreground/20 hover:border-primary">
                         Detail Venue
                         <ArrowRight className="w-3.5 h-3.5" />

@@ -91,7 +91,7 @@ export const LocationScheduleSection = ({ schedules }: LocationScheduleSectionPr
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
-      className="bg-card border border-border rounded-2xl p-6 md:p-8"
+      className="venue-section bg-card border border-border rounded-lg p-6 md:p-8"
     >
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2.5 bg-primary/10 rounded-xl">
@@ -105,6 +105,7 @@ export const LocationScheduleSection = ({ schedules }: LocationScheduleSectionPr
         <Button
           variant="ghost"
           size="icon"
+          aria-label="Bulan sebelumnya"
           onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
         >
           <ChevronLeft className="w-5 h-5" />
@@ -115,6 +116,7 @@ export const LocationScheduleSection = ({ schedules }: LocationScheduleSectionPr
         <Button
           variant="ghost"
           size="icon"
+          aria-label="Bulan berikutnya"
           onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
         >
           <ChevronRight className="w-5 h-5" />
@@ -145,12 +147,14 @@ export const LocationScheduleSection = ({ schedules }: LocationScheduleSectionPr
           const hasSchedule = status !== null;
 
           return (
-            <button
+            <Button
+              variant="ghost"
+              aria-label={format(day, 'EEEE, d MMMM yyyy', { locale: idLocale })}
               key={day.toISOString()}
               onClick={() => hasSchedule && setSelectedDate(day)}
               disabled={!hasSchedule}
               className={`
-                aspect-square rounded-lg flex flex-col items-center justify-center text-sm
+                w-full h-auto p-0 aspect-square rounded-lg flex flex-col items-center justify-center text-sm
                 transition-all duration-200 relative
                 ${isToday(day) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
                 ${isSelected ? 'bg-primary text-primary-foreground' : ''}
@@ -173,7 +177,7 @@ export const LocationScheduleSection = ({ schedules }: LocationScheduleSectionPr
                   `}
                 />
               )}
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -212,6 +216,7 @@ export const LocationScheduleSection = ({ schedules }: LocationScheduleSectionPr
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
+                  aria-label="Tutup detail tanggal"
                   onClick={() => setSelectedDate(null)}
                 >
                   <X className="w-4 h-4" />

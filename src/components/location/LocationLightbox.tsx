@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface LocationLightboxProps {
   image: string | null;
@@ -16,6 +18,19 @@ export const LocationLightbox = ({
 }: LocationLightboxProps) => {
   const currentIndex = image ? images.indexOf(image) : -1;
   const canNavigate = images.length > 1;
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!image) return;
+    const previousFocus = document.activeElement;
+    closeRef.current?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement) previousFocus.focus();
+    };
+  }, [image]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') onClose();
@@ -34,19 +49,29 @@ export const LocationLightbox = ({
           onClick={onClose}
           onKeyDown={handleKeyDown}
           tabIndex={0}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Galeri foto venue"
         >
           {/* Close button */}
-          <button
+          <Button
+            ref={closeRef}
+            variant="ghost"
+            size="icon"
+            aria-label="Tutup galeri"
             className="absolute top-4 right-4 p-3 bg-secondary/80 hover:bg-secondary rounded-full z-10 transition-colors"
             onClick={onClose}
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
 
           {/* Navigation buttons */}
           {canNavigate && onNavigate && (
             <>
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Foto sebelumnya"
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-secondary/80 hover:bg-secondary rounded-full z-10 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -54,8 +79,11 @@ export const LocationLightbox = ({
                 }}
               >
                 <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Foto berikutnya"
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-secondary/80 hover:bg-secondary rounded-full z-10 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -63,7 +91,7 @@ export const LocationLightbox = ({
                 }}
               >
                 <ChevronRight className="w-6 h-6" />
-              </button>
+              </Button>
             </>
           )}
 
@@ -82,7 +110,7 @@ export const LocationLightbox = ({
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: 'spring', damping: 25 }}
             src={image}
-            alt="Gallery"
+            alt={`Foto venue ${currentIndex >= 0 ? currentIndex + 1 : ''}`}
             className="max-w-[90vw] max-h-[85vh] rounded-lg object-contain shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />

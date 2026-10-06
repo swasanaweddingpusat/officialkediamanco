@@ -1,3 +1,4 @@
+import { venuePath } from '@/lib/venue-url';
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -245,6 +246,7 @@ const Locations = () => {
 
 interface LocationCardProps {
   location: {
+    slug?: string | null;
     id: string;
     name: string;
     address: string | null;
@@ -272,7 +274,7 @@ const LocationCard = ({ location, index, isComingSoon, views, promoLabel }: Loca
       transition={{ delay: Math.min(index * 0.08, 0.3) }}
     >
       <Link
-        to={`/lokasi/${location.id}`}
+        to={venuePath(location)}
         className="group block relative overflow-hidden aspect-[3/4] rounded-sm"
       >
         {location.image_url ? (

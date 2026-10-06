@@ -1,5 +1,6 @@
+import { venuePath } from '@/lib/venue-url';
 import { useState, useMemo, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, MapPin } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useLocations, useBallroomSchedules, usePortfoliosByLocation, useTrackVenueInterest, useVenueInterest } from '@/hooks/useCMS';
@@ -31,26 +32,34 @@ function buildVenueDescription(name: string, category?: string | null, address?:
 const LocationDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { data: locations, isLoading } = useLocations();
-  const { data: schedules = [] } = useBallroomSchedules(id);
-  const { data: portfolios = [] } = usePortfoliosByLocation(id);
-  const { data: interest = {} } = useVenueInterest(id);
+  const location = locations?.find(l => l.slug === id || l.id === id);
+  const locationId = location?.id;
+  const navigate = useNavigate();
+  const routeLocation = useLocation();
+  const { data: schedules = [] } = useBallroomSchedules(locationId);
+  const { data: portfolios = [] } = usePortfoliosByLocation(locationId);
+  const { data: interest = {} } = useVenueInterest(locationId);
   const trackInterest = useTrackVenueInterest();
   
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [bookingOpen, setBookingOpen] = useState(false);
   const detailsRef = useRef<HTMLDivElement>(null);
 
-  const location = locations?.find(l => l.id === id);
   const activePromo = schedules.find((schedule) => schedule.promo_type && (!schedule.promo_expires_at || new Date(schedule.promo_expires_at) >= new Date()));
 
   useEffect(() => {
-    if (id) trackInterest.mutate({ locationId: id, eventType: 'venue_view' });
+    if (locationId) trackInterest.mutate({ locationId, eventType: 'venue_view' });
     // One event is deduplicated per visitor and day by the database.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [locationId]);
 
-  const canonicalUrl = `${SITE_URL}/lokasi/${id || ''}`;
+  useEffect(() => {
+    if (location?.slug && id !== location.slug) {
+      navigate(`${venuePath(location)}${routeLocation.search}${routeLocation.hash}`, { replace: true });
+    }
+  }, [location?.slug, location?.id, id, navigate, routeLocation.search, routeLocation.hash]);
+
+  const canonicalUrl = `${SITE_URL}${location ? venuePath(location) : `/lokasi/${id || ''}`}`;
   useSEO({
     title: location ? `${location.name} | Kediaman Corp` : 'Detail Venue | Kediaman Corp',
     description: location
@@ -79,7 +88,7 @@ const LocationDetail = () => {
     const imgs = [...images];
     if (location?.loading_area_images) imgs.push(...location.loading_area_images);
     if (location?.ballroom_layout_images) imgs.push(...location.ballroom_layout_images);
-    const fi = (location as any)?.facility_items as { image_url?: string }[] | undefined;
+    const fi = location?.facility_items as { image_url?: string }[] | undefined;
     if (Array.isArray(fi)) fi.forEach(f => { if (f?.image_url) imgs.push(f.image_url); });
     portfolios.forEach(p => { if (p.images) imgs.push(...p.images); });
     return imgs;
@@ -104,7 +113,7 @@ const LocationDetail = () => {
     return (
       <Layout>
         <div className="pt-16 lg:pt-24 pb-24">
-          <div className="container mx-auto px-6 lg:px-12">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <Skeleton className="h-6 w-32 mb-8" />
             <Skeleton className="h-[300px] lg:h-[500px] rounded-sm mb-8" />
             <div className="grid lg:grid-cols-3 gap-8">
@@ -141,22 +150,22 @@ const LocationDetail = () => {
   }
 
   return (
-    <Layout>
+    <div className="venue-detail"><Layout>
       {/* Netflix-style Hero with optional video overlay */}
       <LocationNetflixHero
-        videoUrl={(location as any).hero_video_url}
+        videoUrl={location.hero_video_url}
         posterImage={images[0]}
         locationName={location.name}
         category={location.category}
         address={location.address}
         isComingSoon={location.is_coming_soon || false}
-        onBook={() => setBookingOpen(true)}
+        onBook={location.is_coming_soon ? undefined : () => setBookingOpen(true)}
         onScrollToDetails={() => detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
       />
 
       {/* Back link */}
-      <div className="pt-6 pb-2">
-        <div className="container mx-auto px-6 lg:px-12">
+      <div className="pt-8 pb-2">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <Link to="/lokasi" className="inline-flex items-center gap-2 text-xs tracking-[0.1em] uppercase text-muted-foreground hover:text-primary transition-colors">
             <ChevronLeft className="w-3 h-3" />
             Kembali ke Lokasi
@@ -165,37 +174,49 @@ const LocationDetail = () => {
       </div>
 
       {/* Content */}
-      <section ref={detailsRef} className="pt-6 pb-24 lg:pb-32 scroll-mt-24">
-        <div className="container mx-auto px-6 lg:px-12">
-          <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
-            <div className="lg:col-span-2 space-y-8">
+      <section ref={detailsRef} className="pt-8 pb-24 lg:pt-12 lg:pb-32 scroll-mt-24">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
+            <div className="lg:col-span-8 min-w-0 space-y-16 lg:space-y-24">
+              <LocationGalleryGrid images={images} venueName={location.name} onOpenLightbox={setLightboxImage} />
               <LocationFacilities
                 facilities={location.facilities || []}
-                facilityItems={((location as any).facility_items as any[]) || []}
+                facilityItems={(Array.isArray(location.facility_items) ? location.facility_items : []) as { name: string; image_url?: string; description?: string }[]}
                 onOpenLightbox={setLightboxImage}
               />
-              <LocationGalleryGrid images={images} onOpenLightbox={setLightboxImage} />
-              <LocationAreaSection title="Loading Area" description={location.loading_area_description} capacity={location.loading_area_capacity} dimensions={location.loading_area_dimensions} images={location.loading_area_images} onOpenLightbox={setLightboxImage} />
-              <LocationAreaSection title="Ballroom Layout" description={location.ballroom_layout_description} capacity={location.ballroom_layout_capacity} dimensions={location.ballroom_layout_dimensions} images={location.ballroom_layout_images} onOpenLightbox={setLightboxImage} />
-              {(location as any).matterport_360_url && <Matterport360Embed url={(location as any).matterport_360_url} />}
+              <LocationAreaSection title="Area Logistik" description={location.loading_area_description} capacity={location.loading_area_capacity} dimensions={location.loading_area_dimensions} images={location.loading_area_images} onOpenLightbox={setLightboxImage} />
+              <LocationAreaSection title="Tata Letak Ballroom" description={location.ballroom_layout_description} capacity={location.ballroom_layout_capacity} dimensions={location.ballroom_layout_dimensions} images={location.ballroom_layout_images} onOpenLightbox={setLightboxImage} />
+              {location.matterport_360_url && <Matterport360Embed url={location.matterport_360_url} />}
               <LocationScheduleSection schedules={upcomingSchedules} />
               <LocationPortfolioSection portfolios={portfolios} onOpenLightbox={setLightboxImage} />
             </div>
 
-            <div>
+            <aside className="lg:col-span-4 min-w-0">
+              <div className="lg:sticky lg:top-28 space-y-8">
               <VenueInterestBadge
                 views={interest[location.id]?.views}
                 promoLabel={activePromo?.promo_label || (activePromo?.promo_type === 'limited_offer' ? 'Limited Offer' : activePromo?.promo_type ? 'Special Offer' : null)}
                 className="mb-4"
               />
               <LocationContactCard location={location} bookingOpen={bookingOpen} onBookingChange={setBookingOpen} />
-            </div>
+              {(location.ballroom_layout_capacity || location.ballroom_layout_dimensions || location.facilities?.length) ? (
+                <section className="border border-primary/15 bg-primary/5 p-6 lg:p-8">
+                  <h3 className="font-serif text-2xl italic mb-5">Fasilitas Unggulan</h3>
+                  <dl className="space-y-3 text-sm">
+                    {location.ballroom_layout_capacity && <div className="flex justify-between gap-4 border-b border-primary/10 pb-3"><dt>Kapasitas</dt><dd className="text-primary text-right">{location.ballroom_layout_capacity}</dd></div>}
+                    {location.ballroom_layout_dimensions && <div className="flex justify-between gap-4 border-b border-primary/10 pb-3"><dt>Ukuran</dt><dd className="text-primary text-right">{location.ballroom_layout_dimensions}</dd></div>}
+                    {location.facilities?.slice(0, 5).map(f => <div key={f} className="border-b border-primary/10 pb-3">{f}</div>)}
+                  </dl>
+                </section>
+              ) : null}
+              </div>
+            </aside>
           </div>
         </div>
       </section>
 
       <LocationLightbox image={lightboxImage} images={allImages} onClose={() => setLightboxImage(null)} onNavigate={handleLightboxNavigate} />
-    </Layout>
+    </Layout></div>
   );
 };
 

@@ -1,3 +1,4 @@
+import { venuePath } from '@/lib/venue-url';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -101,7 +102,8 @@ export function HeroWithSearch() {
   const goToLocation = (locId: string) => {
     const params = new URLSearchParams();
     if (date) params.set('date', format(date, 'yyyy-MM-dd'));
-    navigate(`/lokasi/${locId}${params.toString() ? `?${params}` : ''}`);
+    const venue = allLocations?.find((item) => item.id === locId);
+    navigate(`${venuePath(venue || { id: locId })}${params.toString() ? `?${params}` : ''}`);
   };
 
   const handleSearch = (e: React.FormEvent) => {
