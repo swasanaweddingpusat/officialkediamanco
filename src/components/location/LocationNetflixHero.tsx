@@ -20,9 +20,8 @@ const ytCommand = (iframe: HTMLIFrameElement | null, func: string, args: unknown
 };
 
 /** 16:9 iframe sized to cover its container, centered — no letterboxing. */
-const YouTubeCover = ({ videoId, title, onReady }: { videoId: string; title: string; onReady?: () => void }) => {
+const YouTubeCover = ({ videoId, title, frameRef, onReady }: { videoId: string; title: string; frameRef: React.RefObject<HTMLIFrameElement | null>; onReady?: () => void }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -34,7 +33,7 @@ const YouTubeCover = ({ videoId, title, onReady }: { videoId: string; title: str
       // Cover: scale the 16:9 frame until both dimensions are filled.
       const width = Math.max(w, (h * 16) / 9);
       const height = width * (9 / 16);
-      const iframe = iframeRef.current;
+      const iframe = frameRef.current;
       if (iframe) {
         iframe.style.width = `${Math.ceil(width + 2)}px`;
         iframe.style.height = `${Math.ceil(height + 2)}px`;
@@ -44,12 +43,12 @@ const YouTubeCover = ({ videoId, title, onReady }: { videoId: string; title: str
     const ro = new ResizeObserver(cover);
     if (wrapRef.current) ro.observe(wrapRef.current);
     return () => ro.disconnect();
-  }, []);
+  }, [frameRef]);
 
   return (
     <div ref={wrapRef} className="absolute inset-0 overflow-hidden">
       <iframe
-        ref={iframeRef}
+        ref={frameRef}
         src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&playsinline=1&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1`}
         title={title}
         allow="autoplay; encrypted-media; picture-in-picture"
