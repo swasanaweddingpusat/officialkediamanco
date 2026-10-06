@@ -1,3 +1,4 @@
+import { venuePath } from '@/lib/venue-url';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useLocations } from '@/hooks/useCMS';
@@ -32,7 +33,7 @@ export function VenueCollectionSection() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
             >
-              <Link to={`/lokasi/${loc.id}`} className="group block cursor-pointer">
+              <Link to={venuePath(loc)} className="group block cursor-pointer">
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-6 shadow-md">
                   <img
                     src={loc.image_url || '/placeholder.svg'}
