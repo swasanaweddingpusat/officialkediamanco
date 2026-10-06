@@ -1,7 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,6 +6,10 @@
 
 @layer base {
   :root {
+    --venue-background: 154.286 31.343% 13.137%;
+    --venue-foreground: 50 14.286% 91.765%;
+    --venue-accent: 46.4 49.669% 70.392%;
+    --venue-overlay: linear-gradient(180deg, hsl(var(--venue-background) / .1) 0%, hsl(var(--venue-background) / .25) 35%, hsl(var(--venue-background) / .9) 100%);
     --background: 150 25% 12%;
     --foreground: 45 30% 90%;
 
@@ -153,6 +153,28 @@
 }
 
 @layer components {
+  .venue-detail {
+    --background: var(--venue-background);
+    --foreground: var(--venue-foreground);
+    --primary: var(--venue-accent);
+    --primary-foreground: var(--venue-background);
+    --accent: var(--venue-accent);
+    --accent-foreground: var(--venue-background);
+    --muted-foreground: var(--venue-foreground);
+    font-family: 'Karla', sans-serif;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+  .venue-detail *, .venue-detail h1, .venue-detail h2, .venue-detail h3 { letter-spacing: 0; }
+  .venue-detail h1, .venue-detail h2, .venue-detail h3, .venue-detail .font-serif {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+  .venue-hero-overlay { background: var(--venue-overlay); }
+  .venue-detail .venue-section { padding: 0; border: 0; border-radius: 0; background: transparent; }
+  .venue-detail .venue-section h2 { font-size: 2.25rem; font-weight: 400; font-style: italic; padding-bottom: 1rem; border-bottom: 1px solid hsl(var(--primary) / .15); margin-bottom: 2rem; }
+  @media (prefers-reduced-motion: reduce) {
+    .venue-detail *, .venue-detail *::before, .venue-detail *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
   .text-gradient {
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(135deg, hsl(45, 50%, 85%) 0%, hsl(45, 45%, 70%) 100%);

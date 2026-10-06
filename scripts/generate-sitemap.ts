@@ -42,9 +42,9 @@ const contentSources: ContentSource[] = [
   },
   {
     table: "locations",
-    select: "id",
+    select: "id,slug",
     filter: "is_active=eq.true",
-    toPath: (row) => typeof row.id === "string" ? `/lokasi/${row.id}` : null,
+    toPath: (row) => typeof row.slug === "string" && row.slug ? `/lokasi/${row.slug}` : typeof row.id === "string" ? `/lokasi/${row.id}` : null,
     changefreq: "monthly",
     priority: "0.8",
   },
