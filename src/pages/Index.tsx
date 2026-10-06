@@ -27,7 +27,7 @@ const Index = () => {
     <Layout>
       <HeroWithSearch />
       <PromoSliderSection />
-      <VenueCollectionSection />
+      <div id="koleksi-venue" className="scroll-mt-24"><VenueCollectionSection /></div>
       <BookingGuideSection />
       <PortfolioBentoSection />
       <JournalSection />

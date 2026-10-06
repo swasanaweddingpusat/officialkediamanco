@@ -10,7 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import heroImage from '@/assets/hero-gym.jpg';
+import heroImage from '@/assets/editorial-ballroom.jpg';
+import { Button } from '@/components/ui/button';
 
 type Suggestion = {
   id: string;
@@ -30,7 +31,7 @@ export function HeroWithSearch() {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showSuggest, setShowSuggest] = useState(false);
-  const [locFocused, setLocFocused] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
   const [checking, setChecking] = useState(false);
   const [unavailableIds, setUnavailableIds] = useState<Set<string>>(new Set());
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -45,7 +46,8 @@ export function HeroWithSearch() {
   }, [totalSlides]);
 
   const slide = activeSlides[currentSlide];
-  const currentImageUrl = slide?.image_url || (isLoading ? undefined : heroImage);
+  const currentImageUrl = imageFailed ? heroImage : slide?.image_url || allLocations?.find(l => l.image_url)?.image_url || heroImage;
+  useEffect(() => setImageFailed(false), [slide?.image_url]);
 
   // Live suggestions from Supabase (client-side filter over cached locations)
   useEffect(() => {
@@ -119,226 +121,57 @@ export function HeroWithSearch() {
   };
 
   return (
-    <section className="relative min-h-[720px] md:h-[720px] flex items-center justify-center text-center px-4 sm:px-6 overflow-hidden -mt-16 lg:-mt-20 pt-20 pb-8 lg:pt-20 lg:pb-0">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentSlide}
-          initial={{ scale: 1.08, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.4, ease: 'easeOut' }}
-          className="absolute inset-0 z-0"
-        >
-          {currentImageUrl ? (
-            <img src={currentImageUrl} alt="Kediaman venue" className="w-full h-full object-cover brightness-[0.45]" />
-          ) : (
-            <div className="w-full h-full bg-muted animate-pulse" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1a2e22]/40 via-transparent to-[#1a2e22]" />
-        </motion.div>
-      </AnimatePresence>
-
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, delay: 0.15 }}
-        className="relative z-10 max-w-4xl w-full"
-      >
-        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#edece7] mb-4 md:mb-6 leading-tight italic">
-          {slide?.title ? (
-            slide.title
-          ) : (
-            <>
-              Temukan Ruang Untuk <br />
-              <span className="font-bold not-italic">Hari Bahagia Anda</span>
-            </>
-          )}
-        </h1>
-        <p className="text-[#edece7]/80 text-sm sm:text-base md:text-lg mb-7 md:mb-12 max-w-xl mx-auto font-light leading-relaxed">
-          {slide?.description ||
-            'Kurasi venue pernikahan eksklusif dan dekorasi terbaik di seluruh Indonesia untuk momen yang tak terlupakan.'}
-        </p>
-
-        {/* Luxury Estate Search Bar */}
+    <section className="editorial-hero relative flex items-center justify-center text-center px-5 sm:px-8 -mt-16 lg:-mt-20 pt-32 pb-36">
+      <div className="absolute inset-0 overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.img key={currentImageUrl} src={currentImageUrl} alt={slide?.title || 'Suasana ballroom untuk pernikahan dan acara Kediaman'} width={1920} height={1088} onError={() => setImageFailed(true)} initial={{ scale: 1.04, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.2 }} className="absolute inset-0 w-full h-full object-cover" />
+        </AnimatePresence>
+        <div className="absolute inset-0 editorial-hero-overlay" />
+      </div>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .8 }} className="relative z-10 w-full max-w-5xl">
+        <p className="text-xs text-foreground/80 mb-6">KEDIAMAN CORP</p>
+        <h1 className="editorial-hero-title italic mb-8">{slide?.title || <>Temukan Ruang Untuk<br />Hari Bahagia Anda</>}</h1>
+        <p className="text-xs sm:text-sm font-light text-foreground/80 max-w-xl mx-auto mb-10 leading-relaxed">{slide?.description || 'Venue pernikahan dan acara untuk momen yang tak terlupakan.'}</p>
         <div ref={wrapperRef} className="relative max-w-4xl mx-auto">
-          <form
-            onSubmit={handleSearch}
-            className="relative bg-[#edece7] rounded-lg md:rounded-full shadow-2xl p-2 flex flex-col md:flex-row items-stretch md:items-center border border-[#dcdad0]"
-          >
-            {/* Location */}
-            <div
-              className={cn(
-                'flex-1 flex items-center min-h-[64px] px-4 sm:px-5 md:px-8 py-2 md:border-r border-b md:border-b-0 border-[#d1cfc3] transition-colors rounded-md md:rounded-none',
-                locFocused && 'bg-[#f7f6f2] md:rounded-l-full',
-              )}
-            >
-              <MapPin className="w-5 h-5 text-[#1a2e22] mr-4 shrink-0" strokeWidth={1.5} />
-              <div className="flex flex-col text-left w-full min-w-0">
-                <label className="text-[10px] uppercase tracking-[0.2em] text-[#8c8a7e] font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
-                  Lokasi
-                </label>
-                <input
-                  type="text"
-                  value={locationQuery}
-                  onChange={(e) => {
-                    setLocationQuery(e.target.value);
-                    setShowSuggest(true);
-                  }}
-                  onFocus={() => {
-                    setShowSuggest(true);
-                    setLocFocused(true);
-                  }}
-                  onBlur={() => setLocFocused(false)}
-                  placeholder="Cari venue impian..."
-                  autoComplete="off"
-                  className="bg-transparent border-none p-0 text-[#1a2e22] focus:ring-0 focus:outline-none placeholder-[#a19f94] text-base font-medium font-serif w-full min-w-0"
-                />
+          <form onSubmit={handleSearch} className="backdrop-blur-xl bg-foreground/5 border border-foreground/20 p-1 flex flex-col md:flex-row items-stretch">
+            <div className="flex-1 min-w-0 flex items-center px-6 py-5 border-b md:border-b-0 md:border-r border-foreground/20">
+              <div className="text-left w-full">
+                <label htmlFor="venue-search" className="block text-[10px] text-foreground/70 mb-2 uppercase">Lokasi</label>
+                <input id="venue-search" value={locationQuery} onChange={e => { setLocationQuery(e.target.value); setShowSuggest(true); }} onFocus={() => setShowSuggest(true)} onKeyDown={e => { if (e.key === 'Escape') setShowSuggest(false); }} placeholder="Cari venue impian..." autoComplete="off" className="bg-transparent text-foreground w-full outline-none placeholder:text-foreground/60 text-base font-serif italic" />
               </div>
             </div>
-
-            {/* Date */}
             <Popover>
               <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className="flex-1 flex items-center min-h-[64px] px-4 sm:px-5 md:px-8 py-2 text-left hover:bg-[#f7f6f2] rounded-md md:rounded-r-full transition-colors"
-                >
-                  <CalendarIcon className="w-5 h-5 text-[#1a2e22] mr-4 shrink-0" strokeWidth={1.5} />
-                  <div className="flex flex-col w-full min-w-0">
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-[#8c8a7e] font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
-                      Tanggal
-                    </label>
-                    <span
-                      className={cn(
-                        'text-base font-medium font-serif truncate',
-                        date ? 'text-[#1a2e22]' : 'text-[#a19f94]',
-                      )}
-                    >
-                      {date ? format(date, 'EEE, dd MMM yyyy', { locale: idLocale }) : 'Pilih tanggal'}
-                    </span>
-                  </div>
-                  {checking && <Loader2 className="w-4 h-4 animate-spin text-[#bfa37e] ml-2 shrink-0" />}
-                </button>
+                <Button type="button" variant="ghost" className="h-auto min-h-24 flex-1 min-w-0 justify-start rounded-none px-6 py-5 text-left hover:bg-foreground/10 hover:text-foreground" aria-label="Pilih tanggal acara">
+                  <span className="flex flex-col gap-2 items-start min-w-0"><span className="text-[10px] uppercase text-foreground/70">Tanggal</span><span className="font-serif text-base italic truncate">{date ? format(date, 'dd MMM yyyy', { locale: idLocale }) : 'Pilih tanggal'}</span></span>
+                  {checking && <Loader2 className="w-4 h-4 animate-spin ml-auto" />}
+                </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-[#edece7] border-[#d1cfc3] shadow-xl" align="center">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
-                  initialFocus
-                  className={cn('p-3 pointer-events-auto')}
-                  classNames={{
-                    caption_label: 'text-sm font-semibold text-[#1a2e22]',
-                    nav_button: 'h-7 w-7 bg-transparent p-0 text-[#1a2e22] opacity-70 hover:opacity-100 hover:bg-[#dcdad0] rounded-md border border-[#d1cfc3]',
-                    head_cell: 'text-[#6b6a5f] rounded-md w-9 font-normal text-[0.8rem]',
-                    day: 'h-9 w-9 p-0 font-medium text-[#1a2e22] rounded-md hover:bg-[#dcdad0] aria-selected:opacity-100',
-                    day_selected: 'bg-[#1a2e22] text-[#edece7] hover:bg-[#1a2e22] hover:text-[#edece7] focus:bg-[#1a2e22] focus:text-[#edece7]',
-                    day_today: 'bg-[#bfa37e]/25 text-[#1a2e22] font-bold',
-                    day_outside: 'text-[#a19f94] opacity-50',
-                    day_disabled: 'text-[#a19f94] opacity-40 line-through',
-                  }}
-                />
+              <PopoverContent className="editorial-popover w-auto p-0 border-border" align="center">
+                <Calendar mode="single" selected={date} onSelect={setDate} disabled={d => d < new Date(new Date().setHours(0,0,0,0))} initialFocus className="p-3" />
               </PopoverContent>
             </Popover>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              className="group mt-2 md:mt-0 md:ml-1 min-h-[52px] bg-[#1a2e22] text-[#edece7] px-6 md:px-8 py-3 md:py-4 rounded-md md:rounded-full font-semibold transition-all hover:bg-[#2a4533] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#bfa37e] focus:ring-offset-2 flex items-center justify-center gap-2"
-            >
-              <span className="font-serif text-lg tracking-wide">Cari Sekarang</span>
-              <ArrowRight className="w-4 h-4 text-[#bfa37e] group-hover:translate-x-1 transition-transform" strokeWidth={2.5} />
-            </button>
+            <Button type="submit" className="h-auto min-h-16 md:min-h-24 px-8 rounded-none uppercase text-xs font-semibold">Cari Sekarang <ArrowRight /></Button>
           </form>
-
-          {/* Autocomplete Suggestions */}
           <AnimatePresence>
-            {showSuggest && suggestions.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-                className="absolute left-0 right-0 md:left-6 md:right-6 mt-2 md:mt-3 bg-[#edece7] rounded-lg shadow-xl border border-[#dcdad0] overflow-hidden z-30 text-left"
-              >
-                <div className="px-5 py-3 border-b border-[#d1cfc3] flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-[0.25em] text-[#8c8a7e] font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
-                    {date ? 'Venue tersedia untuk tanggal ini' : 'Rekomendasi venue'}
-                  </span>
-                  <span className="text-[10px] text-[#bfa37e] font-serif italic">{suggestions.length} pilihan</span>
-                </div>
-                <ul className="max-h-60 md:max-h-80 overflow-y-auto">
-                  {suggestions.map((s) => {
-                    const unavailable = date && unavailableIds.has(s.id);
-                    return (
-                      <li key={s.id} className="border-b border-[#d1cfc3]/50 last:border-0">
-                        <button
-                          type="button"
-                          disabled={!!unavailable}
-                          onClick={() => goToLocation(s.id)}
-                          className={cn(
-                            'w-full flex items-center gap-3 md:gap-4 px-4 md:px-5 py-3.5 hover:bg-[#f7f6f2] transition-colors group',
-                            unavailable && 'opacity-50 cursor-not-allowed hover:bg-transparent',
-                          )}
-                        >
-                          {s.image_url ? (
-                            <img src={s.image_url} alt={s.name} className="w-11 h-11 object-cover rounded-md shrink-0" />
-                          ) : (
-                            <div className="w-11 h-11 rounded-md bg-[#1a2e22]/10 flex items-center justify-center shrink-0">
-                              <MapPin className="w-4 h-4 text-[#1a2e22]" strokeWidth={1.5} />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0 text-left">
-                            <div className="flex items-center gap-2">
-                              <p className="font-serif font-semibold text-base text-[#1a2e22] truncate">{s.name}</p>
-                              {unavailable && (
-                                <span className="text-[9px] tracking-[0.2em] uppercase text-red-700 shrink-0 font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                  Terbooking
-                                </span>
-                              )}
-                            </div>
-                            {s.address && (
-                              <p className="text-[11px] text-[#8c8a7e] uppercase tracking-wide truncate mt-0.5" style={{ fontFamily: 'Inter, sans-serif' }}>
-                                {s.address}
-                              </p>
-                            )}
-                          </div>
-                          {s.category && (
-                            <span className="hidden sm:inline text-[10px] tracking-[0.2em] uppercase text-[#bfa37e] shrink-0 font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
-                              {s.category}
-                            </span>
-                          )}
-                        </button>
-                      </li>
-                    );
+            {showSuggest && (
+              <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute top-full left-0 right-0 mt-2 bg-popover text-popover-foreground border border-border z-30 text-left">
+                <div className="px-5 py-3 text-xs border-b border-border">{date ? 'Pilihan venue pada tanggal ini' : 'Rekomendasi venue'}</div>
+                <ul className="max-h-60 overflow-y-auto">
+                  {suggestions.map(s => {
+                    const unavailable = Boolean(date && unavailableIds.has(s.id));
+                    return <li key={s.id} className="border-b border-border last:border-0"><Button variant="ghost" type="button" disabled={unavailable} onClick={() => goToLocation(s.id)} className="w-full h-auto rounded-none justify-start px-5 py-4 whitespace-normal"><MapPin className="shrink-0" /><span className="min-w-0 text-left"><span className="block font-serif text-base">{s.name}</span><span className="block text-xs text-muted-foreground mt-1">{unavailable ? 'Terbooking' : s.address}</span></span></Button></li>;
                   })}
+                  {!suggestions.length && <li className="p-5 text-sm text-muted-foreground">{locationQuery ? 'Tidak ada venue yang cocok.' : 'Telusuri semua venue melalui pencarian.'}</li>}
                 </ul>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-
-        <p className="text-center mt-5 md:mt-8 text-[#edece7]/60 text-sm italic font-serif">
-          Temukan kemegahan yang abadi untuk hari spesial Anda
-        </p>
-
-        {totalSlides > 1 && (
-          <div className="flex gap-2 justify-center mt-6">
-            {activeSlides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentSlide(i)}
-                className={cn(
-                  'h-1 rounded-full transition-all duration-500',
-                  i === currentSlide ? 'w-10 bg-[#bfa37e]' : 'w-2 bg-[#edece7]/40',
-                )}
-                aria-label={`Slide ${i + 1}`}
-              />
-            ))}
-          </div>
-        )}
       </motion.div>
+      <a href="#panduan-booking" className="absolute bottom-8 left-6 sm:left-12 text-xs text-foreground/70 border-b border-foreground/30 pb-1">Panduan Booking</a>
+      <a href="#koleksi-venue" aria-label="Lihat koleksi venue" className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-3"><span className="editorial-scroll" /><ArrowRight className="w-4 h-4 rotate-90" /></a>
+      {totalSlides > 1 && <div className="absolute bottom-8 right-6 sm:right-12 flex gap-1">{activeSlides.map((_, i) => <Button key={i} variant="ghost" size="icon-sm" onClick={() => setCurrentSlide(i)} aria-label={`Slide ${i+1}`} aria-pressed={i === currentSlide} className={cn('rounded-none', i === currentSlide && 'border-b border-foreground')}>{String(i+1).padStart(2,'0')}</Button>)}</div>}
     </section>
   );
 }

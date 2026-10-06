@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Settings, LogOut, LogIn, CalendarCheck } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { BookingDialog } from '@/components/booking/BookingDialog';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,161 +18,38 @@ const navLinks = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
+  const [scrolled, setScrolled] = useState(false);
+  const { pathname } = useLocation();
   const { user, isAdmin, signOut } = useAuth();
   const { data: siteSettings } = useSiteSettings();
-
-  return (
-    <>
-      <nav aria-label="Navigasi utama" className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border/50">
-        <div className="container mx-auto px-6 lg:px-12">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Logo */}
-            <Link to="/" className="relative z-50">
-              {siteSettings?.logo_url ? (
-                <img
-                  src={siteSettings.logo_url}
-                  alt={`${siteSettings.site_name || 'Kediaman Corp'} logo`}
-                  className="h-8 lg:h-10 w-auto object-contain"
-                />
-              ) : (
-                <span className="font-serif text-xl lg:text-2xl tracking-[0.15em] font-bold uppercase">
-                  {siteSettings?.site_name || 'Kediaman'}
-                </span>
-              )}
-            </Link>
-
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  className={`relative px-4 py-2 text-[13px] tracking-[0.12em] uppercase transition-colors duration-300 ${
-                    location.pathname === link.href
-                      ? 'text-primary'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {link.name}
-                  {location.pathname === link.href && (
-                    <motion.div
-                      layoutId="nav-indicator"
-                      className="absolute bottom-0 left-4 right-4 h-px bg-primary"
-                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                    />
-                  )}
-                </Link>
-              ))}
-            </div>
-
-            {/* Desktop Auth */}
-            <div className="hidden lg:flex items-center gap-3">
-              <BookingDialog>
-                <Button size="sm" className="text-xs tracking-[0.1em] uppercase gap-2">
-                  <CalendarCheck className="w-3.5 h-3.5" />
-                  Booking
-                </Button>
-              </BookingDialog>
-              {user ? (
-                <>
-                  {isAdmin && (
-                    <Link to="/admin">
-                      <Button variant="ghost" size="sm" className="text-xs tracking-[0.1em] uppercase">
-                        Admin
-                      </Button>
-                    </Link>
-                  )}
-                  <Button variant="ghost" size="sm" onClick={signOut} className="text-xs tracking-[0.1em] uppercase">
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <Link to="/auth">
-                  <Button variant="ghost" size="sm" className="text-xs tracking-[0.1em] uppercase border border-border/50 hover:border-primary hover:text-primary">
-                    Masuk
-                  </Button>
-                </Link>
-              )}
-            </div>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              className="lg:hidden relative z-50 p-2"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle menu"
-            >
-              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 60);
+    update(); window.addEventListener('scroll', update, { passive: true });
+    return () => window.removeEventListener('scroll', update);
+  }, []);
+  useEffect(() => { setIsOpen(false); }, [pathname]);
+  useEffect(() => {
+    if (!isOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const close = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsOpen(false); };
+    document.addEventListener('keydown', close);
+    return () => { document.body.style.overflow = previous; document.removeEventListener('keydown', close); };
+  }, [isOpen]);
+  return <>
+    <nav aria-label="Navigasi utama" className={`editorial-nav fixed top-0 left-0 right-0 z-50 ${scrolled || pathname !== '/' || isOpen ? 'is-solid' : ''}`}>
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 lg:h-20 px-4 sm:px-8 lg:px-12 gap-3">
+        <Button variant="ghost" onClick={() => setIsOpen(v => !v)} className="justify-self-start rounded-none px-0 hover:bg-transparent hover:text-foreground/70 text-xs" aria-label={isOpen ? 'Tutup menu' : 'Buka menu'} aria-expanded={isOpen} aria-controls="public-menu">{isOpen ? <X /> : <Menu />}<span className="hidden sm:inline">Menu</span></Button>
+        <Link to="/" aria-label="Beranda Kediaman" className="justify-self-center">{siteSettings?.logo_url ? <img src={siteSettings.logo_url} alt={`${siteSettings.site_name || 'Kediaman Corp'} logo`} className="h-8 lg:h-10 max-w-36 object-contain" /> : <span className="text-base sm:text-xl font-light uppercase">{siteSettings?.site_name || 'Kediaman'}</span>}</Link>
+        <div className="flex gap-4 items-center justify-self-end">
+          {user ? <>{isAdmin && <Link to="/admin" className="hidden lg:block text-xs">Admin</Link>}<Button variant="ghost" onClick={signOut} className="hidden lg:flex text-xs px-0">Keluar</Button></> : <Link to="/auth" className="hidden lg:block text-xs">Masuk</Link>}
+          <BookingDialog><Button variant="ghost" className="border border-foreground/30 rounded-none text-[10px] sm:text-xs px-3 sm:px-6 h-9 hover:bg-foreground hover:text-background">Booking</Button></BookingDialog>
         </div>
-      </nav>
-
-      {/* Fullscreen Mobile Menu */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-background flex flex-col justify-center items-center"
-          >
-            <nav aria-label="Navigasi utama seluler" className="flex flex-col items-center gap-1">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ delay: i * 0.05, duration: 0.3 }}
-                >
-                  <Link
-                    to={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className={`block py-3 text-3xl font-serif tracking-[0.05em] transition-colors ${
-                      location.pathname === link.href ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {link.name}
-                  </Link>
-                </motion.div>
-              ))}
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="mt-8 pt-8 border-t border-border/30 flex flex-col items-center gap-3"
-              >
-                <BookingDialog>
-                  <Button size="lg" className="gap-2 tracking-[0.1em] uppercase text-xs">
-                    <CalendarCheck className="w-4 h-4" />
-                    Booking Sekarang
-                  </Button>
-                </BookingDialog>
-
-                {user ? (
-                  <>
-                    {isAdmin && (
-                      <Link to="/admin" onClick={() => setIsOpen(false)} className="text-sm tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors">
-                        Admin Panel
-                      </Link>
-                    )}
-                    <button onClick={() => { signOut(); setIsOpen(false); }} className="text-sm tracking-[0.1em] uppercase text-destructive hover:text-destructive/80 transition-colors">
-                      Keluar
-                    </button>
-                  </>
-                ) : (
-                  <Link to="/auth" onClick={() => setIsOpen(false)} className="text-sm tracking-[0.1em] uppercase text-primary hover:text-primary/80 transition-colors">
-                    Masuk / Daftar
-                  </Link>
-                )}
-              </motion.div>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
+      </div>
+    </nav>
+    <AnimatePresence>{isOpen && <motion.div id="public-menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="editorial-menu fixed inset-0 z-40 overflow-y-auto pt-28 pb-12 px-6 flex flex-col items-center justify-center">
+      <nav aria-label="Menu halaman" className="flex flex-col items-center gap-3">{navLinks.map((link,i) => <motion.div key={link.href} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i*.04 }}><Link to={link.href} onClick={() => setIsOpen(false)} aria-current={pathname === link.href ? 'page' : undefined} className={`block text-3xl sm:text-4xl font-display italic py-2 ${pathname === link.href ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>{link.name}</Link></motion.div>)}</nav>
+      <div className="mt-8 pt-6 border-t border-border flex gap-6 text-sm">{user ? <>{isAdmin && <Link to="/admin" onClick={() => setIsOpen(false)}>Admin</Link>}<Button variant="ghost" onClick={() => { signOut(); setIsOpen(false); }}>Keluar</Button></> : <Link to="/auth" onClick={() => setIsOpen(false)}>Masuk / Daftar</Link>}<Link to="/booking/track" onClick={() => setIsOpen(false)}>Status Booking</Link></div>
+    </motion.div>}</AnimatePresence>
+  </>;
 }
