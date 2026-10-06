@@ -1,7 +1,7 @@
 # Roadmap
 
-- [ ] Rapikan slug portfolio dan promosi, pertahankan tautan lama, serta selaraskan canonical dan sitemap.
-- [ ] Verifikasi tautan nama dan pengalihan alamat lama pada data publik asli.
+- [x] Rapikan slug portfolio dan promosi, pertahankan tautan lama, serta selaraskan canonical dan sitemap.
+- [x] Verifikasi tautan nama dan pengalihan alamat lama pada data publik asli.
 
 - [ ] Terapkan Editorial Tegas pada beranda dan navigasi publik, tetap menjaga pencarian dan booking.
 - [ ] Verifikasi foto, menu, pencarian, dan pembukaan booking pada tampilan lebar serta sempit.
