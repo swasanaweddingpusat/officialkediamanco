@@ -67,27 +67,12 @@ export const LocationNetflixHero = ({ videoUrl, posterImage, locationName, categ
   const directVideo = videoUrl && !youtubeId && !videoUrl.includes('tiktok.com') && !videoFailed;
   const words = locationName.split(' ');
   const titleBreak = words.length > 3 ? Math.ceil(words.length / 2) : words.length;
-  const togglePlay = async () => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.paused) { try { await video.play(); } catch { setIsPlaying(false); } }
-    else video.pause();
-  };
-  const ytTogglePlay = () => {
-    if (isPlaying) { ytCommand(ytFrameRef.current, 'pauseVideo'); setIsPlaying(false); }
-    else { ytCommand(ytFrameRef.current, 'playVideo'); ytCommand(ytFrameRef.current, 'unMute'); setIsMuted(false); setIsPlaying(true); }
-  };
-  const ytToggleMute = () => {
-    if (isMuted) { ytCommand(ytFrameRef.current, 'unMute'); setIsMuted(false); }
-    else { ytCommand(ytFrameRef.current, 'mute'); setIsMuted(true); }
-  };
-  const ytControls = !!youtubeId && !reduceMotion;
 
   return (
     <section className="relative w-full h-[70svh] min-h-[520px] max-h-[760px] overflow-hidden bg-background flex items-end">
       <div className="absolute inset-0">
         {directVideo ? (
-          <video ref={videoRef} src={videoUrl || undefined} poster={posterImage} autoPlay={!reduceMotion} muted={isMuted} loop playsInline onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onError={() => setVideoFailed(true)} aria-label={`Video ${locationName}`} className="w-full h-full object-cover" />
+          <video ref={videoRef} src={videoUrl || undefined} poster={posterImage} autoPlay={!reduceMotion} muted loop playsInline onError={() => setVideoFailed(true)} aria-label={`Video ${locationName}`} className="w-full h-full object-cover" />
         ) : youtubeId && !reduceMotion ? (
           <>
             {posterImage && <img src={posterImage} alt={`Interior venue ${locationName}`} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${ytReady ? 'opacity-0' : 'opacity-100'}`} fetchPriority="high" />}
@@ -116,14 +101,6 @@ export const LocationNetflixHero = ({ videoUrl, posterImage, locationName, categ
           </div>
         </div>
       </div>
-      {directVideo && <div className="absolute bottom-4 right-6 lg:right-8 z-20 flex gap-2">
-        <Button variant="outline" size="icon" onClick={togglePlay} title={isPlaying ? 'Jeda video' : 'Putar video'} aria-label={isPlaying ? 'Jeda video' : 'Putar video'} className="bg-background/70 border-foreground/30">{isPlaying ? <Pause /> : <Play />}</Button>
-        <Button variant="outline" size="icon" onClick={() => setIsMuted(m => !m)} title={isMuted ? 'Aktifkan suara' : 'Matikan suara'} aria-label={isMuted ? 'Aktifkan suara' : 'Matikan suara'} className="bg-background/70 border-foreground/30">{isMuted ? <VolumeX /> : <Volume2 />}</Button>
-      </div>}
-      {ytControls && <div className="absolute bottom-4 right-6 lg:right-8 z-20 flex gap-2">
-        <Button variant="outline" size="icon" onClick={ytTogglePlay} title={isPlaying ? 'Jeda video' : 'Putar video'} aria-label={isPlaying ? 'Jeda video' : 'Putar video'} className="bg-background/70 border-foreground/30">{isPlaying ? <Pause /> : <Play />}</Button>
-        <Button variant="outline" size="icon" onClick={ytToggleMute} title={isMuted ? 'Aktifkan suara' : 'Matikan suara'} aria-label={isMuted ? 'Aktifkan suara' : 'Matikan suara'} className="bg-background/70 border-foreground/30">{isMuted ? <VolumeX /> : <Volume2 />}</Button>
-      </div>}
       {youtubeId && <Dialog open={youtubeOpen} onOpenChange={setYoutubeOpen}><DialogContent className="max-w-5xl p-6"><DialogTitle className="font-serif">Video {locationName}</DialogTitle>{youtubeOpen && <iframe src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&playsinline=1&rel=0`} allow="autoplay; encrypted-media; fullscreen" allowFullScreen title={`Video ${locationName}`} className="w-full aspect-video" />}</DialogContent></Dialog>}
     </section>
   );
