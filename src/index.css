@@ -154,29 +154,30 @@
 
 @layer components {
   .editorial-site, .editorial-nav, .editorial-menu, .editorial-popover {
-    --background: 150 6% 4%;
+    --background: 152 33% 9%;
     --foreground: 0 0% 100%;
-    --card: 150 5% 8%;
+    --card: 152 28% 13%;
     --card-foreground: 0 0% 100%;
-    --popover: 150 5% 8%;
+    --popover: 152 30% 12%;
     --popover-foreground: 0 0% 100%;
     --primary: 0 0% 100%;
-    --primary-foreground: 150 6% 4%;
-    --secondary: 150 5% 14%;
+    --primary-foreground: 152 33% 9%;
+    --secondary: 152 24% 18%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 150 5% 14%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 150 5% 20%;
+    --muted: 152 24% 18%;
+    --muted-foreground: 0 0% 78%;
+    --accent: 152 22% 24%;
     --accent-foreground: 0 0% 100%;
     --border: 0 0% 100% / .18;
     --input: 0 0% 100% / .25;
     --ring: 0 0% 100%;
-    --editorial-overlay: linear-gradient(180deg, hsl(150 6% 4% / .5), hsl(150 6% 4% / .25) 40%, hsl(150 6% 4% / .8));
+    --editorial-overlay: linear-gradient(180deg, hsl(152 33% 9% / .55), hsl(152 33% 9% / .25) 40%, hsl(152 33% 9% / .85));
     font-family: 'Montserrat', sans-serif;
     color: hsl(var(--foreground));
     background-color: hsl(var(--background));
     letter-spacing: 0;
   }
+
   .editorial-site h1, .editorial-site h2, .editorial-site h3 { font-family: 'Playfair Display', serif; letter-spacing: 0; font-weight: 400; }
   .editorial-site .font-serif { font-family: 'Playfair Display', serif; }
   .editorial-site button, .editorial-site input, .editorial-nav *, .editorial-menu * { letter-spacing: 0; }
