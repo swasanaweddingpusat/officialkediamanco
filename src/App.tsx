@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,35 +7,35 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { useDynamicFavicon } from "@/hooks/useDynamicFavicon";
 import { HelmetProvider } from "react-helmet-async";
-import Index from "./pages/Index";
-import LandingPage from "./pages/LandingPage";
-import Packages from "./pages/Packages";
-import VenueOnly from "./pages/VenueOnly";
-import Classes from "./pages/Classes";
-import ProgramDetail from "./pages/ProgramDetail";
-import Trainers from "./pages/Trainers";
-import PortfolioDetail from "./pages/PortfolioDetail";
-import Locations from "./pages/Locations";
-import LocationDetail from "./pages/LocationDetail";
-import Auth from "./pages/Auth";
-import Admin from "./pages/Admin";
-import AdminHero from "./pages/admin/AdminHero";
-import AdminFeatures from "./pages/admin/AdminFeatures";
-import AdminPrograms from "./pages/admin/AdminPrograms";
-import AdminTrainers from "./pages/admin/AdminTrainers";
-import AdminLocations from "./pages/admin/AdminLocations";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminBallroomSchedules from "./pages/admin/AdminBallroomSchedules";
-import AdminBallroomBookings from "./pages/admin/AdminBallroomBookings";
-import AdminArticles from "./pages/admin/AdminArticles";
-import AdminVideoTestimonials from "./pages/admin/AdminVideoTestimonials";
-import AdminAbout from "./pages/admin/AdminAbout";
-import Blog from "./pages/Blog";
-import ArticleDetail from "./pages/ArticleDetail";
-import BookingTrack from "./pages/BookingTrack";
-import NotFound from "./pages/NotFound";
-import OAuthConsent from "./pages/OAuthConsent";
-import { FloatingChat } from "./components/FloatingChat";
+const Index = lazy(() => import("./pages/Index"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const Packages = lazy(() => import("./pages/Packages"));
+const VenueOnly = lazy(() => import("./pages/VenueOnly"));
+const Classes = lazy(() => import("./pages/Classes"));
+const ProgramDetail = lazy(() => import("./pages/ProgramDetail"));
+const Trainers = lazy(() => import("./pages/Trainers"));
+const PortfolioDetail = lazy(() => import("./pages/PortfolioDetail"));
+const Locations = lazy(() => import("./pages/Locations"));
+const LocationDetail = lazy(() => import("./pages/LocationDetail"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Admin = lazy(() => import("./pages/Admin"));
+const AdminHero = lazy(() => import("./pages/admin/AdminHero"));
+const AdminFeatures = lazy(() => import("./pages/admin/AdminFeatures"));
+const AdminPrograms = lazy(() => import("./pages/admin/AdminPrograms"));
+const AdminTrainers = lazy(() => import("./pages/admin/AdminTrainers"));
+const AdminLocations = lazy(() => import("./pages/admin/AdminLocations"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminBallroomSchedules = lazy(() => import("./pages/admin/AdminBallroomSchedules"));
+const AdminBallroomBookings = lazy(() => import("./pages/admin/AdminBallroomBookings"));
+const AdminArticles = lazy(() => import("./pages/admin/AdminArticles"));
+const AdminVideoTestimonials = lazy(() => import("./pages/admin/AdminVideoTestimonials"));
+const AdminAbout = lazy(() => import("./pages/admin/AdminAbout"));
+const Blog = lazy(() => import("./pages/Blog"));
+const ArticleDetail = lazy(() => import("./pages/ArticleDetail"));
+const BookingTrack = lazy(() => import("./pages/BookingTrack"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
+import { DeferredChat } from "./components/DeferredChat";
 import { RouteIndexingManager } from "./components/RouteIndexingManager";
 
 const queryClient = new QueryClient();
@@ -54,7 +55,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <RouteIndexingManager />
-            <Routes>
+            <Suspense fallback={<div className="min-h-screen bg-background" aria-busy="true" />}><Routes>
               <Route path="/" element={<Index />} />
               <Route path="/landing" element={<LandingPage />} />
               <Route path="/venue-only" element={<VenueOnly />} />
@@ -83,8 +84,8 @@ const App = () => (
               <Route path="/admin/ballroom-schedules" element={<AdminBallroomSchedules />} />
               <Route path="/admin/ballroom-bookings" element={<AdminBallroomBookings />} />
               <Route path="*" element={<NotFound />} />
-            </Routes>
-            <FloatingChat />
+            </Routes></Suspense>
+            <DeferredChat />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>

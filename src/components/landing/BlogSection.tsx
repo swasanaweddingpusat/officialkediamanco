@@ -1,7 +1,8 @@
+import { CMSImage } from '@/components/CMSImage';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, User, ArrowRight } from 'lucide-react';
-import { useArticles } from '@/hooks/useCMS';
+import { useArticlePreviews } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +11,7 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 export function BlogSection() {
-  const { data: articles, isLoading } = useArticles();
+  const { data: articles, isLoading } = useArticlePreviews();
   const latestArticles = articles?.slice(0, 3) || [];
 
   return (
@@ -58,7 +59,7 @@ export function BlogSection() {
                   <Card className="overflow-hidden h-full hover:border-primary/50 transition-all hover:-translate-y-1 group">
                     {article.featured_image && (
                       <div className="aspect-video overflow-hidden">
-                        <img
+                        <CMSImage
                           src={article.featured_image}
                           alt={article.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

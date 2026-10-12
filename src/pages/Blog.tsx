@@ -1,7 +1,8 @@
+import { CMSImage } from '@/components/CMSImage';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { useArticles } from '@/hooks/useCMS';
+import { useArticlePreviews } from '@/hooks/useCMS';
 import { useSEO } from '@/hooks/useSEO';
 import { Button } from '@/components/ui/button';
 import { JournalMasthead, JournalSidebar, ArticleMeta, ArticleShare } from '@/components/articles/JournalElements';
@@ -14,7 +15,7 @@ import { useSiteSettings } from '@/hooks/useCMS';
 import { motion } from 'framer-motion';
 
 const Blog = () => {
-  const { data: articles, isLoading } = useArticles();
+  const { data: articles, isLoading } = useArticlePreviews();
   const { data: siteSettings } = useSiteSettings();
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
@@ -64,7 +65,7 @@ const Blog = () => {
             <Link to={`/artikel/${article.slug}`}><h2 className="font-serif text-xl md:text-2xl leading-snug mb-3 hover:text-primary">{article.title}</h2></Link>
             <ArticleMeta article={article} />
           </div>
-          {article.featured_image && <Link to={`/artikel/${article.slug}`} className="block mx-5 md:mx-7"><img src={article.featured_image} alt={article.title} className="w-full aspect-[16/10] object-cover" loading="lazy" /></Link>}
+          {article.featured_image && <Link to={`/artikel/${article.slug}`} className="block mx-5 md:mx-7"><CMSImage src={article.featured_image} alt={article.title} width={720} height={450} sizes="(max-width: 900px) 100vw, 720px" className="w-full aspect-[16/10] object-cover" loading="lazy" /></Link>}
           <div className="p-5 md:p-7">
             {article.excerpt && <p className="text-sm leading-relaxed text-muted-foreground line-clamp-3 mb-5">{article.excerpt}</p>}
             <div className="flex flex-wrap justify-between gap-3 border-t border-border pt-4"><ArticleShare article={article} /><Button asChild size="sm"><Link to={`/artikel/${article.slug}`}>Selengkapnya<ArrowRight /></Link></Button></div>

@@ -1,3 +1,4 @@
+import { cmsImageUrl, cmsImageSrcSet } from '@/lib/cms-image';
 import { venuePath } from '@/lib/venue-url';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -124,7 +125,7 @@ export function HeroWithSearch() {
     <section className="editorial-hero relative flex items-center justify-center text-center px-5 sm:px-8 -mt-16 lg:-mt-20 pt-32 pb-36">
       <div className="absolute inset-0 overflow-hidden">
         <AnimatePresence mode="wait">
-          <motion.img key={currentImageUrl} src={currentImageUrl} alt={slide?.title || 'Suasana ballroom untuk pernikahan dan acara Kediaman'} width={1920} height={1088} onError={() => setImageFailed(true)} initial={{ scale: 1.04, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.2 }} className="absolute inset-0 w-full h-full object-cover" />
+          <motion.img key={currentImageUrl} src={cmsImageUrl(currentImageUrl, 1920)} srcSet={cmsImageSrcSet(currentImageUrl)} sizes="100vw" loading="eager" fetchPriority={currentSlide === 0 ? "high" : "auto"} decoding="async" alt={slide?.title || 'Suasana ballroom untuk pernikahan dan acara Kediaman'} width={1920} height={1088} onError={() => setImageFailed(true)} initial={{ scale: 1.04, opacity: 1 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.2 }} className="absolute inset-0 w-full h-full object-cover" />
         </AnimatePresence>
         <div className="absolute inset-0 editorial-hero-overlay" />
       </div>
