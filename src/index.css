@@ -197,6 +197,7 @@
     .editorial-site *, .editorial-menu * { animation: none !important; transition: none !important; }
   }
   .venue-detail {
+    /* Venue styling is intentionally independent of the journal. */
     --background: var(--venue-background);
     --foreground: var(--venue-foreground);
     --primary: var(--venue-accent);
@@ -267,6 +268,44 @@
     border-color: hsl(45, 50%, 75%, 0.3);
     box-shadow: 0 10px 40px -10px hsl(150, 25%, 5%, 0.5);
   }
+}
+
+@layer components {
+  .journal-page {
+    --background: 40 23% 97%;
+    --foreground: 152 24% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 152 24% 17%;
+    --primary: 152 28% 27%;
+    --primary-foreground: 40 23% 97%;
+    --secondary: 42 24% 92%;
+    --secondary-foreground: 152 24% 17%;
+    --muted: 40 16% 92%;
+    --muted-foreground: 152 7% 42%;
+    --accent: 42 24% 92%;
+    --accent-foreground: 152 24% 17%;
+    --border: 40 13% 85%;
+    --input: 40 13% 80%;
+    --ring: 152 28% 27%;
+    --journal-banner-foreground: 40 23% 97%;
+    --journal-banner-background: 152 28% 18%;
+    --journal-banner-overlay: linear-gradient(90deg, hsl(152 28% 18% / .84), hsl(152 28% 18% / .64), hsl(152 28% 18% / .84));
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    letter-spacing: 0;
+    font-family: 'Karla', sans-serif;
+  }
+  .journal-page * { letter-spacing: 0; }
+  .journal-masthead { min-height: 230px; background: hsl(var(--journal-banner-background)); color: hsl(var(--journal-banner-foreground)); }
+  .journal-masthead-shade { background: var(--journal-banner-overlay); }
+  .journal-columns { display: grid; grid-template-columns: minmax(0, 720px) minmax(220px, 280px); gap: 36px; max-width: 1036px; margin: 0 auto; }
+  .journal-page .article-body { font-family: 'Karla', sans-serif; font-size: 17px; line-height: 1.8; overflow-wrap: anywhere; }
+  .journal-page .article-body p, .journal-page .article-body li { font-size: 17px; line-height: 1.8; color: hsl(var(--foreground)); }
+  .journal-page .article-body h2, .journal-page .article-body h3 { color: hsl(var(--foreground)); margin-top: 2rem; margin-bottom: 1rem; }
+  .journal-page .article-body img { max-width: 100%; height: auto; border-radius: 0; }
+  .journal-page .article-body a { color: hsl(var(--primary)); }
+  .journal-page .article-body strong { color: hsl(var(--foreground)); }
+  @media (max-width: 900px) { .journal-columns { grid-template-columns: minmax(0, 720px); justify-content: center; } .journal-sidebar { display: none; } }
 }
 
 @layer utilities {

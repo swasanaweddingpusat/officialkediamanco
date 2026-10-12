@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useArticles } from '@/hooks/useCMS';
 import { useSEO } from '@/hooks/useSEO';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { JournalMasthead, JournalSidebar, ArticleMeta, ArticleShare } from '@/components/articles/JournalElements';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar, Clock, Search, User, ArrowRight } from 'lucide-react';
@@ -16,6 +17,7 @@ const Blog = () => {
   const { data: articles, isLoading } = useArticles();
   const { data: siteSettings } = useSiteSettings();
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const siteName = siteSettings?.site_name || 'Kediaman Corp';
 
@@ -39,132 +41,42 @@ const Blog = () => {
 
   return (
     <Layout>
-      {/* Hero */}
-      <section className="pt-16 lg:pt-24 pb-12 lg:pb-16">
-        <div className="container mx-auto px-6 lg:px-12">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="text-primary text-[11px] tracking-[0.3em] uppercase mb-4 flex items-center gap-3">
-              <span className="w-8 h-px bg-primary" />
-              Blog
-            </p>
-            <h1 className="font-serif text-4xl lg:text-6xl font-bold mb-4">
-              Blog & <span className="text-primary">Artikel</span>
-            </h1>
-            <p className="text-muted-foreground text-sm lg:text-base max-w-xl mb-8">
-              Temukan artikel terbaru seputar venue dan event management
-            </p>
-
-            <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Cari artikel..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="pl-10 bg-transparent border-border/50 text-sm"
-              />
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Categories */}
-      {categories.length > 0 && (
-        <section className="pb-8 border-b border-border/50">
-          <div className="container mx-auto px-6 lg:px-12">
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className={`px-4 py-2 text-[10px] tracking-[0.15em] uppercase rounded-full border transition-all duration-300 ${
-                  !selectedCategory ? 'bg-primary text-primary-foreground border-primary' : 'border-border/50 text-muted-foreground hover:border-primary'
-                }`}
-              >
-                Semua
-              </button>
-              {categories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category as string)}
-                  className={`px-4 py-2 text-[10px] tracking-[0.15em] uppercase rounded-full border transition-all duration-300 ${
-                    selectedCategory === category ? 'bg-primary text-primary-foreground border-primary' : 'border-border/50 text-muted-foreground hover:border-primary'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
+      <div className="journal-page pb-20">
+      <JournalMasthead image={articles?.find(a => a.featured_image)?.featured_image} siteName={siteName} />
+      <nav aria-label="Kategori artikel" className="border-b border-border bg-card px-5 py-3 flex flex-wrap justify-center gap-2">
+        <Button variant={!selectedCategory ? 'secondary' : 'ghost'} size="sm" onClick={() => { setSelectedCategory(null); setPage(1); }}>Semua Artikel</Button>
+        {categories.map(category => <Button key={category} variant={selectedCategory === category ? 'secondary' : 'ghost'} size="sm" onClick={() => { setSelectedCategory(category as string); setPage(1); }}>{category}</Button>)}
+      </nav>
+      <div className="journal-columns px-5 pt-8">
+      <div className="min-w-0">
+        <section className="bg-secondary border-l-2 border-primary px-6 py-5 mb-6">
+          <h1 className="font-serif text-2xl mb-2">Inspirasi untuk Momen Istimewa</h1>
+          <p className="text-sm text-muted-foreground leading-relaxed">Cerita, ide, dan panduan seputar pernikahan, venue, dan perayaan bersama Kediaman.</p>
         </section>
-      )}
-
-      {/* Articles Grid */}
-      <section className="py-12 lg:py-20 pb-24 lg:pb-32">
-        <div className="container mx-auto px-6 lg:px-12">
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {[1, 2, 3].map(i => (
-                <div key={i}>
-                  <Skeleton className="aspect-[16/10] mb-4 rounded-sm" />
-                  <Skeleton className="h-4 w-20 mb-3" />
-                  <Skeleton className="h-6 w-full mb-2" />
-                  <Skeleton className="h-4 w-full" />
-                </div>
-              ))}
-            </div>
-          ) : filteredArticles?.length === 0 ? (
-            <div className="text-center py-24">
-              <p className="text-muted-foreground">
-                {searchQuery ? 'Tidak ada artikel yang ditemukan.' : 'Belum ada artikel.'}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {filteredArticles?.map((article, index) => (
-                <motion.article
-                  key={article.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Link to={`/artikel/${article.slug}`} className="group block">
-                    {article.featured_image && (
-                      <div className="aspect-[16/10] overflow-hidden rounded-sm mb-4">
-                        <img
-                          src={article.featured_image}
-                          alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                          loading="lazy"
-                        />
-                      </div>
-                    )}
-                    <div className="flex items-center gap-3 mb-3">
-                      {article.category && (
-                        <span className="text-primary text-[10px] tracking-[0.15em] uppercase">{article.category}</span>
-                      )}
-                      {article.published_at && (
-                        <span className="text-muted-foreground/60 text-[10px]">
-                          {format(new Date(article.published_at), 'd MMM yyyy', { locale: id })}
-                        </span>
-                      )}
-                    </div>
-                    <h2 className="font-serif text-lg lg:text-xl mb-2 group-hover:text-primary transition-colors line-clamp-2 font-bold">
-                      {article.title}
-                    </h2>
-                    {article.excerpt && (
-                      <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed">
-                        {article.excerpt}
-                      </p>
-                    )}
-                  </Link>
-                </motion.article>
-              ))}
-            </div>
-          )}
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <p className="text-xs text-muted-foreground shrink-0">{filteredArticles?.length || 0} artikel</p>
+          <div className="relative w-full max-w-xs"><Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" /><Input aria-label="Cari artikel" type="search" placeholder="Cari artikel..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setPage(1); }} className="pl-10 bg-card" /></div>
         </div>
-      </section>
+      {isLoading ? <div className="space-y-6">{[1,2,3].map(i => <Skeleton key={i} className="h-80 w-full" />)}</div> : !filteredArticles?.length ? <p className="py-16 text-center text-muted-foreground">Tidak ada artikel yang ditemukan.</p> : <div className="space-y-6">
+        {filteredArticles.slice((page - 1) * 6, page * 6).map(article => <article key={article.id} className="bg-card border border-border rounded-sm overflow-hidden">
+          <div className="p-5 md:p-7 pb-4">
+            <p className="text-xs text-primary mb-2">{article.category || 'Inspirasi'}</p>
+            <Link to={`/artikel/${article.slug}`}><h2 className="font-serif text-xl md:text-2xl leading-snug mb-3 hover:text-primary">{article.title}</h2></Link>
+            <ArticleMeta article={article} />
+          </div>
+          {article.featured_image && <Link to={`/artikel/${article.slug}`} className="block mx-5 md:mx-7"><img src={article.featured_image} alt={article.title} className="w-full aspect-[16/10] object-cover" loading="lazy" /></Link>}
+          <div className="p-5 md:p-7">
+            {article.excerpt && <p className="text-sm leading-relaxed text-muted-foreground line-clamp-3 mb-5">{article.excerpt}</p>}
+            <div className="flex flex-wrap justify-between gap-3 border-t border-border pt-4"><ArticleShare article={article} /><Button asChild size="sm"><Link to={`/artikel/${article.slug}`}>Selengkapnya<ArrowRight /></Link></Button></div>
+          </div>
+        </article>)}
+      </div>}
+      {(filteredArticles?.length || 0) > 6 && <nav aria-label="Halaman artikel" className="flex justify-center gap-2 pt-8">{Array.from({length: Math.ceil((filteredArticles?.length || 0) / 6)}, (_, i) => <Button key={i} size="icon-sm" variant={page === i + 1 ? 'default' : 'ghost'} aria-current={page === i+1 ? 'page' : undefined} onClick={() => { setPage(i+1); window.scrollTo({top: 280, behavior:'smooth'}); }}>{i+1}</Button>)}</nav>}
+      </div>
+      <JournalSidebar articles={articles || []} />
+      </div>
+      </div>
     </Layout>
   );
 };
-
 export default Blog;
