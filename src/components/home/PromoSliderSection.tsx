@@ -1,3 +1,4 @@
+import { CMSImage } from '@/components/CMSImage';
 import { useState, useEffect, useRef } from 'react';
 import { promotionPath } from '@/lib/content-url';
 import { motion } from 'framer-motion';
@@ -102,9 +103,9 @@ export function PromoSliderSection() {
                 >
                   <Link to={promotionPath(promo)} className="block" aria-label={promo.name}>
                     <div className="relative h-64 md:h-72 rounded-3xl overflow-hidden shadow-xl">
-                      <img
+                      <CMSImage
                         src={promo.image_url || '/placeholder.svg'}
-                        alt={promo.name}
+                        alt={promo.name} sizes="(max-width: 767px) 100vw, 50vw"
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                     </div>

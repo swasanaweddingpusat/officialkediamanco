@@ -1,3 +1,4 @@
+import { CMSImage } from '@/components/CMSImage';
 import { venuePath } from '@/lib/venue-url';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -35,9 +36,9 @@ export function VenueCollectionSection() {
             >
               <Link to={venuePath(loc)} className="group block cursor-pointer">
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-6 shadow-md">
-                  <img
+                  <CMSImage
                     src={loc.image_url || '/placeholder.svg'}
-                    alt={loc.name}
+                    alt={loc.name} sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 400px" width={400} height={533}
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                   />
                   {loc.category && (
