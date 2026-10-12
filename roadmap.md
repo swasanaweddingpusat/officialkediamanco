@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Optimalkan laporan mobile terbaru: font tanpa layanan eksternal, CSS tanpa unduhan penghambat, kompresi foto, dan pemeriksaan tampilan serta booking.
+
 - [x] Perbaiki daftar PageSpeed terbaru: 17 foto publik memakai 57 versi WebP CDN dengan cache satu tahun, ukuran logo/portfolio/artikel disesuaikan, preload foto sebelum CSS, dan query portfolio dibatasi; pengujian ponsel/desktop tanpa unduhan foto asli atau gambar gagal, menu dan formulir booking berfungsi.
 
 - [x] Optimalkan foto utama dan pemuatan beranda, serta perbaiki kontras, nama tautan, dan urutan judul berdasarkan laporan terbaru (ponsel 58, desktop 77); aksesibilitas dan SEO pratinjau 100, kalender dan pencarian venue lolos pada ponsel/desktop.
