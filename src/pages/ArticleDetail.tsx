@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
+import { JournalMasthead, JournalSidebar, ArticleShare } from '@/components/articles/JournalElements';
 
 const ArticleDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -154,11 +155,13 @@ const ArticleDetail = () => {
         {article.featured_image && <meta name="twitter:image" content={article.featured_image} />}
       </Helmet>
 
-      <article className="pt-8 lg:pt-16 pb-24 lg:pb-32">
-        <div className="container mx-auto px-6 lg:px-12">
+      <div className="journal-page pb-16">
+      <JournalMasthead image={article.featured_image} siteName={siteName} />
+      <article className="pt-6 pb-16">
+        <div className="max-w-[1080px] mx-auto px-5">
 
           {/* Breadcrumb — semantic nav */}
-          <nav aria-label="Breadcrumb" className="mb-10 lg:mb-14">
+          <nav aria-label="Breadcrumb" className="mb-6">
             <ol className="flex items-center gap-2 text-xs text-muted-foreground" itemScope itemType="https://schema.org/BreadcrumbList">
               <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
                 <Link to="/" itemProp="item" className="hover:text-primary transition-colors">
@@ -182,8 +185,9 @@ const ArticleDetail = () => {
           </nav>
 
           {/* Article content — optimal reading width */}
-          <div className="max-w-[720px] mx-auto">
-            <motion.header initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10 lg:mb-14">
+          <div className="journal-columns">
+          <div className="min-w-0 bg-card border border-border p-5 md:p-8">
+            <motion.header initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
               {/* Category */}
               {article.category && (
                 <p className="text-primary text-[11px] tracking-[0.3em] uppercase mb-5 flex items-center gap-3">
@@ -193,16 +197,9 @@ const ArticleDetail = () => {
               )}
 
               {/* Title — H1 */}
-              <h1 className="font-serif text-[1.75rem] sm:text-[2rem] md:text-[2.5rem] lg:text-[2.75rem] leading-[1.15] font-bold tracking-tight mb-6 lg:mb-8 text-foreground">
+              <h1 className="font-serif text-2xl md:text-3xl leading-[1.15] font-bold mb-4 text-foreground">
                 {article.title}
               </h1>
-
-              {/* Excerpt as lead paragraph */}
-              {article.excerpt && (
-                <p className="font-serif text-lg lg:text-xl text-muted-foreground leading-relaxed mb-6 lg:mb-8 italic">
-                  {article.excerpt}
-                </p>
-              )}
 
               {/* Meta info */}
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-muted-foreground mb-6">
@@ -237,24 +234,15 @@ const ArticleDetail = () => {
                 </div>
               )}
 
-              {/* Share */}
-              <div className="flex items-center gap-3 pt-6 border-t border-border/30">
-                <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                  <Share2 className="w-3.5 h-3.5" />Bagikan:
-                </span>
-                <a href={shareLinks.facebook} target="_blank" rel="noopener noreferrer" aria-label="Bagikan ke Facebook" className="p-2 text-muted-foreground hover:text-primary transition-colors"><Facebook className="w-4 h-4" /></a>
-                <a href={shareLinks.twitter} target="_blank" rel="noopener noreferrer" aria-label="Bagikan ke Twitter" className="p-2 text-muted-foreground hover:text-primary transition-colors"><Twitter className="w-4 h-4" /></a>
-                <a href={shareLinks.linkedin} target="_blank" rel="noopener noreferrer" aria-label="Bagikan ke LinkedIn" className="p-2 text-muted-foreground hover:text-primary transition-colors"><Linkedin className="w-4 h-4" /></a>
-              </div>
             </motion.header>
 
             {/* Featured Image */}
             {article.featured_image && (
-              <figure className="mb-12 lg:mb-16 -mx-4 sm:mx-0">
+              <figure className="mb-6">
                 <img
                   src={article.featured_image}
                   alt={article.title}
-                  className="w-full h-auto rounded-lg sm:rounded-xl"
+                  className="w-full h-auto"
                   loading="eager"
                   width="720"
                   height="405"
@@ -262,11 +250,18 @@ const ArticleDetail = () => {
               </figure>
             )}
 
+              {/* Excerpt as lead paragraph */}
+              {article.excerpt && (
+                <p className="font-serif text-lg lg:text-xl text-muted-foreground leading-relaxed mb-6 lg:mb-8 italic">
+                  {article.excerpt}
+                </p>
+              )}
+
             {/* Article Body — optimized typography */}
             <div
               className="
                 article-body
-                prose prose-lg dark:prose-invert max-w-none
+                prose prose-lg max-w-none
                 prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
                 prose-h2:text-[1.5rem] prose-h2:lg:text-[1.75rem] prose-h2:mt-12 prose-h2:mb-5
                 prose-h3:text-[1.25rem] prose-h3:lg:text-[1.375rem] prose-h3:mt-10 prose-h3:mb-4
@@ -281,6 +276,7 @@ const ArticleDetail = () => {
               dangerouslySetInnerHTML={{ __html: article.content || '' }}
             />
 
+            <div className="border-t border-border mt-8 pt-5"><ArticleShare article={article} /></div>
             {/* Back link */}
             <div className="pt-10 mt-12 border-t border-border/30">
               <Link to="/artikel">
@@ -292,9 +288,11 @@ const ArticleDetail = () => {
             </div>
           </div>
 
+          <JournalSidebar articles={otherArticles} />
+          </div>
           {/* Related Articles */}
           {relatedArticles && relatedArticles.length > 0 && (
-            <aside className="mt-20 lg:mt-28 pt-16 lg:pt-20 border-t border-border/30">
+            <aside className="mt-12 pt-8 border-t border-border">
               <div className="max-w-5xl mx-auto">
                 <p className="text-primary text-[11px] tracking-[0.3em] uppercase mb-4 flex items-center gap-3">
                   <span className="w-8 h-px bg-primary" />
@@ -305,7 +303,7 @@ const ArticleDetail = () => {
                   {relatedArticles.map((related) => (
                     <Link key={related.id} to={`/artikel/${related.slug}`} className="group block">
                       {related.featured_image && (
-                        <div className="aspect-[3/4] overflow-hidden rounded-sm mb-4">
+                        <div className="aspect-[4/3] overflow-hidden rounded-sm mb-4">
                           <img
                             src={related.featured_image}
                             alt={related.title}
@@ -330,6 +328,7 @@ const ArticleDetail = () => {
           )}
         </div>
       </article>
+      </div>
 
       {/* JSON-LD Structured Data */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
