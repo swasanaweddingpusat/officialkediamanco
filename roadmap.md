@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Optimalkan foto utama dan pemuatan beranda, serta perbaiki kontras, nama tautan, dan urutan judul berdasarkan laporan terbaru (ponsel 58, desktop 77).
+- [x] Optimalkan foto utama dan pemuatan beranda, serta perbaiki kontras, nama tautan, dan urutan judul berdasarkan laporan terbaru (ponsel 58, desktop 77); aksesibilitas dan SEO pratinjau 100, kalender dan pencarian venue lolos pada ponsel/desktop.
 - [ ] Verifikasi ulang seluruh kategori pada situs terbit setelah optimasi terbaru diterbitkan; penerbitan memerlukan permintaan pengguna.
 
 - [x] Ukur skor awal artikel (ponsel 39, desktop 68), kurangi pemuatan awal dan foto, serta verifikasi pencarian, chat, booking, dan tampilan tanpa kesalahan.
