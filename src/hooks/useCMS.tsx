@@ -3,6 +3,8 @@ import { isUuidAddress } from '@/lib/content-url';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import heroSnapshot from '@/generated/hero-slides.json';
+import type { Tables } from '@/integrations/supabase/types';
 
 // Testimonials
 export function useTestimonials() {
@@ -108,6 +110,8 @@ export function useDeleteVideoTestimonial() {
 export function useHeroSlides() {
   return useQuery({
     queryKey: ['hero-slides'],
+    initialData: heroSnapshot as Tables<'hero_slides'>[],
+    initialDataUpdatedAt: 0,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('hero_slides')

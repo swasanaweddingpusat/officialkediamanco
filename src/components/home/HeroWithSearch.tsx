@@ -10,10 +10,11 @@ import { useHeroSlides, useLocations } from '@/hooks/useCMS';
 import { supabase } from '@/integrations/supabase/client';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import heroImage from '@/assets/editorial-ballroom.jpg';
+import heroAsset from '@/assets/editorial-ballroom.webp.asset.json';
 import { Button } from '@/components/ui/button';
 
 const Calendar = lazy(() => import('@/components/ui/calendar').then(module => ({ default: module.Calendar })));
+const heroImage = heroAsset.url;
 
 type Suggestion = {
   id: string;
