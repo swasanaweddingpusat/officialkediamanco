@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { CMSImage } from '@/components/CMSImage';
 import { motion } from 'framer-motion';
 import { useVideoTestimonials } from '@/hooks/useCMS';
 import { Star, Play, X } from 'lucide-react';
@@ -69,9 +70,9 @@ export function TestimonialsSection() {
                 onClick={() => setActiveVideo(testimonial.video_url)}
               >
                 {testimonial.thumbnail_url ? (
-                  <img src={testimonial.thumbnail_url} alt={testimonial.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <CMSImage src={testimonial.thumbnail_url} imageWidth={640} sizes="(max-width: 1023px) 50vw, 33vw" width={360} height={640} alt={testimonial.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                 ) : youtubeId ? (
-                  <img src={`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`} alt={testimonial.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <img src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`} loading="lazy" decoding="async" width={480} height={360} alt={testimonial.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                 ) : (
                   <div className="w-full h-full bg-muted flex items-center justify-center">
                     <Play className="w-10 h-10 text-muted-foreground" />

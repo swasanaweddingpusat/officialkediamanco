@@ -101,11 +101,11 @@ export function PromoSliderSection() {
                   transition={{ delay: i * 0.06 }}
                   className="flex-none w-[88%] md:w-[calc(50%-12px)] snap-start group"
                 >
-                  <Link to={promotionPath(promo)} className="block" aria-label={promo.name}>
+                  <Link to={promotionPath(promo)} className="block" aria-label={promo.name?.trim() || `Lihat promosi spesial ${i + 1}`}>
                     <div className="relative h-64 md:h-72 rounded-3xl overflow-hidden shadow-xl">
                       <CMSImage
                         src={promo.image_url || '/placeholder.svg'}
-                        alt={promo.name} sizes="(max-width: 767px) 100vw, 50vw"
+                        alt={promo.name?.trim() || `Promosi spesial ${i + 1}`} sizes="(max-width: 767px) 100vw, 50vw"
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                     </div>

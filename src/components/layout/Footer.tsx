@@ -58,7 +58,7 @@ export function Footer() {
 
           {/* Links Column */}
           <div className="lg:col-span-3">
-            <h4 className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-6">Navigasi</h4>
+            <h2 className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-6">Navigasi</h2>
             <nav aria-label="Navigasi footer">
               <ul className="space-y-3">
                 {footerLinks.map((link) => (
@@ -77,7 +77,7 @@ export function Footer() {
 
           {/* Contact Column */}
           <div className="lg:col-span-4">
-            <h4 className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-6">Kontak</h4>
+            <h2 className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-6">Kontak</h2>
             <div className="space-y-3">
               {settings?.email && (
                 <a href={`mailto:${settings.email}`} className="block text-sm text-foreground/80 hover:text-primary transition-colors duration-300">
@@ -113,10 +113,10 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="py-6 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-muted-foreground/60 text-[11px] tracking-[0.1em] uppercase">
+          <p className="text-muted-foreground text-[11px] tracking-[0.1em] uppercase">
             © {new Date().getFullYear()} {settings?.site_name || "Kediaman"}
           </p>
-          <p className="text-muted-foreground/40 text-[11px] tracking-[0.05em]">
+          <p className="text-muted-foreground text-[11px] tracking-[0.05em]">
             All rights reserved
           </p>
         </div>
