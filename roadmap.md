@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Optimalkan laporan mobile terbaru: font tanpa layanan eksternal, CSS tanpa unduhan penghambat, kompresi foto, dan pemeriksaan tampilan serta booking.
+- [x] Optimalkan laporan mobile terbaru: font CDN tanpa permintaan Google, CSS produksi disisipkan dalam HTML, foto WebP turun sekitar 21% total, ukuran kartu sesuai lebar layar; foto, font, menu lokasi, dan formulir booking terverifikasi pada lebar 393px tanpa kesalahan.
 
 - [x] Perbaiki daftar PageSpeed terbaru: 17 foto publik memakai 57 versi WebP CDN dengan cache satu tahun, ukuran logo/portfolio/artikel disesuaikan, preload foto sebelum CSS, dan query portfolio dibatasi; pengujian ponsel/desktop tanpa unduhan foto asli atau gambar gagal, menu dan formulir booking berfungsi.
 
