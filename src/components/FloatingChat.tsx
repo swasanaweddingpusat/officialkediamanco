@@ -33,9 +33,9 @@ const QUICK_QUESTIONS = [
   'Bagaimana cara booking?',
 ];
 
-export function FloatingChat() {
+export function FloatingChat({ initiallyOpen = false }: { initiallyOpen?: boolean }) {
   const location = useLocation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initiallyOpen);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
