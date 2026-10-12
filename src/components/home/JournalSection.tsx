@@ -49,6 +49,7 @@ export function JournalSection() {
                         <CMSImage
                           src={article.featured_image}
                           alt={article.title}
+                          imageWidth={640} sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 1327px) 30vw, 400px" width={640} height={360}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
                         />

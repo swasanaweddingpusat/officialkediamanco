@@ -2,7 +2,7 @@ import { CMSImage } from '@/components/CMSImage';
 import { motion } from 'framer-motion';
 import { portfolioPath } from '@/lib/content-url';
 import { Link } from 'react-router-dom';
-import { useTrainers } from '@/hooks/useCMS';
+import { usePortfolioPreviews } from '@/hooks/useCMS';
 import trainerImage from '@/assets/trainer-1.jpg';
 
 const layouts = [
@@ -13,7 +13,7 @@ const layouts = [
 ];
 
 export function PortfolioBentoSection() {
-  const { data: trainers } = useTrainers();
+  const { data: trainers } = usePortfolioPreviews();
   const items = trainers?.filter(t => t.is_active)?.slice(0, 4) || [];
 
   return (
@@ -45,7 +45,7 @@ export function PortfolioBentoSection() {
               <Link to={portfolioPath(item)} className="block w-full h-full group relative overflow-hidden rounded-sm">
                 <CMSImage
                   src={item.photo_url || trainerImage}
-                  alt={item.name} sizes="(max-width: 767px) 100vw, 50vw"
+                  alt={item.name} imageWidth={i === 0 ? 960 : 640} sizes={i === 0 ? '(max-width: 767px) calc(100vw - 48px), (max-width: 1327px) calc(50vw - 32px), 632px' : '(max-width: 767px) calc(50vw - 32px), (max-width: 1327px) calc(25vw - 24px), 308px'}
                   className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
                 />
                 {/* Permanent readability gradient */}

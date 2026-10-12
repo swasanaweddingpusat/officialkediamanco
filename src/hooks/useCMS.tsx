@@ -289,6 +289,20 @@ export function useDeleteProgram() {
 }
 
 // Trainers
+export function usePortfolioPreviews() {
+  return useQuery({
+    queryKey: ['portfolio-previews'],
+    staleTime: 60000,
+    queryFn: async () => {
+      const { data, error } = await supabase.from('trainers')
+        .select('id,slug,name,specialization,photo_url,is_active,sort_order')
+        .eq('is_active', true).order('sort_order', { ascending: true }).limit(4);
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 export function useTrainers() {
   return useQuery({
     queryKey: ['trainers'],
@@ -328,6 +342,7 @@ export function useUpdateTrainer() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainers'] });
+      queryClient.invalidateQueries({ queryKey: ['portfolio-previews'] });
       queryClient.invalidateQueries({ queryKey: ['portfolios-by-location'] });
       toast.success('Portfolio updated');
     },
@@ -344,6 +359,7 @@ export function useCreateTrainer() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainers'] });
+      queryClient.invalidateQueries({ queryKey: ['portfolio-previews'] });
       queryClient.invalidateQueries({ queryKey: ['portfolios-by-location'] });
       toast.success('Portfolio created');
     },
@@ -378,6 +394,7 @@ export function useDeleteTrainer() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainers'] });
+      queryClient.invalidateQueries({ queryKey: ['portfolio-previews'] });
       toast.success('Trainer deleted');
     },
     onError: () => toast.error('Failed to delete trainer'),
