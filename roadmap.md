@@ -1,6 +1,8 @@
 # Roadmap
 
 - [ ] Tinjau empat temuan keamanan pilihan terbaru tentang Tentang Kami, jadwal, informasi situs, dan daftar file; minta keputusan sebelum membatasi akses publik.
+- [x] Konfirmasi akses publik Tentang Kami, seluruh jadwal, dan informasi kontak usaha; ketiga temuan diabaikan sesuai pilihan pengguna.
+- [ ] Konfirmasi apakah daftar file harus dibatasi untuk admin, dengan tautan foto/video publik tetap berfungsi.
 
 - [x] Rapikan slug portfolio dan promosi, pertahankan tautan lama, serta selaraskan canonical dan sitemap.
 - [x] Verifikasi tautan nama dan pengalihan alamat lama pada data publik asli.
