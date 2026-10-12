@@ -17,7 +17,10 @@ function firstPaintResources() {
       const imageUrl = new URL(src);
       if (!imageUrl.pathname.startsWith('/storage/v1/object/public/')) return html;
       imageUrl.pathname = imageUrl.pathname.replace('/object/public/', '/render/image/public/');
+      const cachedPath = path.resolve(__dirname, 'src/generated/public-image-preloads.json');
+      const cached = existsSync(cachedPath) ? JSON.parse(readFileSync(cachedPath, 'utf8'))[src] : undefined;
       const rendition = (width: number) => {
+        if (cached?.[width]) return cached[width];
         const url = new URL(imageUrl);
         url.searchParams.set('width', String(width));
         url.searchParams.set('quality', '75');
@@ -30,7 +33,8 @@ function firstPaintResources() {
       // Keep the chosen font families, but don't block the initial paint on Google CSS.
       const withFonts = html.replace(/<link href="(https:\/\/fonts\.googleapis\.com\/css2[^\"]+)" rel="stylesheet"\s*\/>/g,
         (_, href) => `<link href="${escape(href.replaceAll('&amp;', '&'))}" rel="stylesheet" media="print" onload="this.media='all'" /><noscript><link href="${escape(href.replaceAll('&amp;', '&'))}" rel="stylesheet" /></noscript>`);
-      return withFonts.replace('</head>', `${preload}</head>`);
+      // Place the hint before stylesheets, not after the blocking app CSS.
+      return withFonts.replace('<head>', `<head>${preload}`);
     },
   };
 }

@@ -1,9 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 
 vi.stubEnv('VITE_SUPABASE_URL', 'https://project.example');
-const { cmsImageUrl, cmsImageSrcSet } = await import('./cms-image');
+const { cmsImageUrl, cmsImageSrcSet, cachedImageUrl } = await import('./cms-image');
 
 describe('CMS image delivery', () => {
+  it('selects the smallest cached rendition meeting the requested width, capped at the largest', () => {
+    const renditions = { 48: '/small.webp', 96: '/medium.webp', 160: '/large.webp' };
+    expect(cachedImageUrl(renditions, 44)).toBe('/small.webp');
+    expect(cachedImageUrl(renditions, 80)).toBe('/medium.webp');
+    expect(cachedImageUrl(renditions, 1920)).toBe('/large.webp');
+    expect(cachedImageUrl(undefined, 640)).toBeUndefined();
+  });
   it('requests a bounded rendition from the project public storage', () => {
     const url = new URL(cmsImageUrl('https://project.example/storage/v1/object/public/gym-images/photo.jpg', 640));
     expect(url.pathname).toBe('/storage/v1/render/image/public/gym-images/photo.jpg');
