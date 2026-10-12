@@ -23,7 +23,7 @@ export function JournalMasthead({ image, siteName }: { image?: string | null; si
     <div className="journal-masthead-shade absolute inset-0" />
     <div className="relative">
       <p className="text-xs uppercase mb-3">Inspirasi · Cerita · Perayaan</p>
-      <Link to="/artikel" className="font-serif text-4xl md:text-5xl">{siteName} <span className="font-script">Journal</span></Link>
+      <Link to="/artikel" className="font-serif text-4xl md:text-5xl">{siteName.split(' - ')[0]} <span className="font-script">Journal</span></Link>
       <p className="text-sm mt-4">Cerita di balik setiap momen istimewa.</p>
     </div>
   </header>;
