@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Tinjau empat temuan keamanan pilihan terbaru tentang Tentang Kami, jadwal, informasi situs, dan daftar file; minta keputusan sebelum membatasi akses publik.
+
 - [x] Rapikan slug portfolio dan promosi, pertahankan tautan lama, serta selaraskan canonical dan sitemap.
 - [x] Verifikasi tautan nama dan pengalihan alamat lama pada data publik asli.
 
