@@ -38,7 +38,7 @@ export function VenueCollectionSection() {
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-6 shadow-md">
                   <CMSImage
                     src={loc.image_url || '/placeholder.svg'}
-                    alt={loc.name} sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 400px" width={400} height={533}
+                    alt={loc.name} sizes="(max-width: 767px) calc(100vw - 48px), (max-width: 1023px) calc(50vw - 40px), (max-width: 1327px) calc(33.33vw - 43px), 400px" width={400} height={533}
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                   />
                   {loc.category && (

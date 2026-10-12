@@ -1,14 +1,22 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
 import { existsSync, readFileSync } from "node:fs";
 
-function firstPaintResources() {
+function firstPaintResources(): Plugin {
   return {
     name: 'first-paint-resources',
     transformIndexHtml(html: string) {
+      // Fonts are self-hosted in the app stylesheet: no external CSS request chain.
+      html = html.replace(/<link\b[^>]*href="https:\/\/fonts\.(?:googleapis|gstatic)\.com[^>]*>/g, '');
+      const fontsPath = path.resolve(__dirname, 'src/generated/font-preloads.json');
+      const fonts: string[] = existsSync(fontsPath) ? JSON.parse(readFileSync(fontsPath, 'utf8')) : [];
+      const fontHints = fonts.map(url => `<link rel="preload" as="font" type="font/woff2" href="${url}" crossorigin />`).join('');
+      const apiOrigin = process.env.VITE_SUPABASE_URL;
+      const apiHint = apiOrigin ? `<link rel="preconnect" href="${new URL(apiOrigin).origin}" crossorigin />` : '';
+      html = html.replace('<head>', `<head>${fontHints}${apiHint}`);
       const snapshotPath = path.resolve(__dirname, 'src/generated/hero-slides.json');
       if (!existsSync(snapshotPath)) return html;
       const slides = JSON.parse(readFileSync(snapshotPath, 'utf8'));
@@ -27,14 +35,23 @@ function firstPaintResources() {
         url.searchParams.set('resize', 'contain');
         return url.toString();
       };
-      const escape = (value: string) => value.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
       // The document is shared by all routes; preload only on the home page.
       const preload = `<script>if(location.pathname==='/'){var l=document.createElement('link');l.rel='preload';l.as='image';l.href=${JSON.stringify(rendition(1920))};l.imageSrcset=${JSON.stringify([320,640,960,1440,1920].map(w => `${rendition(w)} ${w}w`).join(', '))};l.imageSizes='100vw';l.fetchPriority='high';document.head.appendChild(l);}</script>`;
-      // Keep the chosen font families, but don't block the initial paint on Google CSS.
-      const withFonts = html.replace(/<link href="(https:\/\/fonts\.googleapis\.com\/css2[^\"]+)" rel="stylesheet"\s*\/>/g,
-        (_, href) => `<link href="${escape(href.replaceAll('&amp;', '&'))}" rel="stylesheet" media="print" onload="this.media='all'" /><noscript><link href="${escape(href.replaceAll('&amp;', '&'))}" rel="stylesheet" /></noscript>`);
       // Place the hint before stylesheets, not after the blocking app CSS.
-      return withFonts.replace('<head>', `<head>${preload}`);
+      return html.replace('<head>', `<head>${preload}`);
+    },
+    generateBundle: {
+      order: 'post',
+      handler(_, bundle) {
+        const document = bundle['index.html'];
+        if (!document || document.type !== 'asset') return;
+        // Inline the small shared CSS instead of another blocking network round trip.
+        document.source = String(document.source).replace(/<link\b[^>]*rel="stylesheet"[^>]*href="([^\"]+)"[^>]*>/g, (tag, href) => {
+          const css = bundle[href.replace(/^\//, '')];
+          if (!css || css.type !== 'asset' || !href.endsWith('.css')) return tag;
+          return `<style>${String(css.source).replace(/<\/style/gi, '<\\/style')}</style>`;
+        });
+      },
     },
   };
 }

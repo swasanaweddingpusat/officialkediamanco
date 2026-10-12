@@ -25,8 +25,9 @@ export function Navbar() {
   const { data: siteSettings } = useSiteSettings();
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 60);
-    update(); window.addEventListener('scroll', update, { passive: true });
-    return () => window.removeEventListener('scroll', update);
+    const frame = requestAnimationFrame(update);
+    window.addEventListener('scroll', update, { passive: true });
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', update); };
   }, []);
   useEffect(() => { setIsOpen(false); }, [pathname]);
   useEffect(() => {
