@@ -7,3 +7,4 @@
 - Load external fonts through document head links, never CSS imports, to avoid compiler-dependent remote import failures.
 - Apply public editorial styling through the shared Layout wrapper, excluding venue details to preserve their scoped visual system and admin pages to preserve editing controls.
 - Enforce active-only public video testimonial reads through RLS, with a separate user_roles-backed admin read policy, so unpublished videos remain private without blocking CMS management.
+- Scope journal palette and reading typography to article pages and share masthead, metadata, sharing, and sidebar elements between listing and detail, so their magazine presentation stays consistent without restyling other pages.
