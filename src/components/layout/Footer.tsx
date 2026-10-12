@@ -1,3 +1,4 @@
+import { CMSImage } from '@/components/CMSImage';
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Youtube } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useCMS";
@@ -36,7 +37,7 @@ export function Footer() {
           <div className="lg:col-span-5 space-y-6">
             <Link to="/" className="inline-block">
               {settings?.logo_url ? (
-                <img src={settings.logo_url} alt={`${settings?.site_name || "Kediaman Corp"} logo`} className="h-10 w-auto" />
+                <CMSImage src={settings.logo_url} imageWidth={160} sizes="80px" alt={`${settings?.site_name || "Kediaman Corp"} logo`} className="h-10 w-auto" />
               ) : (
                 <span className="font-serif text-2xl tracking-[0.15em] font-bold uppercase">
                   {settings?.site_name || "Kediaman"}
@@ -96,7 +97,7 @@ export function Footer() {
                 {socialLinks.map((social) => (
                   <a
                     key={social.label}
-                    href={social.url!}
+                    href={social.url || undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-primary transition-colors duration-300"

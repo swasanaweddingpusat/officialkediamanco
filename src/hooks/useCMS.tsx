@@ -724,6 +724,21 @@ export function useDeleteBallroomBooking() {
 }
 
 // Articles
+// List views do not download the full text of every article.
+export function useArticlePreviews() {
+  return useQuery({
+    queryKey: ['article-previews'],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.from('articles')
+        .select('id,slug,title,excerpt,featured_image,author_name,category,published_at,reading_time,is_published')
+        .order('published_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 export function useArticles() {
   return useQuery({
     queryKey: ['articles'],
@@ -779,6 +794,7 @@ export function useCreateArticle() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
+      queryClient.invalidateQueries({ queryKey: ['article-previews'] });
       toast.success('Article created');
     },
     onError: () => toast.error('Failed to create article'),
@@ -794,6 +810,7 @@ export function useUpdateArticle() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
+      queryClient.invalidateQueries({ queryKey: ['article-previews'] });
       toast.success('Article updated');
     },
     onError: () => toast.error('Failed to update article'),
@@ -809,6 +826,7 @@ export function useDeleteArticle() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
+      queryClient.invalidateQueries({ queryKey: ['article-previews'] });
       toast.success('Article deleted');
     },
     onError: () => toast.error('Failed to delete article'),

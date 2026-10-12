@@ -1,3 +1,4 @@
+import { CMSImage } from '@/components/CMSImage';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -40,7 +41,7 @@ export function Navbar() {
     <nav aria-label="Navigasi utama" className={`editorial-nav fixed top-0 left-0 right-0 z-50 ${scrolled || pathname !== '/' || isOpen ? 'is-solid' : ''}`}>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 lg:h-20 px-4 sm:px-8 lg:px-12 gap-3">
         <Button variant="ghost" onClick={() => setIsOpen(v => !v)} className="justify-self-start rounded-none px-0 hover:bg-transparent hover:text-foreground/70 text-xs" aria-label={isOpen ? 'Tutup menu' : 'Buka menu'} aria-expanded={isOpen} aria-controls="public-menu">{isOpen ? <X /> : <Menu />}<span className="hidden sm:inline">Menu</span></Button>
-        <Link to="/" aria-label="Beranda Kediaman" className="justify-self-center">{siteSettings?.logo_url ? <img src={siteSettings.logo_url} alt={`${siteSettings.site_name || 'Kediaman Corp'} logo`} className="h-8 lg:h-10 max-w-36 object-contain" /> : <span className="text-base sm:text-xl font-light uppercase">{siteSettings?.site_name || 'Kediaman'}</span>}</Link>
+        <Link to="/" aria-label="Beranda Kediaman" className="justify-self-center">{siteSettings?.logo_url ? <CMSImage src={siteSettings.logo_url} imageWidth={160} sizes="144px" loading="eager" alt={`${siteSettings.site_name || 'Kediaman Corp'} logo`} className="h-8 lg:h-10 max-w-36 object-contain" /> : <span className="text-base sm:text-xl font-light uppercase">{siteSettings?.site_name || 'Kediaman'}</span>}</Link>
         <div className="flex gap-4 items-center justify-self-end">
           {user && <>{isAdmin && <Link to="/admin" className="hidden lg:block text-xs">Admin</Link>}<Button variant="ghost" onClick={signOut} className="hidden lg:flex text-xs px-0">Keluar</Button></>}
           <BookingDialog><Button variant="ghost" className="border border-foreground/30 rounded-none text-[10px] sm:text-xs px-3 sm:px-6 h-9 hover:bg-foreground hover:text-background">Booking</Button></BookingDialog>

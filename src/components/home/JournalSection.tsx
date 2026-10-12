@@ -1,11 +1,12 @@
+import { CMSImage } from '@/components/CMSImage';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
-import { useArticles } from '@/hooks/useCMS';
+import { useArticlePreviews } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function JournalSection() {
-  const { data: articles, isLoading } = useArticles();
+  const { data: articles, isLoading } = useArticlePreviews();
   const items = articles?.slice(0, 2) || [];
 
   return (
@@ -45,7 +46,7 @@ export function JournalSection() {
                   <Link to={`/artikel/${article.slug}`} className="group block cursor-pointer">
                     <div className="rounded-2xl overflow-hidden mb-6 aspect-video">
                       {article.featured_image ? (
-                        <img
+                        <CMSImage
                           src={article.featured_image}
                           alt={article.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

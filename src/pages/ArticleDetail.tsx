@@ -1,7 +1,8 @@
+import { CMSImage } from '@/components/CMSImage';
 import { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { useArticleBySlug, useArticles, useSiteSettings } from '@/hooks/useCMS';
+import { useArticleBySlug, useArticlePreviews, useSiteSettings } from '@/hooks/useCMS';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, Clock, User, Share2, Facebook, Twitter, Linkedin } from 'lucide-react';
@@ -15,7 +16,7 @@ const ArticleDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { data: article, isLoading, error } = useArticleBySlug(slug || '');
-  const { data: allArticles } = useArticles();
+  const { data: allArticles } = useArticlePreviews();
   const { data: siteSettings } = useSiteSettings();
 
   const siteName = siteSettings?.site_name || 'Kediaman Corp';
@@ -239,7 +240,7 @@ const ArticleDetail = () => {
             {/* Featured Image */}
             {article.featured_image && (
               <figure className="mb-6">
-                <img
+                <CMSImage
                   src={article.featured_image}
                   alt={article.title}
                   className="w-full h-auto"
@@ -304,7 +305,7 @@ const ArticleDetail = () => {
                     <Link key={related.id} to={`/artikel/${related.slug}`} className="group block">
                       {related.featured_image && (
                         <div className="aspect-[4/3] overflow-hidden rounded-sm mb-4">
-                          <img
+                          <CMSImage
                             src={related.featured_image}
                             alt={related.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"

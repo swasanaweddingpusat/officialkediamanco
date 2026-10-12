@@ -1,3 +1,4 @@
+import { CMSImage } from '@/components/CMSImage';
 import { venuePath } from '@/lib/venue-url';
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -278,8 +279,12 @@ const LocationCard = ({ location, index, isComingSoon, views, promoLabel }: Loca
         className="group block relative overflow-hidden aspect-[3/4] rounded-sm"
       >
         {location.image_url ? (
-          <img
+          <CMSImage
             src={location.image_url}
+            width={400} height={533}
+            sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 400px"
+            loading={index === 0 ? 'eager' : 'lazy'}
+            fetchPriority={index === 0 ? 'high' : 'auto'}
             alt={location.name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />

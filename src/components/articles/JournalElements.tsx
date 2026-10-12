@@ -1,3 +1,4 @@
+import { CMSImage } from '@/components/CMSImage';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Clock, Facebook, Link2, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,7 +20,7 @@ export interface JournalArticle {
 
 export function JournalMasthead({ image, siteName }: { image?: string | null; siteName: string }) {
   return <header className="journal-masthead relative overflow-hidden flex flex-col items-center justify-center text-center px-6 py-12">
-    {image && <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+    {image && <CMSImage src={image} alt="" loading="eager" fetchPriority="high" width={1920} height={480} className="absolute inset-0 w-full h-full object-cover" />}
     <div className="journal-masthead-shade absolute inset-0" />
     <div className="relative">
       <p className="text-xs uppercase mb-3">Inspirasi · Cerita · Perayaan</p>
@@ -61,13 +62,13 @@ export function JournalSidebar({ articles }: { articles: JournalArticle[] }) {
     {articles.length > 0 && <section>
       <h2 className="font-serif text-xl pb-3 border-b border-border mb-5">Pilihan Redaksi</h2>
       <div className="space-y-5">{articles.slice(0, 4).map(article => <Link key={article.id} to={`/artikel/${article.slug}`} className="flex gap-3 group">
-        {article.featured_image && <img src={article.featured_image} alt={article.title} className="w-20 h-20 object-cover shrink-0" loading="lazy" />}
+        {article.featured_image && <CMSImage src={article.featured_image} alt={article.title} sizes="80px" imageWidth={160} width={80} height={80} className="w-20 h-20 object-cover shrink-0" loading="lazy" />}
         <div className="min-w-0"><p className="text-primary text-xs mb-1">{article.category || 'Inspirasi'}</p><h3 className="text-sm leading-relaxed group-hover:text-primary line-clamp-3">{article.title}</h3></div>
       </Link>)}</div>
     </section>}
     {articles.some(a => a.featured_image) && <section>
       <h2 className="font-serif text-xl mb-4">Dalam Bingkai</h2>
-      <div className="grid grid-cols-2 gap-2">{articles.filter(a => a.featured_image).slice(0, 4).map(article => <Link key={article.id} to={`/artikel/${article.slug}`}><img src={article.featured_image || ''} alt={article.title} className="aspect-square w-full object-cover" loading="lazy" /></Link>)}</div>
+      <div className="grid grid-cols-2 gap-2">{articles.filter(a => a.featured_image).slice(0, 4).map(article => <Link key={article.id} to={`/artikel/${article.slug}`}><CMSImage src={article.featured_image || ''} alt={article.title} sizes="140px" imageWidth={280} width={140} height={140} className="aspect-square w-full object-cover" loading="lazy" /></Link>)}</div>
     </section>}
   </aside>;
 }

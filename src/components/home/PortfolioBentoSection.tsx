@@ -1,3 +1,4 @@
+import { CMSImage } from '@/components/CMSImage';
 import { motion } from 'framer-motion';
 import { portfolioPath } from '@/lib/content-url';
 import { Link } from 'react-router-dom';
@@ -42,9 +43,9 @@ export function PortfolioBentoSection() {
               className={layouts[i] || 'col-span-1 row-span-1'}
             >
               <Link to={portfolioPath(item)} className="block w-full h-full group relative overflow-hidden rounded-sm">
-                <img
+                <CMSImage
                   src={item.photo_url || trainerImage}
-                  alt={item.name}
+                  alt={item.name} sizes="(max-width: 767px) 100vw, 50vw"
                   className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
                 />
                 {/* Permanent readability gradient */}
