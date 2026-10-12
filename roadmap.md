@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Perbaiki daftar PageSpeed terbaru: unduhan foto asli berukuran besar, ukuran rendition, logo, font penghambat, dan beban daftar portfolio; verifikasi cache dan alur beranda.
+
 - [x] Optimalkan foto utama dan pemuatan beranda, serta perbaiki kontras, nama tautan, dan urutan judul berdasarkan laporan terbaru (ponsel 58, desktop 77); aksesibilitas dan SEO pratinjau 100, kalender dan pencarian venue lolos pada ponsel/desktop.
 - [ ] Verifikasi ulang seluruh kategori pada situs terbit setelah optimasi terbaru diterbitkan; penerbitan memerlukan permintaan pengguna.
 
