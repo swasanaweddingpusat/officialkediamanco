@@ -1,6 +1,6 @@
 // Runs before Vite dev/build and writes public/sitemap.xml.
 
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const BASE_URL = "https://official.kediaman.co";
@@ -155,6 +155,26 @@ function generateSitemap(entries: SitemapEntry[]) {
 }
 
 const dynamicEntries = await fetchDynamicEntries();
+// A public-only snapshot allows the first hero to render before the live CMS request.
+async function writeHeroSnapshot() {
+  const env = readLocalEnv();
+  const apiUrl = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL;
+  const apiKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  if (!apiUrl || !apiKey) return;
+  try {
+    const response = await fetch(`${apiUrl}/rest/v1/hero_slides?select=*&is_active=eq.true&order=sort_order.asc`, {
+      headers: { apikey: apiKey, Authorization: `Bearer ${apiKey}` },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const slides = await response.json();
+    mkdirSync(resolve('src/generated'), { recursive: true });
+    writeFileSync(resolve('src/generated/hero-slides.json'), JSON.stringify(slides));
+  } catch {
+    console.warn('Hero snapshot unavailable; keeping the previous public snapshot.');
+  }
+}
+await writeHeroSnapshot();
 const sitemap = generateSitemap([...staticEntries, ...dynamicEntries]);
 writeFileSync(resolve("public/sitemap.xml"), sitemap.xml);
 console.log(`sitemap.xml written (${sitemap.count} entries)`);

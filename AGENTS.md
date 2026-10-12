@@ -11,3 +11,5 @@
 - Split page routes and load concierge and booking form code on interaction so public visitors do not download administrative editors, charts, or chat renderers on arrival.
 - Serve CMS public storage images through the shared responsive CMSImage helper, with original URL fallback, so image downloads match display size without changing stored originals.
 - Use useArticlePreviews for public article lists and keep full article reads for detail and CMS editing so list navigation does not download every article body.
+- Generate a public active-hero snapshot before dev/build and use it for initial hero data and matching home-only image preload; live CMS refetches preserve editing updates without delaying first paint.
+- Load the home date picker only when opened and start hero rotation after interaction so initial downloads and slide changes do not delay the first viewport.

@@ -1,7 +1,7 @@
 import { cmsImageUrl, cmsImageSrcSet } from '@/lib/cms-image';
 import { venuePath } from '@/lib/venue-url';
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Calendar as CalendarIcon, ArrowRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -9,10 +9,12 @@ import { id as idLocale } from 'date-fns/locale';
 import { useHeroSlides, useLocations } from '@/hooks/useCMS';
 import { supabase } from '@/integrations/supabase/client';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import heroImage from '@/assets/editorial-ballroom.jpg';
+import heroAsset from '@/assets/editorial-ballroom.webp.asset.json';
 import { Button } from '@/components/ui/button';
+
+const Calendar = lazy(() => import('@/components/ui/calendar').then(module => ({ default: module.Calendar })));
+const heroImage = heroAsset.url;
 
 type Suggestion = {
   id: string;
@@ -23,11 +25,14 @@ type Suggestion = {
 };
 
 export function HeroWithSearch() {
-  const { data: slides, isLoading } = useHeroSlides();
+  const { data: slides } = useHeroSlides();
   const { data: allLocations } = useLocations();
   const navigate = useNavigate();
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [interacted, setInteracted] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const reducedMotion = useReducedMotion();
   const [locationQuery, setLocationQuery] = useState('');
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -41,10 +46,10 @@ export function HeroWithSearch() {
   const totalSlides = activeSlides.length;
 
   useEffect(() => {
-    if (totalSlides <= 1) return;
+    if (totalSlides <= 1 || !interacted || reducedMotion) return;
     const t = setInterval(() => setCurrentSlide((p) => (p + 1) % totalSlides), 7000);
     return () => clearInterval(t);
-  }, [totalSlides]);
+  }, [totalSlides, interacted, reducedMotion]);
 
   const slide = activeSlides[currentSlide];
   const currentImageUrl = imageFailed ? heroImage : slide?.image_url || allLocations?.find(l => l.image_url)?.image_url || heroImage;
@@ -122,14 +127,12 @@ export function HeroWithSearch() {
   };
 
   return (
-    <section className="editorial-hero relative flex items-center justify-center text-center px-5 sm:px-8 -mt-16 lg:-mt-20 pt-32 pb-36">
+    <section onPointerDown={() => setInteracted(true)} onKeyDown={() => setInteracted(true)} className="editorial-hero relative flex items-center justify-center text-center px-5 sm:px-8 -mt-16 lg:-mt-20 pt-32 pb-36">
       <div className="absolute inset-0 overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.img key={currentImageUrl} src={cmsImageUrl(currentImageUrl, 1920)} srcSet={cmsImageSrcSet(currentImageUrl)} sizes="100vw" loading="eager" fetchPriority={currentSlide === 0 ? "high" : "auto"} decoding="async" alt={slide?.title || 'Suasana ballroom untuk pernikahan dan acara Kediaman'} width={1920} height={1088} onError={() => setImageFailed(true)} initial={{ scale: 1.04, opacity: 1 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.2 }} className="absolute inset-0 w-full h-full object-cover" />
-        </AnimatePresence>
+        <img src={cmsImageUrl(currentImageUrl, 1920)} srcSet={cmsImageSrcSet(currentImageUrl)} sizes="100vw" loading="eager" fetchPriority={currentSlide === 0 ? "high" : "auto"} decoding="async" alt={slide?.title || 'Suasana ballroom untuk pernikahan dan acara Kediaman'} width={1920} height={1088} onError={() => setImageFailed(true)} className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 editorial-hero-overlay" />
       </div>
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .8 }} className="relative z-10 w-full max-w-5xl">
+      <div className="relative z-10 w-full max-w-5xl">
         <p className="text-xs text-foreground/80 mb-6">KEDIAMAN CORP</p>
         <h1 className="editorial-hero-title italic mb-8">{slide?.title || <>Temukan Ruang Untuk<br />Hari Bahagia Anda</>}</h1>
         <p className="text-xs sm:text-sm font-light text-foreground/80 max-w-xl mx-auto mb-10 leading-relaxed">{slide?.description || 'Venue pernikahan dan acara untuk momen yang tak terlupakan.'}</p>
@@ -141,15 +144,15 @@ export function HeroWithSearch() {
                 <input id="venue-search" value={locationQuery} onChange={e => { setLocationQuery(e.target.value); setShowSuggest(true); }} onFocus={() => setShowSuggest(true)} onKeyDown={e => { if (e.key === 'Escape') setShowSuggest(false); }} placeholder="Cari venue impian..." autoComplete="off" className="bg-transparent text-foreground w-full outline-none placeholder:text-foreground/60 text-base font-serif italic" />
               </div>
             </div>
-            <Popover>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
-                <Button type="button" variant="ghost" className="h-auto min-h-24 flex-1 min-w-0 justify-start rounded-none px-6 py-5 text-left hover:bg-foreground/10 hover:text-foreground" aria-label="Pilih tanggal acara">
+                <Button type="button" variant="ghost" className="h-auto min-h-24 flex-1 min-w-0 justify-start rounded-none px-6 py-5 text-left hover:bg-foreground/10 hover:text-foreground">
                   <span className="flex flex-col gap-2 items-start min-w-0"><span className="text-[10px] uppercase text-foreground/70">Tanggal</span><span className="font-serif text-base italic truncate">{date ? format(date, 'dd MMM yyyy', { locale: idLocale }) : 'Pilih tanggal'}</span></span>
                   {checking && <Loader2 className="w-4 h-4 animate-spin ml-auto" />}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="editorial-popover w-auto p-0 border-border" align="center">
-                <Calendar mode="single" selected={date} onSelect={setDate} disabled={d => d < new Date(new Date().setHours(0,0,0,0))} initialFocus className="p-3" />
+                {calendarOpen && <Suspense fallback={<div className="h-80 w-72 flex items-center justify-center" role="status">Memuat kalender…</div>}><Calendar mode="single" selected={date} onSelect={setDate} disabled={d => d < new Date(new Date().setHours(0,0,0,0))} initialFocus className="p-3" /></Suspense>}
               </PopoverContent>
             </Popover>
             <Button type="submit" className="h-auto min-h-16 md:min-h-24 px-8 rounded-none uppercase text-xs font-semibold">Cari Sekarang <ArrowRight /></Button>
@@ -169,10 +172,10 @@ export function HeroWithSearch() {
             )}
           </AnimatePresence>
         </div>
-      </motion.div>
+      </div>
       <a href="#panduan-booking" className="absolute bottom-8 left-6 sm:left-12 text-xs text-foreground/70 border-b border-foreground/30 pb-1">Panduan Booking</a>
       <a href="#koleksi-venue" aria-label="Lihat koleksi venue" className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-3"><span className="editorial-scroll" /><ArrowRight className="w-4 h-4 rotate-90" /></a>
-      {totalSlides > 1 && <div className="absolute bottom-8 right-6 sm:right-12 flex gap-1">{activeSlides.map((_, i) => <Button key={i} variant="ghost" size="icon-sm" onClick={() => setCurrentSlide(i)} aria-label={`Slide ${i+1}`} aria-pressed={i === currentSlide} className={cn('rounded-none', i === currentSlide && 'border-b border-foreground')}>{String(i+1).padStart(2,'0')}</Button>)}</div>}
+      {totalSlides > 1 && <div className="absolute bottom-8 right-6 sm:right-12 flex gap-1">{activeSlides.map((_, i) => <Button key={i} variant="ghost" size="icon-sm" onClick={() => setCurrentSlide(i)} aria-label={`Slide ${String(i+1).padStart(2,'0')}`} aria-pressed={i === currentSlide} className={cn('rounded-none', i === currentSlide && 'border-b border-foreground')}>{String(i+1).padStart(2,'0')}</Button>)}</div>}
     </section>
   );
 }

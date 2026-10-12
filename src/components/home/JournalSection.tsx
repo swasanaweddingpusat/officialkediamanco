@@ -61,9 +61,9 @@ export function JournalSection() {
                         {article.category}
                       </span>
                     )}
-                    <h4 className="font-serif text-xl md:text-2xl font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
+                    <h3 className="font-serif text-xl md:text-2xl font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
                       {article.title}
-                    </h4>
+                    </h3>
                     {article.excerpt && (
                       <p className="text-sm text-muted-foreground mt-3 line-clamp-2 leading-relaxed">
                         {article.excerpt}
