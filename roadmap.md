@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Optimalkan foto utama dan pemuatan beranda, serta perbaiki kontras, nama tautan, dan urutan judul berdasarkan laporan terbaru (ponsel 58, desktop 77).
+- [ ] Verifikasi ulang seluruh kategori pada situs terbit setelah optimasi terbaru diterbitkan; penerbitan memerlukan permintaan pengguna.
+
 - [x] Ukur skor awal artikel (ponsel 39, desktop 68), kurangi pemuatan awal dan foto, serta verifikasi pencarian, chat, booking, dan tampilan tanpa kesalahan.
 - [ ] Ukur ulang skor PageSpeed versi produksi setelah perubahan diterbitkan; terblokir karena perubahan belum diterbitkan dan skor pratinjau pengembangan tidak setara produksi.
 
