@@ -6,3 +6,4 @@
 - Scope Editorial Luxe tokens and typography to the venue detail wrapper so other site pages retain their existing design.
 - Load external fonts through document head links, never CSS imports, to avoid compiler-dependent remote import failures.
 - Apply public editorial styling through the shared Layout wrapper, excluding venue details to preserve their scoped visual system and admin pages to preserve editing controls.
+- Enforce active-only public video testimonial reads through RLS, with a separate user_roles-backed admin read policy, so unpublished videos remain private without blocking CMS management.
