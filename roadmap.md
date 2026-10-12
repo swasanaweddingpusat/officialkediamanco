@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Ukur performa halaman publik di ponsel dan desktop, kurangi beban awal tanpa mengubah desain, lalu verifikasi hasil serta batasan skor PageSpeed.
+
 - [x] Sesuaikan daftar dan detail artikel dengan referensi Bridestory, lalu verifikasi pencarian dan pembukaan artikel.
 
 - [ ] Tinjau empat temuan keamanan pilihan terbaru tentang Tentang Kami, jadwal, informasi situs, dan daftar file; minta keputusan sebelum membatasi akses publik.
