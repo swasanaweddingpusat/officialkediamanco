@@ -1,6 +1,7 @@
 # Roadmap
 
-- [ ] Ukur performa halaman publik di ponsel dan desktop, kurangi beban awal tanpa mengubah desain, lalu verifikasi hasil serta batasan skor PageSpeed.
+- [x] Ukur skor awal artikel (ponsel 39, desktop 68), kurangi pemuatan awal dan foto, serta verifikasi pencarian, chat, booking, dan tampilan tanpa kesalahan.
+- [ ] Ukur ulang skor PageSpeed versi produksi setelah perubahan diterbitkan; terblokir karena perubahan belum diterbitkan dan skor pratinjau pengembangan tidak setara produksi.
 
 - [x] Sesuaikan daftar dan detail artikel dengan referensi Bridestory, lalu verifikasi pencarian dan pembukaan artikel.
 
@@ -13,7 +14,7 @@
 
 - [x] Terapkan Editorial Tegas pada beranda dan navigasi publik, tetap menjaga pencarian dan booking.
 - [x] Ganti latar gelap ke hijau tua dan verifikasi keterbacaan teks pada beranda, daftar venue, serta menu.
-- [ ] Verifikasi foto, menu, pencarian, dan pembukaan booking pada tampilan sempit.
+- [x] Verifikasi foto, menu, pencarian, dan pembukaan booking pada tampilan sempit.
 
 
 - [x] Pilih dan terapkan tampilan baru detail venue.
