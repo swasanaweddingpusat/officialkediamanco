@@ -236,10 +236,26 @@ const functions = {
   },
 };
 
+// ------------------------------------------------------------------ rpc (fungsi database)
+async function rpc(name: string, args: Record<string, unknown> = {}) {
+  try {
+    const res = await fetch(`${API_URL}/rest/v1/rpc/${encodeURIComponent(name)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify(args),
+    });
+    const json = await res.json().catch(() => ({ data: null, error: { message: `HTTP ${res.status}` } }));
+    return { data: json.data ?? null, error: json.error ?? null, status: res.status };
+  } catch (e: any) {
+    return { data: null, error: { message: e?.message ?? "Network error", code: "NETWORK" }, status: 0 };
+  }
+}
+
 // ------------------------------------------------------------------ export
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const supabase: any = {
   from: (table: string) => new QueryBuilder(table),
+  rpc,
   auth,
   storage,
   functions,

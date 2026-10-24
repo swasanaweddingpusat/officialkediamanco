@@ -56,21 +56,21 @@ import asset54 from "@/assets/public-renditions/811797ec9d14654f17d2.webp.asset.
 import asset55 from "@/assets/public-renditions/c25847cd7025e9308084.webp.asset.json";
 import asset56 from "@/assets/public-renditions/8aa7443c5a76213ce748.webp.asset.json";
 export const publicImageRenditions: Record<string, Record<number, string>> = {
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/hero/1769422298505-cmyiwp.webp": {320: asset0.url, 640: asset1.url, 960: asset2.url, 1440: asset3.url, 1920: asset4.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/hero/1769422569097-vmpbxo.webp": {320: asset5.url, 640: asset6.url, 960: asset7.url, 1440: asset8.url, 1920: asset9.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/hero/1769422599315-dxmfz8.webp": {320: asset10.url, 640: asset11.url, 960: asset12.url, 1440: asset13.url, 1920: asset14.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/locations/1769424042545-qc2h2p.jpg": {320: asset15.url, 640: asset16.url, 960: asset17.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/locations/1769424705022-8u0wzg.jpg": {320: asset18.url, 640: asset19.url, 960: asset20.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/locations/1769424670552-le4w6.jpg": {320: asset21.url, 640: asset22.url, 960: asset23.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/locations/1780978429996-rypvqn.jpg": {320: asset24.url, 640: asset25.url, 960: asset26.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/locations/1784617441659-lqeo3.webp": {320: asset27.url, 640: asset28.url, 960: asset29.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/locations/1769424824627-npdora.webp": {320: asset30.url, 640: asset31.url, 960: asset32.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/programs/1791531903250-maifm.png": {320: asset33.url, 640: asset34.url, 960: asset35.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/programs/1791531930447-96s6p9.png": {320: asset36.url, 640: asset37.url, 960: asset38.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/portfolio/1772266992697-iqlsia.webp": {320: asset39.url, 640: asset40.url, 960: asset41.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/portfolio/1770779078687-i2b2tq.jpg": {320: asset42.url, 640: asset43.url, 960: asset44.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/portfolio/1771322470123-bmph6e.webp": {320: asset45.url, 640: asset46.url, 960: asset47.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/portfolio/1771315731232-7w6ba4.webp": {320: asset48.url, 640: asset49.url, 960: asset50.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/articles/1769513066603-glyjc.jpg": {320: asset51.url, 640: asset52.url, 960: asset53.url},
-"https://wlytcvpmajllepgsqmpx.supabase.co/storage/v1/object/public/gym-images/branding/1785392745026-zi2llm.png": {48: asset54.url, 96: asset55.url, 160: asset56.url}
+"https://bucket-jwta-production.up.railway.app/gym-images/hero/1769422298505-cmyiwp.webp": {320: asset0.url, 640: asset1.url, 960: asset2.url, 1440: asset3.url, 1920: asset4.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/hero/1769422569097-vmpbxo.webp": {320: asset5.url, 640: asset6.url, 960: asset7.url, 1440: asset8.url, 1920: asset9.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/hero/1769422599315-dxmfz8.webp": {320: asset10.url, 640: asset11.url, 960: asset12.url, 1440: asset13.url, 1920: asset14.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/locations/1769424042545-qc2h2p.jpg": {320: asset15.url, 640: asset16.url, 960: asset17.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/locations/1769424705022-8u0wzg.jpg": {320: asset18.url, 640: asset19.url, 960: asset20.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/locations/1769424670552-le4w6.jpg": {320: asset21.url, 640: asset22.url, 960: asset23.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/locations/1780978429996-rypvqn.jpg": {320: asset24.url, 640: asset25.url, 960: asset26.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/locations/1784617441659-lqeo3.webp": {320: asset27.url, 640: asset28.url, 960: asset29.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/locations/1769424824627-npdora.webp": {320: asset30.url, 640: asset31.url, 960: asset32.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/programs/1791531903250-maifm.png": {320: asset33.url, 640: asset34.url, 960: asset35.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/programs/1791531930447-96s6p9.png": {320: asset36.url, 640: asset37.url, 960: asset38.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/portfolio/1772266992697-iqlsia.webp": {320: asset39.url, 640: asset40.url, 960: asset41.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/portfolio/1770779078687-i2b2tq.jpg": {320: asset42.url, 640: asset43.url, 960: asset44.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/portfolio/1771322470123-bmph6e.webp": {320: asset45.url, 640: asset46.url, 960: asset47.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/portfolio/1771315731232-7w6ba4.webp": {320: asset48.url, 640: asset49.url, 960: asset50.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/articles/1769513066603-glyjc.jpg": {320: asset51.url, 640: asset52.url, 960: asset53.url},
+"https://bucket-jwta-production.up.railway.app/gym-images/branding/1785392745026-zi2llm.png": {48: asset54.url, 96: asset55.url, 160: asset56.url}
 };

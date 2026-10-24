@@ -84,6 +84,30 @@ function readLocalEnv() {
   );
 }
 
+// Backend Railway (kediaman-api). Dipakai lebih dulu bila VITE_API_URL tersedia.
+function railwayApiUrl() {
+  const localEnv = readLocalEnv();
+  return (process.env.VITE_API_URL || localEnv.VITE_API_URL || "").replace(/\/$/, "");
+}
+
+async function railwayQuery(apiUrl: string, table: string, select: string, filter = "", extra: Record<string, unknown> = {}) {
+  const [filterName, filterValue] = filter.split("=");
+  const filters: [string, string, unknown][] = [];
+  if (filterName && filterValue?.startsWith("eq.")) {
+    const raw = filterValue.slice(3);
+    filters.push([filterName, "eq", raw === "true" ? true : raw === "false" ? false : raw]);
+  }
+  const response = await fetch(`${apiUrl}/rest/v1/query`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ table, action: "select", select, filters, ...extra }),
+    signal: AbortSignal.timeout(10000),
+  });
+  const json = await response.json() as { data: Record<string, unknown>[] | null; error: { message: string } | null };
+  if (!response.ok || json.error) throw new Error(`${table}: ${json.error?.message ?? `HTTP ${response.status}`}`);
+  return json.data ?? [];
+}
+
 function escapeXml(value: string) {
   return value
     .replaceAll("&", "&amp;")
@@ -94,6 +118,21 @@ function escapeXml(value: string) {
 }
 
 async function fetchDynamicEntries(): Promise<SitemapEntry[]> {
+  const railway = railwayApiUrl();
+  if (railway) {
+    const results = await Promise.allSettled(contentSources.map(async (source) => {
+      const rows = await railwayQuery(railway, source.table, source.select, source.filter);
+      return rows.flatMap((row) => {
+        const path = source.toPath(row);
+        return path ? [{ path, changefreq: source.changefreq, priority: source.priority }] : [];
+      });
+    }));
+    return results.flatMap((result, index) => {
+      if (result.status === "fulfilled") return result.value;
+      console.warn(`Skipped dynamic ${contentSources[index].table} URLs: ${result.reason}`);
+      return [];
+    });
+  }
   const localEnv = readLocalEnv();
   const apiUrl = process.env.VITE_SUPABASE_URL || localEnv.VITE_SUPABASE_URL;
   const apiKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || localEnv.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -157,6 +196,19 @@ function generateSitemap(entries: SitemapEntry[]) {
 const dynamicEntries = await fetchDynamicEntries();
 // A public-only snapshot allows the first hero to render before the live CMS request.
 async function writeHeroSnapshot() {
+  const railway = railwayApiUrl();
+  if (railway) {
+    try {
+      const slides = await railwayQuery(railway, "hero_slides", "*", "is_active=eq.true", {
+        order: [{ column: "sort_order", ascending: true }],
+      });
+      mkdirSync(resolve('src/generated'), { recursive: true });
+      writeFileSync(resolve('src/generated/hero-slides.json'), JSON.stringify(slides));
+    } catch {
+      console.warn('Hero snapshot unavailable; keeping the previous public snapshot.');
+    }
+    return;
+  }
   const env = readLocalEnv();
   const apiUrl = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL;
   const apiKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY;
