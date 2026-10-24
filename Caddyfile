@@ -37,8 +37,9 @@
 	@static path *.png *.jpg *.jpeg *.webp *.avif *.svg *.ico *.woff2 *.woff
 	header @static Cache-Control "public, max-age=2592000"
 
-	# Semua yang lain (HTML/rute SPA) dicek ulang setiap kunjungan.
-	header ?Cache-Control "no-cache"
+	# HTML/rute SPA: browser selalu cek ulang (max-age=0), CDN boleh menyimpan 10 menit
+	# dan menyajikan versi lama sambil memperbarui. Cache CDN dibersihkan setiap deploy.
+	header ?Cache-Control "public, max-age=0, s-maxage=600, stale-while-revalidate=86400"
 
 	root * {{.DIST_DIR}}
 
