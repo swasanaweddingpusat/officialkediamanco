@@ -41,12 +41,12 @@ const Classes = () => {
   const activePortfolios = trainers?.filter(t => t.is_active) || [];
 
   useSEO({
-    title: `${siteName} - Tentang Kami`,
+    title: `Tentang Kami | ${siteName}`,
     description: `Kenali lebih dekat ${siteName}, penyedia venue dan layanan event premium terpercaya.`,
-    url: 'https://official.kediaman.co/tentang-kami',
+    url: 'https://kediaman.co/tentang-kami',
     breadcrumbs: [
-      { name: 'Home', url: 'https://official.kediaman.co/' },
-      { name: 'Tentang Kami', url: 'https://official.kediaman.co/tentang-kami' },
+      { name: 'Home', url: 'https://kediaman.co/' },
+      { name: 'Tentang Kami', url: 'https://kediaman.co/tentang-kami' },
     ],
   });
 

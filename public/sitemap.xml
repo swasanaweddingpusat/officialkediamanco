@@ -1,2207 +1,2207 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://official.kediaman.co/</loc>
+    <loc>https://kediaman.co/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/landing</loc>
+    <loc>https://kediaman.co/landing</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/venue-only</loc>
+    <loc>https://kediaman.co/venue-only</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/tentang-kami</loc>
+    <loc>https://kediaman.co/tentang-kami</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio</loc>
+    <loc>https://kediaman.co/portfolio</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/paket</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://official.kediaman.co/lokasi</loc>
+    <loc>https://kediaman.co/paket</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/artikel</loc>
+    <loc>https://kediaman.co/lokasi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://kediaman.co/artikel</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/artikel/10-tahapan-pernikahan-adat-betawi-prosesi-ikonik-penuh-makna-filosofi</loc>
+    <loc>https://kediaman.co/artikel/10-tahapan-pernikahan-adat-betawi-prosesi-ikonik-penuh-makna-filosofi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/lokasi/brin-gatot-subroto-grand-ballroom</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://official.kediaman.co/lokasi/grand-slipi-convention-hall</loc>
+    <loc>https://kediaman.co/lokasi/brin-gatot-subroto-grand-ballroom</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/lokasi/brin-thamrin-convention-hall</loc>
+    <loc>https://kediaman.co/lokasi/grand-slipi-convention-hall</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/lokasi/granadi-grand-ballroom</loc>
+    <loc>https://kediaman.co/lokasi/brin-thamrin-convention-hall</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/lokasi/grha-pertamina-grand-ballroom</loc>
+    <loc>https://kediaman.co/lokasi/granadi-grand-ballroom</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/lokasi/lippo-kuningan-grand-ballroom</loc>
+    <loc>https://kediaman.co/lokasi/grha-pertamina-grand-ballroom</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/lokasi/graha-paramita-grand-ballroom</loc>
+    <loc>https://kediaman.co/lokasi/lippo-kuningan-grand-ballroom</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/lokasi/kirana-grand-ballroom</loc>
+    <loc>https://kediaman.co/lokasi/graha-paramita-grand-ballroom</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/lokasi/dharmagati-grand-ballroom</loc>
+    <loc>https://kediaman.co/lokasi/kirana-grand-ballroom</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/lokasi/patrajasa-grand-ballroom</loc>
+    <loc>https://kediaman.co/lokasi/dharmagati-grand-ballroom</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/lokasi/samisara-sopodel-grand-ballrom</loc>
+    <loc>https://kediaman.co/lokasi/patrajasa-grand-ballroom</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/lokasi/seskoad-grand-ballroom</loc>
+    <loc>https://kediaman.co/lokasi/samisara-sopodel-grand-ballrom</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/tentang-kami/promosi-4</loc>
+    <loc>https://kediaman.co/lokasi/seskoad-grand-ballroom</loc>
     <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://kediaman.co/tentang-kami/promosi-4</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/tentang-kami/promosi-3</loc>
+    <loc>https://kediaman.co/tentang-kami/promosi-3</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dinda-rizky</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dinda-rizky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-amy-davi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-amy-davi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-andriani-fachrul</loc>
+    <loc>https://kediaman.co/portfolio/wedding-andriani-fachrul</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/corporate-event-of-yokke-beyond-grennes</loc>
+    <loc>https://kediaman.co/portfolio/corporate-event-of-yokke-beyond-grennes</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ade-indi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ade-indi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-kanti-ricky</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-kanti-ricky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adel-agi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adel-agi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-andin-awwe</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-andin-awwe</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ajeng-fahmi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ajeng-fahmi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-lusi-atta</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-lusi-atta</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adel-tunas</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adel-tunas</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-azriel-salsa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-azriel-salsa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dhara-reski</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dhara-reski</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-mutia-aeldo</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-mutia-aeldo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adinda-aldi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adinda-aldi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adelia-varian</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adelia-varian</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-shinta-dwi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-shinta-dwi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-bella-raka</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-bella-raka</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-mustika-indra</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-mustika-indra</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dimas-wikan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dimas-wikan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wddin-of-nadia-lucky</loc>
+    <loc>https://kediaman.co/portfolio/wddin-of-nadia-lucky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dhila-umar</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dhila-umar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-villia-danu</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-villia-danu</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rizky-crista</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rizky-crista</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-firla-fadhil</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-firla-fadhil</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-afina-khalid</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-afina-khalid</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dhiyara-reza</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dhiyara-reza</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-bella-andi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-bella-andi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adella-rio</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adella-rio</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adelya-argi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adelya-argi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adi-slivia</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adi-slivia</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adila-fahreza</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adila-fahreza</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adin-dimas</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adin-dimas</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-bianca-adit</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-bianca-adit</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adinda-erie</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adinda-erie</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adinda-erie-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adinda-erie-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adinda-sigit</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adinda-sigit</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adinda-sigit-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adinda-sigit-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-monika-rama</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-monika-rama</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adit-bianca</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adit-bianca</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-admiral-alia</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-admiral-alia</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adyuta-fairuz</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adyuta-fairuz</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adzra-anggit</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adzra-anggit</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-afifah-raka</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-afifah-raka</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-agatha-ihsan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-agatha-ihsan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-agatha-ihsan-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-agatha-ihsan-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-agung-mawa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-agung-mawa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-aida-alfian</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-aida-alfian</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-disa-yoshi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-disa-yoshi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-aini-zaqi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-aini-zaqi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-aisha-akmal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-aisha-akmal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-aisyah-fauzan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-aisyah-fauzan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-aisyah-fauzan-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-aisyah-fauzan-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-aisyah-hafizh</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-aisyah-hafizh</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-aisyah-yakub</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-aisyah-yakub</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ajeng-adam</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ajeng-adam</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ajeng-adi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ajeng-adi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ajeng-rafiv</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ajeng-rafiv</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-destya-ilyas</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-destya-ilyas</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-aldo-nadya</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-aldo-nadya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-alfiya-arinal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-alfiya-arinal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-alif-isti</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-alif-isti</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-alifia-irfansyah</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-alifia-irfansyah</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-edo-ratih-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-edo-ratih-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-almas-noel</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-almas-noel</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-almira-gian</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-almira-gian</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-almira-rivan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-almira-rivan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-alvi-umar</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-alvi-umar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-alya-aji</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-alya-aji</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-alya-fauzan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-alya-fauzan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-amalia-fikri</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-amalia-fikri</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-amaliana-hammam</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-amaliana-hammam</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-andi-nabila</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-andi-nabila</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-andien-tyo</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-andien-tyo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-andri-nesa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-andri-nesa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-anes-fikri</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-anes-fikri</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rizka-ario</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rizka-ario</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-anggi-tari</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-anggi-tari</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-anin-audy</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-anin-audy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-anin-hafidh</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-anin-hafidh</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-anis-reza</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-anis-reza</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-anisa-rifqi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-anisa-rifqi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-anita-fernando</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-anita-fernando</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-annisa-almer</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-annisa-almer</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-annisa-aris</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-annisa-aris</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-annisa-garry</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-annisa-garry</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-anti-sindi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-anti-sindi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-meby-lery</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-meby-lery</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-anton-naftali</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-anton-naftali</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-arfian-shakila</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-arfian-shakila</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ario-rania</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ario-rania</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ashya-rifqi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ashya-rifqi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-astrid-faisal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-astrid-faisal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-astrid-johny</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-astrid-johny</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-astrid-yasser</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-astrid-yasser</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-atrisya-tresna</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-atrisya-tresna</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-audira-rey</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-audira-rey</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-audri-adit</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-audri-adit</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-devita-haikal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-devita-haikal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-aulia-bhre</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-aulia-bhre</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-aureli-kevin</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-aureli-kevin</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-aya-dhimas</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-aya-dhimas</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ayi-aryo</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ayi-aryo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ayu-ghaniy</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ayu-ghaniy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ayu-rifqi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ayu-rifqi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-azura-mifta</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-azura-mifta</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-bella-asep</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-bella-asep</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-bella-gasha</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-bella-gasha</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-billa-hasbi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-billa-hasbi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-bintang-wegik</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-bintang-wegik</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-budi-lizza</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-budi-lizza</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-cahya-brian</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-cahya-brian</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-carissa-irfan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-carissa-irfan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-chiquita-reagen</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-chiquita-reagen</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-alya-bari</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-alya-bari</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-adinda-andika</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-adinda-andika</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-resta-galang</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-resta-galang</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-citra-allan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-citra-allan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-citra-dodi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-citra-dodi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-intan-danar</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-intan-danar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-kalonica-adimas</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-kalonica-adimas</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-marsya-raga</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-marsya-raga</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-alita-dani</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-alita-dani</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadhifa-yafie</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadhifa-yafie</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-citta-gerry</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-citta-gerry</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-cythia-akil</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-cythia-akil</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-daffa-yeni</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-daffa-yeni</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-damar-riya</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-damar-riya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dawan-yonessha</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dawan-yonessha</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dea-ilham</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dea-ilham</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dede-sherina</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dede-sherina</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-della-agung</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-della-agung</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-della-ghazali</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-della-ghazali</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-denaneer-illma</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-denaneer-illma</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-deny-hanny</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-deny-hanny</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-deshynta-bagus</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-deshynta-bagus</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dewa-nada</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dewa-nada</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dewi-adi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dewi-adi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dhea-rizki</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dhea-rizki</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dhila-halim</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dhila-halim</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dhila-rizky</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dhila-rizky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dhimas-bella</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dhimas-bella</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dhona-dwi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dhona-dwi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dian-boby</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dian-boby</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dila-anggit</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dila-anggit</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dilla-agassi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dilla-agassi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dimas-naya</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dimas-naya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dinar-dimas</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dinar-dimas</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dinda-alfian</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dinda-alfian</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dinda-dhoni</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dinda-dhoni</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dinda-dhoni-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dinda-dhoni-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dinda-faris</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dinda-faris</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dinda-hanum</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dinda-hanum</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dinda-reva</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dinda-reva</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dita-dimas</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dita-dimas</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-divi-raja</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-divi-raja</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dona-dwi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dona-dwi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dova-raihan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dova-raihan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-dyaz-fawwaz</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-dyaz-fawwaz</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-echa-arfan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-echa-arfan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-echa-hirzy</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-echa-hirzy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-edho-abby</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-edho-abby</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-edo-ratih</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-edo-ratih</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-edwina-farhan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-edwina-farhan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ega-fadel</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ega-fadel</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-eki-defin</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-eki-defin</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-elory-kaleb</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-elory-kaleb</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-elsa-agra</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-elsa-agra</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-emira-eka</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-emira-eka</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-endah-arya</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-endah-arya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-engdy-canny</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-engdy-canny</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-eryka-satya</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-eryka-satya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-esti-delfian</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-esti-delfian</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-evanie-nanda</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-evanie-nanda</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fadel-shabrina</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fadel-shabrina</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fadhli-sonya</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fadhli-sonya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fafa-fariz</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fafa-fariz</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fairuz-dhanes</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fairuz-dhanes</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fajra-fathiya</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fajra-fathiya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fajrin-afdal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fajrin-afdal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-farah-arif</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-farah-arif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-farah-kemal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-farah-kemal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-farah-raka</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-farah-raka</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-farah-usyad</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-farah-usyad</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fatchan-andini</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fatchan-andini</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fatimah-mardiyansyah</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fatimah-mardiyansyah</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fauzan-eriska</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fauzan-eriska</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fauzan-sasa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fauzan-sasa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-febbi-aldo</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-febbi-aldo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-febbi-aldo-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-febbi-aldo-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-felicia-rifqi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-felicia-rifqi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fenia-sigit</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fenia-sigit</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadhira-alif</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadhira-alif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fern-agna</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fern-agna</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fida-hilmi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fida-hilmi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fildza-bagus</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fildza-bagus</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fildza-varel</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fildza-varel</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fira-fadli</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fira-fadli</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-namira-lathif</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-namira-lathif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fira-pram</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fira-pram</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fira-wildan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fira-wildan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-firli-yudhi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-firli-yudhi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-firli-yudhi-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-firli-yudhi-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-firstda-yusron</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-firstda-yusron</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fitri-reza</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fitri-reza</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-putri-andres</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-putri-andres</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fitri-reza-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fitri-reza-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fitri-rizky</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fitri-rizky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-frans-bella</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-frans-bella</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-fya-roy</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-fya-roy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-gebby-riko</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-gebby-riko</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-gerry-fanny</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-gerry-fanny</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ghiza-zilva</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ghiza-zilva</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-gianella-tian</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-gianella-tian</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-gilang-grace</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-gilang-grace</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-gita-dika</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-gita-dika</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-gita-diki</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-gita-diki</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-gita-irfhan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-gita-irfhan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-gitta-arman</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-gitta-arman</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-haala-rusdi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-haala-rusdi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-hana-sultan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-hana-sultan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-hanif-friska</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-hanif-friska</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-putri-narendra</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-putri-narendra</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-hanny-arthur</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-hanny-arthur</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-hany-gio</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-hany-gio</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-harun-hamsiyah</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-harun-hamsiyah</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-harun-hamsyiah</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-harun-hamsyiah</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-hasna-hadryan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-hasna-hadryan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-haydee-aji</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-haydee-aji</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-hayza-siswo</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-hayza-siswo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-heidy-gary</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-heidy-gary</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-imam-asa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-imam-asa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-lisa-imron</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-lisa-imron</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-inaya-naufal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-inaya-naufal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-indah-endery</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-indah-endery</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-indira-hansen</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-indira-hansen</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ines-rio</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ines-rio</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-intan-anzal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-intan-anzal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-intan-yogi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-intan-yogi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-irene-prima</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-irene-prima</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-irin-dito</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-irin-dito</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-irma-wessel</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-irma-wessel</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-iszam-azizah</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-iszam-azizah</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-izmi-rizvan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-izmi-rizvan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-jafira-fahmi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-jafira-fahmi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-jasmeen-fariz</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-jasmeen-fariz</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-jihan-gonta</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-jihan-gonta</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-jihan-rizky</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-jihan-rizky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-joshua-maya</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-joshua-maya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-kaleb-elory</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-kaleb-elory</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-kamila-naufal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-kamila-naufal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-karina-hendro</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-karina-hendro</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-keisha-hizi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-keisha-hizi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-khansa-tyaga</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-khansa-tyaga</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-kharisma-endri</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-kharisma-endri</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-livia-regi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-livia-regi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-kiko-ade</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-kiko-ade</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-kiran-zanwar</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-kiran-zanwar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-laila-santiago</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-laila-santiago</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-lala-okka</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-lala-okka</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-liana-geo</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-liana-geo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-lisa-aji</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-lisa-aji</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-maudhira-bangga</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-maudhira-bangga</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-maulidah-adi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-maulidah-adi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-maura-angga</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-maura-angga</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-maya-rifqy</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-maya-rifqy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-melda-yasir</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-melda-yasir</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-melin-rafi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-melin-rafi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-mellisa-rochman</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-mellisa-rochman</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-mia-yoga</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-mia-yoga</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-michael-riri</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-michael-riri</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-michelle-hanif</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-michelle-hanif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-mila-dwiky</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-mila-dwiky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-mira-alif</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-mira-alif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-miranda-irfan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-miranda-irfan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadhifa-daffa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadhifa-daffa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-monika-arief</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-monika-arief</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-muizti-mufti</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-muizti-mufti</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-muthia-ricky</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-muthia-ricky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-muthia-rio</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-muthia-rio</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-muthia-rio-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-muthia-rio-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-mutty-syarif</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-mutty-syarif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nabila-bimmo</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nabila-bimmo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nabila-hardyano</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nabila-hardyano</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nabila-panji</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nabila-panji</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nabila-rizki</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nabila-rizki</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nabilla-fathli</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nabilla-fathli</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadhifah-rizky</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadhifah-rizky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadhifah-rizky-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadhifah-rizky-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadhifah-rofif</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadhifah-rofif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadhila-aldo</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadhila-aldo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadhila-aldo-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadhila-aldo-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadia-farabi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadia-farabi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadia-rama</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadia-rama</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadira-rifqi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadira-rifqi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadya-arung</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadya-arung</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadya-chusni</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadya-chusni</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-putri-narendra-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-putri-narendra-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadya-kuncoro</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadya-kuncoro</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nadya-rifki</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nadya-rifki</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nafirah-ressa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nafirah-ressa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-naila-dhio</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-naila-dhio</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-najwa-kemal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-najwa-kemal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-namira-rien</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-namira-rien</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nanda-bani</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nanda-bani</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nanda-dhea</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nanda-dhea</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-natashia-daus</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-natashia-daus</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nathania-gusti</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nathania-gusti</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rifa-idham</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rifa-idham</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-naudi-almira</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-naudi-almira</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-naufal-alya</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-naufal-alya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nazla-kevin</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nazla-kevin</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nazwa-rizky</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nazwa-rizky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-neisya-satria</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-neisya-satria</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nicholas-elysia</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nicholas-elysia</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-niki-praticko</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-niki-praticko</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nina-malik</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nina-malik</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ninda-ilman</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ninda-ilman</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nindy-garry</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nindy-garry</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nisa-gias</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nisa-gias</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-nitya-alif</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-nitya-alif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ochi-luthfi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ochi-luthfi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-paradhita-bintang</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-paradhita-bintang</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-pinkan-mirza</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-pinkan-mirza</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-pradnya-arif</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-pradnya-arif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ragita-kamil</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ragita-kamil</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-raihan-nadhifah</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-raihan-nadhifah</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-raina-kevin</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-raina-kevin</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rama-monika</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rama-monika</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rani-reykhan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rani-reykhan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rio-annisa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rio-annisa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ranti-marthias</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ranti-marthias</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rara-doffi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rara-doffi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rara-rafly</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rara-rafly</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ratri-chandra</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ratri-chandra</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ratri-hasbi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ratri-hasbi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rifki-nisa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rifki-nisa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-reima-eko</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-reima-eko</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-reyhan-amira</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-reyhan-amira</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-reyhan-vina</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-reyhan-vina</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-reyta-mahessa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-reyta-mahessa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-reza-karilla</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-reza-karilla</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-reza-karilla-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-reza-karilla-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rio-annisa-2</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rio-annisa-2</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-risma-hanif</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-risma-hanif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ritzka-rafi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ritzka-rafi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rivano-gina</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rivano-gina</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rizka-bimo</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rizka-bimo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-rosandra-alvin</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-rosandra-alvin</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-roselyn-ogi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-roselyn-ogi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-roy-medi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-roy-medi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ruth-efrem</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ruth-efrem</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ryan-alisa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ryan-alisa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-sabrina-adam</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-sabrina-adam</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-sabrina-pradana</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-sabrina-pradana</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-saffa-haidar</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-saffa-haidar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-safira-gibran</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-safira-gibran</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-salsa-surya</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-salsa-surya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-salma-ahlul</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-salma-ahlul</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-salma-rizki</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-salma-rizki</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-salma-wegig</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-salma-wegig</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-salsa-rai</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-salsa-rai</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-saphira-azi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-saphira-azi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-sarah-bashir</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-sarah-bashir</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-sarah-farhan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-sarah-farhan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-sari-niko</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-sari-niko</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-sekar-bahar</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-sekar-bahar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-sella-iqbal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-sella-iqbal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-shafwah-kamil</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-shafwah-kamil</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-sheila-wendy</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-sheila-wendy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-shelly-hans</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-shelly-hans</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-shendi-maoshi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-shendi-maoshi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-shinta-oji</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-shinta-oji</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-zahra-zuhdi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-zahra-zuhdi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-silvy-abel</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-silvy-abel</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-sofa-harry</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-sofa-harry</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-solika-isa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-solika-isa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-stefanie-pahlevi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-stefanie-pahlevi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-zevanya-aaron</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-zevanya-aaron</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-sulthan-densi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-sulthan-densi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-syafira-faraz</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-syafira-faraz</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-syifa-fathur</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-syifa-fathur</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tania-iqbal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tania-iqbal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tania-shafa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tania-shafa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tari-retno</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tari-retno</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tasha-farhan</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tasha-farhan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-terry-eris</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-terry-eris</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-thalia-fadly</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-thalia-fadly</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tiara-diky</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tiara-diky</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tiara-pandu</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tiara-pandu</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tiara-robson</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tiara-robson</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tisha-farras</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tisha-farras</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tita-tsaqova</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tita-tsaqova</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tiwi-reza</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tiwi-reza</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tya-alver</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tya-alver</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-tyas-sutantara</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-tyas-sutantara</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ucha-zhafir</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ucha-zhafir</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ully-steive</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ully-steive</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-ully-steivi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-ully-steivi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-unique-jodi</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-unique-jodi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-unul-anto</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-unul-anto</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-vania-havis</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-vania-havis</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-vanny-ibnu</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-vanny-ibnu</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-videa-aras</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-videa-aras</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-vika-zaylani</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-vika-zaylani</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-vinne-zeva</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-vinne-zeva</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-windy-romy</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-windy-romy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-yansen-marsya</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-yansen-marsya</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-yasmin-fathur</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-yasmin-fathur</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-yesti-iman</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-yesti-iman</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-yolanda-iqbal</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-yolanda-iqbal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-zahra-ericsson</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-zahra-ericsson</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-zahra-farizki</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-zahra-farizki</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-zahra-satria</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-zahra-satria</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-zikrima-faiz</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-zikrima-faiz</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-zila-gilang</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-zila-gilang</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-zirly-daffa</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-zirly-daffa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://official.kediaman.co/portfolio/wedding-of-zulfa-rifki</loc>
+    <loc>https://kediaman.co/portfolio/wedding-of-zulfa-rifki</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

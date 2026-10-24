@@ -20,7 +20,7 @@ const ArticleDetail = () => {
   const { data: siteSettings } = useSiteSettings();
 
   const siteName = siteSettings?.site_name || 'Kediaman Corp';
-  const siteUrl = 'https://official.kediaman.co';
+  const siteUrl = 'https://kediaman.co';
   const currentUrl = `${siteUrl}/artikel/${slug}`;
 
   // Related: prioritize same category, then fallback to latest articles

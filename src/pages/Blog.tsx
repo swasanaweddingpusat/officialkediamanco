@@ -23,12 +23,12 @@ const Blog = () => {
   const siteName = siteSettings?.site_name || 'Kediaman Corp';
 
   useSEO({
-    title: "Kediaman Corp Blog - Artikel & Tips",
+    title: "Artikel & Tips Acara | Kediaman Corp",
     description: "Baca artikel terbaru, tips, dan informasi seputar venue dan event management.",
-    url: "https://official.kediaman.co/artikel",
+    url: "https://kediaman.co/artikel",
     breadcrumbs: [
-      { name: "Home", url: "https://official.kediaman.co/" },
-      { name: "Artikel", url: "https://official.kediaman.co/artikel" }
+      { name: "Home", url: "https://kediaman.co/" },
+      { name: "Artikel", url: "https://kediaman.co/artikel" }
     ]
   });
 

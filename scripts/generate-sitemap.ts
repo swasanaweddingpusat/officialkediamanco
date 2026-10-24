@@ -3,7 +3,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
-const BASE_URL = "https://official.kediaman.co";
+const BASE_URL = "https://kediaman.co";
 
 interface SitemapEntry {
   path: string;

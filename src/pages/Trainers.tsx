@@ -15,12 +15,12 @@ const Trainers = () => {
   const { data: trainers, isLoading } = useTrainers();
   
   useSEO({
-    title: "Kediaman Corp - Portfolio Kami",
+    title: "Portfolio Acara & Pernikahan | Kediaman Corp",
     description: "Temukan inspirasi dari berbagai acara yang telah kami selenggarakan.",
-    url: "https://official.kediaman.co/portfolio",
+    url: "https://kediaman.co/portfolio",
     breadcrumbs: [
-      { name: "Home", url: "https://official.kediaman.co/" },
-      { name: "Portfolio", url: "https://official.kediaman.co/portfolio" }
+      { name: "Home", url: "https://kediaman.co/" },
+      { name: "Portfolio", url: "https://kediaman.co/portfolio" }
     ]
   });
 

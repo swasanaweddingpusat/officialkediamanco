@@ -22,6 +22,10 @@
 
 	respond /health 200
 
+	# Satu domain utama untuk Google: alihkan domain lain secara permanen ke kediaman.co.
+	@altHost host official.kediaman.co www.kediaman.co officialkediamanco-production.up.railway.app
+	redir @altHost https://kediaman.co{uri} permanent
+
 	header {
 		X-Content-Type-Options "nosniff"
 		-Server

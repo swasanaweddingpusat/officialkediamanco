@@ -39,7 +39,7 @@ export function ArticleMeta({ article }: { article: JournalArticle }) {
 }
 
 export function ArticleShare({ article }: { article: JournalArticle }) {
-  const url = `https://official.kediaman.co/artikel/${article.slug}`;
+  const url = `https://kediaman.co/artikel/${article.slug}`;
   async function copy() {
     try { await navigator.clipboard.writeText(url); toast.success('Tautan artikel disalin'); }
     catch { toast.error('Tautan tidak dapat disalin'); }

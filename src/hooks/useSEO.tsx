@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const SITE_URL = 'https://official.kediaman.co';
+const SITE_URL = 'https://kediaman.co';
 
 interface Breadcrumb {
   name: string;

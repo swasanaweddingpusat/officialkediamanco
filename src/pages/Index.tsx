@@ -13,13 +13,13 @@ const Index = () => {
   useSEO({
     title: "Kediaman Corp - The Best Choice Venue Operator",
     description: "Kediaman Corp menghadirkan venue premium untuk pernikahan dan acara di Indonesia, lengkap dengan informasi fasilitas, jadwal, serta pemesanan mudah.",
-    url: "https://official.kediaman.co/",
+    url: "https://kediaman.co/",
     type: "website",
     includeOrganization: true,
     includeWebsite: true,
     includeLocalBusiness: true,
     breadcrumbs: [
-      { name: "Home", url: "https://official.kediaman.co/" }
+      { name: "Home", url: "https://kediaman.co/" }
     ]
   });
 

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-const SITE_URL = "https://official.kediaman.co";
+const SITE_URL = "https://kediaman.co";
 
 const PUBLIC_ROUTE_PATTERNS = [
   /^\/$/,

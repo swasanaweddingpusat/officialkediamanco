@@ -22,12 +22,12 @@ const Packages = () => {
   const siteName = settings?.site_name || 'Kediaman Corp';
 
   useSEO({
-    title: `Paket & Promo Venue ${siteName}`,
+    title: `Paket & Promo Venue | ${siteName}`,
     description: `Daftar lengkap paket dan promo venue ${siteName}. Pilih kategori, cek detail, dan ajukan penawaran langsung lewat formulir WhatsApp.`,
-    url: 'https://official.kediaman.co/paket',
+    url: 'https://kediaman.co/paket',
     breadcrumbs: [
-      { name: 'Home', url: 'https://official.kediaman.co/' },
-      { name: 'Paket', url: 'https://official.kediaman.co/paket' },
+      { name: 'Home', url: 'https://kediaman.co/' },
+      { name: 'Paket', url: 'https://kediaman.co/paket' },
     ],
   });
 

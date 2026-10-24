@@ -22,12 +22,12 @@ const Locations = () => {
   const date = searchParams.get('date') || '';
 
   useSEO({
-    title: "Kediaman Corp - Lokasi & Venue Kami",
+    title: "Lokasi Venue & Ballroom | Kediaman Corp",
     description: "Kunjungi lokasi-lokasi premium Kediaman Corp di Jakarta, Bintaro, dan Bandung.",
-    url: "https://official.kediaman.co/lokasi",
+    url: "https://kediaman.co/lokasi",
     breadcrumbs: [
-      { name: "Home", url: "https://official.kediaman.co/" },
-      { name: "Lokasi", url: "https://official.kediaman.co/lokasi" }
+      { name: "Home", url: "https://kediaman.co/" },
+      { name: "Lokasi", url: "https://kediaman.co/lokasi" }
     ]
   });
 

@@ -21,7 +21,7 @@ import { useRef } from 'react';
 import { useSEO } from '@/hooks/useSEO';
 import { VenueInterestBadge } from '@/components/venue/VenueInterestBadge';
 
-const SITE_URL = 'https://official.kediaman.co';
+const SITE_URL = 'https://kediaman.co';
 
 function buildVenueDescription(name: string, category?: string | null, address?: string | null) {
   const details = [category, address].filter(Boolean).join(' di ');
