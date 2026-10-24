@@ -144,7 +144,7 @@ async function listDriveImages(): Promise<DriveFile[]> {
   const MAX_FOLDERS = 400, MAX_FILES = 5000, deadline = Date.now() + 90_000;
   let folders = 0, active = 0;
   const queue: (() => void)[] = [];
-  const limit = async <T>(fn: () => Promise<T>): Promise<T> => {
+  const limit = async (fn: () => Promise<Response>): Promise<Response> => {
     if (active >= 8) await new Promise<void>((r) => queue.push(r));
     active++;
     try { return await fn(); } finally { active--; queue.shift()?.(); }
