@@ -8,11 +8,9 @@ function firstPaintResources(): Plugin {
   return {
     name: 'first-paint-resources',
     transformIndexHtml(html: string) {
-      // Fonts are self-hosted in the app stylesheet: no external CSS request chain.
-      html = html.replace(/<link\b[^>]*href="https:\/\/fonts\.(?:googleapis|gstatic)\.com[^>]*>/g, '');
-      const fontsPath = path.resolve(__dirname, 'src/generated/font-preloads.json');
-      const fonts: string[] = existsSync(fontsPath) ? JSON.parse(readFileSync(fontsPath, 'utf8')) : [];
-      const fontHints = fonts.map(url => `<link rel="preload" as="font" type="font/woff2" href="${url}" crossorigin />`).join('');
+      // Di Railway font dimuat dari Google Fonts (link di index.html dipertahankan), karena
+      // font self-host Lovable berada di CDN /__l5e/ yang hanya ada di hosting Lovable.
+      const fontHints = '';
       const apiOrigin = process.env.VITE_API_URL || process.env.VITE_SUPABASE_URL;
       const apiHint = apiOrigin ? `<link rel="preconnect" href="${new URL(apiOrigin).origin}" crossorigin />` : '';
       html = html.replace('<head>', `<head>${fontHints}${apiHint}`);

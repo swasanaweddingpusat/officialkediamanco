@@ -10,11 +10,12 @@ import { useHeroSlides, useLocations } from '@/hooks/useCMS';
 import { supabase } from '@/integrations/supabase/client';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import heroAsset from '@/assets/editorial-ballroom.webp.asset.json';
+// Aset CDN Lovable (/__l5e/) tidak tersedia di Railway; pakai salinan lokal di repo.
+import heroImageLocal from '@/assets/editorial-ballroom.jpg';
 import { Button } from '@/components/ui/button';
 
 const Calendar = lazy(() => import('@/components/ui/calendar').then(module => ({ default: module.Calendar })));
-const heroImage = heroAsset.url;
+const heroImage = heroImageLocal;
 
 type Suggestion = {
   id: string;
