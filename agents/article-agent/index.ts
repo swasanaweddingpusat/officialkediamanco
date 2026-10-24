@@ -115,32 +115,47 @@ async function listDriveImages(): Promise<DriveFile[]> {
   log(`Folder Drive ditemukan: "${info.name}"`);
   const files: DriveFile[] = [];
   const walk = async (folderId: string, path: string, depth: number) => {
+    if (Date.now() > deadline || folders >= MAX_FOLDERS || files.length >= MAX_FILES) return;
+    folders++;
     let pageToken = "";
+    const sub: Promise<void>[] = [];
     do {
       const url = new URL("https://www.googleapis.com/drive/v3/files");
-      url.searchParams.set("q", `'${folderId}' in parents and trashed = false`);
+      url.searchParams.set("q", `'${folderId}' in parents and trashed = false and (mimeType = 'application/vnd.google-apps.folder' or mimeType contains 'image/')`);
       url.searchParams.set("fields", "nextPageToken, files(id, name, mimeType)");
       url.searchParams.set("pageSize", "1000");
       url.searchParams.set("supportsAllDrives", "true");
       url.searchParams.set("includeItemsFromAllDrives", "true");
       url.searchParams.set("key", key);
       if (pageToken) url.searchParams.set("pageToken", pageToken);
-      const res = await fetch(url);
+      const res = await limit(() => fetch(url, { signal: AbortSignal.timeout(15000) }));
       if (!res.ok) throw new Error(`Drive HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
       const body = await res.json() as { nextPageToken?: string; files: { id: string; name: string; mimeType: string }[] };
       for (const f of body.files) {
-        if (f.mimeType === "application/vnd.google-apps.folder" && depth < 3) await walk(f.id, `${path}${f.name}/`, depth + 1);
-        else if (f.mimeType.startsWith("image/")) files.push({ ...f, path: `${path}${f.name}` });
+        if (f.mimeType === "application/vnd.google-apps.folder") {
+          if (depth < 4) sub.push(walk(f.id, `${path}${f.name}/`, depth + 1).catch((e) => log(`Lewati folder ${path}${f.name}:`, e?.message)));
+        } else if (f.mimeType.startsWith("image/")) files.push({ ...f, path: `${path}${f.name}` });
       }
       pageToken = body.nextPageToken ?? "";
-    } while (pageToken);
+    } while (pageToken && Date.now() < deadline);
+    await Promise.all(sub);
+  };
+  // Folder besar: telusuri subfolder paralel (maks 8 request bersamaan) dengan batas waktu & jumlah.
+  const MAX_FOLDERS = 400, MAX_FILES = 5000, deadline = Date.now() + 90_000;
+  let folders = 0, active = 0;
+  const queue: (() => void)[] = [];
+  const limit = async <T>(fn: () => Promise<T>): Promise<T> => {
+    if (active >= 8) await new Promise<void>((r) => queue.push(r));
+    active++;
+    try { return await fn(); } finally { active--; queue.shift()?.(); }
   };
   await walk(folder, "", 0);
+  log(`Drive ditelusuri: ${folders} folder, ${files.length} gambar${Date.now() > deadline ? " (batas waktu tercapai)" : ""}`);
   return files;
 }
 
 async function downloadDrive(file: DriveFile): Promise<Uint8Array> {
-  const res = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${env.GOOGLE_API_KEY}&supportsAllDrives=true`);
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${env.GOOGLE_API_KEY?.trim()}&supportsAllDrives=true`);
   if (!res.ok) throw new Error(`Drive download HTTP ${res.status}`);
   return new Uint8Array(await res.arrayBuffer());
 }
@@ -210,7 +225,12 @@ async function writeArticle(keyword: string, venues: Venue[], titles: string[], 
   const venueLines = venues.map((v) =>
     `- ${v.name}${v.is_coming_soon ? " (segera hadir)" : ""} | area: ${v.category ?? "-"} | alamat: ${v.address ?? "-"} | kapasitas ballroom: ${v.ballroom_layout_capacity ?? "-"} | link: ${SITE_URL}/lokasi/${v.slug || v.id}`,
   ).join("\n");
-  const driveLines = driveFiles.slice(0, 400).map((f) => `${f.id} | ${f.path}`).join("\n");
+  // Stok besar: kirim 400 file paling relevan (cocok keyword/venue di nama folder/file), sisanya acak.
+  const terms = [...keyword.split(/\s+/), "wedding", "ballroom", "venue", "resepsi", "dekor", "pernikahan", ...venues.map((v) => v.name)]
+    .map((t) => t.toLowerCase()).filter((t) => t.length > 2);
+  const score = (f: DriveFile) => terms.reduce((s, t) => s + (f.path.toLowerCase().includes(t) ? 1 : 0), 0) + Math.random() * 0.5;
+  const driveLines = driveFiles.map((f) => [f, score(f)] as const).sort((a, b) => b[1] - a[1]).slice(0, 400)
+    .map(([f]) => `${f.id} | ${f.path}`).join("\n");
   const system = `Anda penulis konten SEO senior untuk Kediaman Corp (${SITE_URL}), operator venue dan ballroom pernikahan & acara di Indonesia.
 Tulis dalam Bahasa Indonesia yang hangat, profesional, dan mudah dibaca.
 
@@ -311,7 +331,7 @@ async function run() {
     const body = credit ? `${content}\n<p><em>${credit}</em></p>` : content;
 
     if (DRY_RUN) {
-      log("DRY RUN judul:", draft.title, "| slug:", slug, "| gambar:", imageSource, imageRef, "| kata:", content.replace(/<[^>]*>/g, " ").split(/\s+/).length);
+      log("DRY RUN judul:", draft.title, "| slug:", slug, "| gambar:", imageSource, imageRef, driveFile ? `(${driveFile.path})` : "", "| kata:", content.replace(/<[^>]*>/g, " ").split(/\s+/).length);
       return;
     }
     const featured = imageBytes ? await storeImage(imageBytes, s3) : null;
