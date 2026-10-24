@@ -221,21 +221,22 @@ ${titles.slice(0, 120).map((t) => `- ${t}`).join("\n") || "(belum ada)"}
 Stok gambar Google Drive (format: id | folder/nama file). Pilih satu yang paling relevan dengan isi artikel berdasarkan nama folder/file; kosongkan bila tidak ada yang jelas cocok:
 ${driveLines || "(tidak ada stok gambar Drive)"}
 
-Tulis artikelnya, lalu panggil tool submit_article.`;
+Tulis artikelnya, lalu WAJIB kirim hasilnya dengan memanggil tool submit_article (jangan menulis artikel di luar tool).`;
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "x-api-key": env.ANTHROPIC_API_KEY!, "anthropic-version": "2023-06-01", "content-type": "application/json" },
     body: JSON.stringify({
-      model: MODEL, max_tokens: 8000, system,
-      tools: [ARTICLE_TOOL], tool_choice: { type: "tool", name: "submit_article" },
+      model: MODEL, max_tokens: 16000, system,
+      // Beberapa model tidak mendukung tool_choice paksa; pakai "auto" + instruksi eksplisit.
+      tools: [ARTICLE_TOOL], tool_choice: { type: "auto" },
       messages: [{ role: "user", content: user }],
     }),
   });
   if (!res.ok) throw new Error(`Claude API HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const body = await res.json() as { content: { type: string; name?: string; input?: Draft }[] };
   const call = body.content.find((c) => c.type === "tool_use" && c.name === "submit_article");
-  if (!call?.input) throw new Error("Claude tidak mengembalikan artikel");
+  if (!call?.input) throw new Error(`Claude tidak memanggil submit_article (stop: ${(body as any).stop_reason ?? "?"})`);
   return call.input;
 }
 
