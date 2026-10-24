@@ -52,6 +52,11 @@
 		zstd
 	}
 
+	# Sitemap dinamis dari backend: artikel baru (agen artikel) langsung masuk tanpa deploy ulang.
+	reverse_proxy /sitemap.xml https://kediaman-api-production.up.railway.app {
+		header_up Host {upstream_hostport}
+	}
+
 	# Rute SPA diarahkan ke index.html, tetapi file /assets/ yang tidak ada tetap 404
 	# (supaya index.html tidak ikut ter-cache 1 tahun sebagai file JS/CSS).
 	route {
