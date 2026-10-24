@@ -17,8 +17,7 @@ function firstPaintResources(): Plugin {
   return {
     name: 'first-paint-resources',
     transformIndexHtml(html: string) {
-      // Di Railway font dimuat dari Google Fonts (link di index.html dipertahankan), karena
-      // font self-host Lovable berada di CDN /__l5e/ yang hanya ada di hosting Lovable.
+      // Font self-host ada di public/fonts (preload di index.html).
       const fontHints = '';
       const apiUrl = buildEnv('VITE_API_URL').replace(/\/$/, '');
       const minioPrefix = `${buildEnv('VITE_STORAGE_PUBLIC_URL').replace(/\/$/, '')}/gym-images/`;
