@@ -237,6 +237,23 @@ export function homeBootHero(slide: Record<string, unknown> | undefined, apiUrl:
     `<script>if(location.pathname!=="/"){var b=document.getElementById("boot-hero");if(b)b.remove();}</script>`;
 }
 
+// On the home page the hero is already painted from HTML, so the app bundle can wait until
+// the page (hero photo included) has loaded. This keeps the first paint and LCP free of the
+// JavaScript download on slow phones; the bundle is fetched right after.
+export function deferAppScript(html: string): string {
+  const entry = html.match(/<script type="module" crossorigin src="([^"]+)"><\/script>/);
+  if (!entry) return html;
+  const loader = `<script>(function(){var done=false;function go(){if(done)return;done=true;` +
+    `var s=document.createElement("script");s.type="module";s.crossOrigin="anonymous";s.src=${JSON.stringify(entry[1])};` +
+    `document.head.appendChild(s);}` +
+    `if(document.readyState==="complete")setTimeout(go,0);else{addEventListener("load",function(){setTimeout(go,0)});}` +
+    `setTimeout(go,3000);})();</script>`;
+  return html
+    .replace(entry[0], "")
+    .replace(/<link rel="modulepreload" crossorigin href="[^"]+">\s*/g, "")
+    .replace("</body>", `${loader}\n</body>`);
+}
+
 async function main() {
   const distIndex = resolve("dist/index.html");
   if (!existsSync(distIndex)) {
@@ -266,7 +283,10 @@ async function main() {
   const slides = existsSync(snapshotPath) ? JSON.parse(readFileSync(snapshotPath, "utf8")) as Record<string, unknown>[] : [];
   const firstSlide = slides.find((slide) => slide.is_active !== false);
   const bootHero = homeBootHero(firstSlide, apiUrl, readEnv("VITE_STORAGE_PUBLIC_URL"));
-  if (bootHero) home = home.replace('<div id="root"></div>', `<div id="root"></div>${bootHero}`);
+  if (bootHero) {
+    home = home.replace('<div id="root"></div>', `<div id="root"></div>${bootHero}`);
+    home = deferAppScript(home);
+  }
   writeFileSync(distIndex, home);
   console.log(`prerender: boot hero ${bootHero ? "added" : "skipped"}`);
 
