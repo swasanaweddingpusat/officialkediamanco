@@ -127,10 +127,25 @@ type Couple = {
   vendors: Record<string, string>; links: string[];
 };
 
+/** fetch ke Google dengan retry untuk batas laju (403 rateLimit / 429 / 5xx). */
+async function gfetch(url: string, timeout: number): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(url, { signal: AbortSignal.timeout(timeout) });
+    if (res.ok || attempt >= 4) return res;
+    const body = await res.clone().text();
+    const limited = res.status === 429 || res.status >= 500 || (res.status === 403 && /rate ?limit|quota|userRateLimit|automated/i.test(body));
+    if (!limited) return res;
+    await Bun.sleep(2000 * 2 ** attempt);
+  }
+}
+
 async function driveJson(path: string): Promise<any> {
   const sep = path.includes("?") ? "&" : "?";
-  const res = await fetch(`https://www.googleapis.com/drive/v3/${path}${sep}supportsAllDrives=true&key=${KEY}`, { signal: AbortSignal.timeout(20000) });
-  if (!res.ok) { const e: any = new Error(`Drive HTTP ${res.status}`); e.status = res.status; throw e; }
+  const res = await gfetch(`https://www.googleapis.com/drive/v3/${path}${sep}supportsAllDrives=true&key=${KEY}`, 20000);
+  if (!res.ok) {
+    const detail = (await res.text()).replace(/\s+/g, " ").match(/"message": ?"([^"]+)"/)?.[1] ?? "";
+    const e: any = new Error(`Drive HTTP ${res.status}${detail ? ` (${detail.slice(0, 160)})` : ""}`); e.status = res.status; throw e;
+  }
   return res.json();
 }
 
@@ -139,8 +154,8 @@ async function loadWorkbook(id: string): Promise<{ name: string; wb: XLSX.WorkBo
   const url = meta.mimeType === "application/vnd.google-apps.spreadsheet"
     ? `https://www.googleapis.com/drive/v3/files/${id}/export?mimeType=${encodeURIComponent("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}&key=${KEY}`
     : `https://www.googleapis.com/drive/v3/files/${id}?alt=media&supportsAllDrives=true&key=${KEY}`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(60000) });
-  if (!res.ok) throw new Error(`Sheet "${meta.name}" HTTP ${res.status}`);
+  const res = await gfetch(url, 60000);
+  if (!res.ok) throw new Error(`Sheet "${meta.name}" HTTP ${res.status}: ${(await res.text()).replace(/\s+/g, " ").slice(0, 160)}`);
   return { name: meta.name, wb: XLSX.read(new Uint8Array(await res.arrayBuffer()), { type: "array" }) };
 }
 
@@ -284,7 +299,7 @@ export function pickSpread(imgs: Img[], n: number): Img[] {
 }
 
 async function downloadImage(id: string): Promise<Uint8Array> {
-  const res = await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media&supportsAllDrives=true&key=${KEY}`, { signal: AbortSignal.timeout(90000) });
+  const res = await gfetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media&supportsAllDrives=true&key=${KEY}`, 90000);
   if (!res.ok) throw new Error(`Unduh foto HTTP ${res.status}`);
   return new Uint8Array(await res.arrayBuffer());
 }
