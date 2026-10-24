@@ -506,7 +506,7 @@ async function run() {
       const [row] = await sql`
         INSERT INTO trainers (name, specialization, bio, photo_url, images, location_id, is_active, sort_order)
         VALUES (${c.name}, ${specialization}, ${bio}, ${urls[0]},
-                ARRAY(SELECT jsonb_array_elements_text(${JSON.stringify(urls.slice(1))}::text::jsonb)),
+                ${JSON.stringify(urls.slice(1))}::text::jsonb,
                 ${loc?.id ?? null}, ${PUBLISH}, (SELECT COALESCE(max(sort_order), 0) + 1 FROM trainers))
         RETURNING id, slug`;
       await mark("published", null, row.id);
