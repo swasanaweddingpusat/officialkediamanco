@@ -4,6 +4,15 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { existsSync, readFileSync } from "node:fs";
 
+// Variabel VITE_* dari environment build (Railway) atau dari file .env.
+function buildEnv(name: string): string {
+  if (process.env[name]) return process.env[name] as string;
+  const envPath = path.resolve(__dirname, '.env');
+  if (!existsSync(envPath)) return '';
+  const line = readFileSync(envPath, 'utf8').split(/\r?\n/).find(l => l.trim().startsWith(`${name}=`));
+  return line ? line.slice(line.indexOf('=') + 1).trim().replace(/^['"]|['"]$/g, '') : '';
+}
+
 function firstPaintResources(): Plugin {
   return {
     name: 'first-paint-resources',
@@ -11,7 +20,9 @@ function firstPaintResources(): Plugin {
       // Di Railway font dimuat dari Google Fonts (link di index.html dipertahankan), karena
       // font self-host Lovable berada di CDN /__l5e/ yang hanya ada di hosting Lovable.
       const fontHints = '';
-      const apiOrigin = process.env.VITE_API_URL || process.env.VITE_SUPABASE_URL;
+      const apiUrl = buildEnv('VITE_API_URL').replace(/\/$/, '');
+      const minioPrefix = `${buildEnv('VITE_STORAGE_PUBLIC_URL').replace(/\/$/, '')}/gym-images/`;
+      const apiOrigin = apiUrl || process.env.VITE_SUPABASE_URL;
       const apiHint = apiOrigin ? `<link rel="preconnect" href="${new URL(apiOrigin).origin}" crossorigin />` : '';
       html = html.replace('<head>', `<head>${fontHints}${apiHint}`);
       const snapshotPath = path.resolve(__dirname, 'src/generated/hero-slides.json');
@@ -22,11 +33,15 @@ function firstPaintResources(): Plugin {
       const imageUrl = new URL(src);
       const cachedPath = path.resolve(__dirname, 'src/generated/public-image-preloads.json');
       const cached = existsSync(cachedPath) ? JSON.parse(readFileSync(cachedPath, 'utf8'))[src] : undefined;
-      // Railway/MinIO tidak punya transformasi gambar; pakai rendition yang sudah di-cache saja.
-      if (!cached && !imageUrl.pathname.startsWith('/storage/v1/object/public/')) return html;
+      // Railway: foto di MinIO dikecilkan oleh backend (/img). URL harus sama persis dengan
+      // yang dibuat cmsImageUrl/cmsImageSrcSet (q=75) supaya preload terpakai.
+      const railway = apiUrl && minioPrefix !== '/gym-images/' && src.startsWith(minioPrefix) && !/\.(svg|gif)$/i.test(src)
+        ? src.slice(minioPrefix.length) : undefined;
+      if (!cached && !railway && !imageUrl.pathname.startsWith('/storage/v1/object/public/')) return html;
       imageUrl.pathname = imageUrl.pathname.replace('/object/public/', '/render/image/public/');
       const rendition = (width: number) => {
         if (cached?.[width]) return cached[width];
+        if (railway) return `${apiUrl}/img/${railway}?w=${width}&q=75`;
         const url = new URL(imageUrl);
         url.searchParams.set('width', String(width));
         url.searchParams.set('quality', '75');

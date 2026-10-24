@@ -1,5 +1,15 @@
 import { publicImageRenditions } from '@/generated/public-image-renditions';
 const storageOrigin = import.meta.env.VITE_SUPABASE_URL;
+// Railway: gambar di MinIO dikecilkan oleh backend (GET /img/<path>?w=&q=) menjadi WebP.
+const apiUrl = String(import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
+const minioPrefix = `${String(import.meta.env.VITE_STORAGE_PUBLIC_URL ?? '').replace(/\/$/, '')}/gym-images/`;
+
+function railwayImageUrl(src: string, width: number, quality: number): string | undefined {
+  if (!apiUrl || minioPrefix === '/gym-images/' || !src.startsWith(minioPrefix)) return undefined;
+  const key = src.slice(minioPrefix.length).split('?')[0];
+  if (!key || /\.(svg|gif)$/i.test(key)) return undefined;
+  return `${apiUrl}/img/${key}?w=${width}&q=${quality}`;
+}
 
 export function cachedImageUrl(renditions: Record<number, string> | undefined, width: number): string | undefined {
   if (!renditions) return undefined;
@@ -12,6 +22,8 @@ export function cachedImageUrl(renditions: Record<number, string> | undefined, w
 export function cmsImageUrl(src: string, width: number, quality = 75): string {
   const cached = cachedImageUrl(publicImageRenditions[src], width);
   if (cached) return cached;
+  const railway = railwayImageUrl(src, width, quality);
+  if (railway) return railway;
   try {
     const url = new URL(src);
     if (url.origin !== storageOrigin || !url.pathname.startsWith('/storage/v1/object/public/') || /\.svg$/i.test(url.pathname)) return src;
