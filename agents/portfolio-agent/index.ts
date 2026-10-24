@@ -68,6 +68,17 @@ export function coupleName(s: string): string {
     .toLowerCase().replace(/(^|[\s'\-&])(\p{L})/gu, (_, p, c) => p + c.toUpperCase());
 }
 
+/** Nama depan kedua mempelai, mis. "Rani Putri & Yuda" -> ["rani", "yuda"]. */
+export function partners(name: string): string[] {
+  return coupleName(name).split(" & ").map((p) => norm(p).split(" ")[0]).filter(Boolean);
+}
+
+/** Sudah ada di website bila nama depan KEDUA mempelai muncul di nama portfolio mana pun (urutan & format bebas). */
+export function alreadyOnWeb(pair: string[], existing: Set<string>[]): boolean {
+  if (pair.length < 2) return existing.some((t) => pair.every((p) => t.has(p)));
+  return existing.some((t) => t.has(pair[0]) && t.has(pair[1]));
+}
+
 const MONTHS: Record<string, number> = {
   jan: 1, januari: 1, january: 1, feb: 2, februari: 2, february: 2, mar: 3, maret: 3, march: 3, apr: 4, april: 4,
   mei: 5, may: 5, jun: 6, juni: 6, june: 6, jul: 7, juli: 7, july: 7, agu: 8, agt: 8, ags: 8, agustus: 8, aug: 8, august: 8,
@@ -363,11 +374,12 @@ async function run() {
       venue text, status text NOT NULL, reason text, trainer_id uuid,
       created_at timestamptz NOT NULL DEFAULT now())`;
     const locations = await sql`SELECT id, name FROM locations ORDER BY sort_order` as Location[];
-    const existing = new Set((await sql`SELECT name FROM trainers`).map((r: any) => norm(coupleName(r.name))));
+    const existingNames = (await sql`SELECT name FROM trainers`).map((r: any) => String(r.name ?? ""));
+    const existing = existingNames.map((n) => new Set(norm(n).split(" ").filter(Boolean)));
     const categories = (await sql`SELECT DISTINCT specialization FROM trainers WHERE specialization IS NOT NULL AND is_active`).map((r: any) => r.specialization as string).slice(0, 30);
     const done = new Set((await sql`SELECT key FROM portfolio_agent_rows`).map((r: any) => r.key as string));
     const perVenue = new Map((await sql`SELECT venue, count(*)::int AS n FROM portfolio_agent_rows WHERE status = 'published' GROUP BY venue`).map((r: any) => [r.venue, r.n]));
-    log(`Mode: ${PUBLISH ? "tayang" : "nonaktif"}${DRY_RUN ? ", DRY RUN" : ""} | portfolio di DB: ${existing.size} | kategori: ${categories.join(", ")}`);
+    log(`Mode: ${PUBLISH ? "tayang" : "nonaktif"}${DRY_RUN ? ", DRY RUN" : ""} | portfolio di DB: ${existing.length} | kategori: ${categories.join(", ")}`);
 
     // 1. baca semua sheet
     const sheets = parseSheetList(env.PORTFOLIO_SHEETS || DEFAULT_SHEETS);
@@ -386,12 +398,17 @@ async function run() {
     // 2. kandidat: ada link Drive, belum pernah diproses, tidak duplikat portfolio yang sudah ada, acara sudah lewat
     const today = new Date().toISOString().slice(0, 10);
     const seen = new Set<string>();
+    let dupWeb = 0;
     const candidates = all.filter((c) => {
-      const dup = `${norm(c.name)}|${c.date ?? ""}`;
-      if (seen.has(dup)) return false;
+      const pair = partners(c.name);
+      const dup = `${[...pair].sort().join("&")}|${c.date ?? ""}`;
+      if (seen.has(dup)) return false; // pasangan sama muncul di beberapa sheet/tab
       seen.add(dup);
-      return driveRefs(c.links).length && !done.has(c.key) && !existing.has(norm(c.name)) && (!c.date || c.date <= today);
+      if (!driveRefs(c.links).length || done.has(c.key) || (c.date && c.date > today)) return false;
+      if (alreadyOnWeb(pair, existing)) { dupWeb++; return false; }
+      return true;
     });
+    log(`Dilewati karena sudah ada di website: ${dupWeb} | contoh nama portfolio yang ada: ${existingNames.slice(0, 12).join(" | ")}`);
     const byVenue = new Map<string, number>();
     for (const c of candidates) byVenue.set(c.venue, (byVenue.get(c.venue) ?? 0) + 1);
     log(`Kandidat siap posting: ${candidates.length} (${[...byVenue].map(([v, n]) => `${v}: ${n}`).join(", ")})`);
@@ -461,6 +478,9 @@ async function run() {
         posted++;
         continue;
       }
+      // cek ulang tepat sebelum simpan, untuk jaga-jaga ada yang baru ditambah lewat CMS
+      const fresh = (await sql`SELECT name FROM trainers`).map((r: any) => new Set(norm(String(r.name ?? "")).split(" ").filter(Boolean)));
+      if (alreadyOnWeb(partners(c.name), fresh)) { log(`Lewati ${label}: sudah ada di website`); await mark("skipped", "sudah ada di website"); continue; }
       const slugBase = norm(c.name).replace(/ /g, "-") || "portfolio";
       const urls: string[] = [];
       for (const [n, i] of order.entries()) {
