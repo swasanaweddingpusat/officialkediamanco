@@ -34,7 +34,10 @@
 	@hashed path /assets/*
 	header @hashed Cache-Control "public, max-age=31536000, immutable"
 
-	@static path *.png *.jpg *.jpeg *.webp *.avif *.svg *.ico *.woff2 *.woff
+	@static {
+		path *.png *.jpg *.jpeg *.webp *.avif *.svg *.ico *.woff2 *.woff
+		not path /img/*
+	}
 	header @static Cache-Control "public, max-age=2592000"
 
 	# HTML/rute SPA: browser selalu cek ulang (max-age=0), CDN boleh menyimpan 10 menit
@@ -53,6 +56,11 @@
 		zstd
 	}
 
+	# Foto responsif dari backend, lewat domain ini supaya ikut cache CDN (header immutable dari backend).
+	reverse_proxy /img/* https://kediaman-api-production.up.railway.app {
+		header_up Host {upstream_hostport}
+	}
+
 	# Sitemap dinamis dari backend: artikel baru (agen artikel) langsung masuk tanpa deploy ulang.
 	reverse_proxy /sitemap.xml https://kediaman-api-production.up.railway.app {
 		header_up Host {upstream_hostport}
@@ -63,7 +71,7 @@
 	route {
 		try_files {path} {path}.html {path}/index.html
 		@spa {
-			not path /assets/*
+			not path /assets/* /img/* /sitemap.xml
 			not file
 		}
 		rewrite @spa /index.html

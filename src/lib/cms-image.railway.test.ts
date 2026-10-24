@@ -6,9 +6,9 @@ const { cmsImageUrl, cmsImageSrcSet } = await import('./cms-image');
 
 describe('CMS image delivery on Railway', () => {
   it('serves MinIO images through the resize endpoint', () => {
-    expect(cmsImageUrl('https://bucket.example/gym-images/hero/a.jpg', 640)).toBe('https://api.example/img/hero/a.jpg?w=640&q=75');
+    expect(cmsImageUrl('https://bucket.example/gym-images/hero/a.jpg', 640)).toBe('/img/hero/a.jpg?w=640&q=75');
     expect(cmsImageSrcSet('https://bucket.example/gym-images/hero/a.jpg', [320, 960])).toBe(
-      'https://api.example/img/hero/a.jpg?w=320&q=75 320w, https://api.example/img/hero/a.jpg?w=960&q=75 960w',
+      '/img/hero/a.jpg?w=320&q=75 320w, /img/hero/a.jpg?w=960&q=75 960w',
     );
   });
   it('leaves vector images and other hosts untouched', () => {

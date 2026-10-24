@@ -41,7 +41,7 @@ function firstPaintResources(): Plugin {
       imageUrl.pathname = imageUrl.pathname.replace('/object/public/', '/render/image/public/');
       const rendition = (width: number) => {
         if (cached?.[width]) return cached[width];
-        if (railway) return `${apiUrl}/img/${railway}?w=${width}&q=75`;
+        if (railway) return `/img/${railway}?w=${width}&q=75`;
         const url = new URL(imageUrl);
         url.searchParams.set('width', String(width));
         url.searchParams.set('quality', '75');

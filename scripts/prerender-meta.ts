@@ -222,7 +222,7 @@ export function homeBootHero(slide: Record<string, unknown> | undefined, apiUrl:
   const prefix = `${storageUrl.replace(/\/$/, "")}/gym-images/`;
   if (!slide || !src || !apiUrl || !storageUrl || !src.startsWith(prefix)) return "";
   const key = src.slice(prefix.length);
-  const rendition = (w: number) => `${apiUrl}/img/${key}?w=${w}&q=75`;
+  const rendition = (w: number) => `/img/${key}?w=${w}&q=75`;
   const srcset = [320, 640, 960, 1440, 1920].map((w) => `${rendition(w)} ${w}w`).join(", ");
   const title = escapeHtml(plain(slide.title, 140) || "Temukan Ruang Untuk Hari Bahagia Anda");
   const description = escapeHtml(plain(slide.description, 200) || "Venue pernikahan dan acara untuk momen yang tak terlupakan.");
