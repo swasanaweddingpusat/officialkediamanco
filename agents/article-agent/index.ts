@@ -98,9 +98,21 @@ export function pickKeyword(usage: { keyword: string; n: number; last: string | 
 // ------------------------------------------------------------------ Google Drive
 type DriveFile = { id: string; name: string; path: string; mimeType: string };
 
+/** Terima ID folder maupun link lengkap Google Drive (…/folders/<id>?usp=sharing, ?id=<id>). */
+export function driveFolderId(value: string | undefined): string {
+  const v = String(value ?? "").trim();
+  return v.match(/\/folders\/([\w-]{10,})/)?.[1] ?? v.match(/[?&]id=([\w-]{10,})/)?.[1] ?? v.replace(/[^\w-]/g, "");
+}
+
 async function listDriveImages(): Promise<DriveFile[]> {
-  const folder = env.GDRIVE_FOLDER_ID, key = env.GOOGLE_API_KEY;
+  const folder = driveFolderId(env.GDRIVE_FOLDER_ID), key = env.GOOGLE_API_KEY?.trim();
   if (!folder || !key) return [];
+  log(`Folder Drive: ${folder.slice(0, 4)}…${folder.slice(-4)} (${folder.length} karakter)`);
+  const meta = await fetch(`https://www.googleapis.com/drive/v3/files/${folder}?fields=id,name,mimeType&supportsAllDrives=true&key=${key}`);
+  if (!meta.ok) throw new Error(`Folder tidak bisa diakses (HTTP ${meta.status}). Pastikan ID benar dan folder dibagikan "Siapa saja yang memiliki link".`);
+  const info = await meta.json() as { name: string; mimeType: string };
+  if (info.mimeType !== "application/vnd.google-apps.folder") throw new Error(`ID tersebut bukan folder (${info.mimeType}).`);
+  log(`Folder Drive ditemukan: "${info.name}"`);
   const files: DriveFile[] = [];
   const walk = async (folderId: string, path: string, depth: number) => {
     let pageToken = "";
