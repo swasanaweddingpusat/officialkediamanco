@@ -214,6 +214,29 @@ function readEnv(name: string): string {
   return line ? line.slice(line.indexOf("=") + 1).trim().replace(/^['"]|['"]$/g, "") : "";
 }
 
+// Static copy of the first hero slide, painted straight from the HTML so the hero photo
+// (the LCP element) does not wait for the JavaScript bundle. src/main.tsx removes it once
+// the React hero has loaded its image. Markup mirrors HeroWithSearch.tsx.
+export function homeBootHero(slide: Record<string, unknown> | undefined, apiUrl: string, storageUrl: string): string {
+  const src = typeof slide?.image_url === "string" ? slide.image_url : "";
+  const prefix = `${storageUrl.replace(/\/$/, "")}/gym-images/`;
+  if (!slide || !src || !apiUrl || !storageUrl || !src.startsWith(prefix)) return "";
+  const key = src.slice(prefix.length);
+  const rendition = (w: number) => `${apiUrl}/img/${key}?w=${w}&q=75`;
+  const srcset = [320, 640, 960, 1440, 1920].map((w) => `${rendition(w)} ${w}w`).join(", ");
+  const title = escapeHtml(plain(slide.title, 140) || "Temukan Ruang Untuk Hari Bahagia Anda");
+  const description = escapeHtml(plain(slide.description, 200) || "Venue pernikahan dan acara untuk momen yang tak terlupakan.");
+  return `<div id="boot-hero" class="editorial-site text-foreground" style="position:absolute;top:0;left:0;right:0;z-index:40" aria-hidden="true">` +
+    `<section class="editorial-hero relative flex items-center justify-center text-center px-5 sm:px-8 pt-32 pb-36">` +
+    `<div class="absolute inset-0 overflow-hidden"><img src="${escapeHtml(rendition(1920))}" srcset="${escapeHtml(srcset)}" sizes="100vw" fetchpriority="high" decoding="async" alt="" width="1920" height="1088" class="absolute inset-0 w-full h-full object-cover" /><div class="absolute inset-0 editorial-hero-overlay"></div></div>` +
+    `<div class="relative z-10 w-full max-w-5xl"><p class="text-xs text-foreground/80 mb-6">KEDIAMAN CORP</p>` +
+    `<div class="editorial-hero-title italic mb-8" style="font-family:'Playfair Display',serif">${title}</div>` +
+    `<p class="text-xs sm:text-sm font-light text-foreground/80 max-w-xl mx-auto mb-10 leading-relaxed">${description}</p></div>` +
+    `</section></div>` +
+    // dist/index.html is also the SPA fallback for other routes: only keep the copy on "/".
+    `<script>if(location.pathname!=="/"){var b=document.getElementById("boot-hero");if(b)b.remove();}</script>`;
+}
+
 async function main() {
   const distIndex = resolve("dist/index.html");
   if (!existsSync(distIndex)) {
@@ -232,13 +255,20 @@ async function main() {
 
   // Home page: same treatment so it also carries its canonical URL and crawlable navigation.
   const unescape = (v: string) => v.replaceAll("&quot;", '"').replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&");
-  writeFileSync(distIndex, renderPage(template, {
+  let home = renderPage(template, {
     path: "/",
     title: unescape(template.match(/<title>([\s\S]*?)<\/title>/)?.[1] ?? SITE_NAME),
     description: unescape(template.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? ""),
     heading: "Kediaman Corp — Venue & Ballroom Pernikahan",
     breadcrumbs: [HOME],
-  }));
+  });
+  const snapshotPath = resolve("src/generated/hero-slides.json");
+  const slides = existsSync(snapshotPath) ? JSON.parse(readFileSync(snapshotPath, "utf8")) as Record<string, unknown>[] : [];
+  const firstSlide = slides.find((slide) => slide.is_active !== false);
+  const bootHero = homeBootHero(firstSlide, apiUrl, readEnv("VITE_STORAGE_PUBLIC_URL"));
+  if (bootHero) home = home.replace('<div id="root"></div>', `<div id="root"></div>${bootHero}`);
+  writeFileSync(distIndex, home);
+  console.log(`prerender: boot hero ${bootHero ? "added" : "skipped"}`);
 
   console.log(`prerender: wrote ${pages.length + 1} pages`);
 }
