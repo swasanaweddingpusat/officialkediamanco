@@ -45,6 +45,25 @@ Brin Thamrin | 1BsQHYXVeaYyY7PKoWoLZqolLRLjKwJ5wSxS1Aoo_Wbg
 
 const log = (...a: unknown[]) => console.log("[portfolio-agent]", ...a);
 
+// ------------------------------------------------------------------ laporan Telegram
+// TELEGRAM_BOT_TOKEN (dari @BotFather) + TELEGRAM_CHAT_ID (boleh beberapa, pisahkan koma). Kosong = tidak kirim.
+const esc = (v: unknown) => String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+async function telegram(html: string, photo?: string | null): Promise<void> {
+  const token = env.TELEGRAM_BOT_TOKEN?.trim();
+  const chats = String(env.TELEGRAM_CHAT_ID ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  if (!token || !chats.length) return;
+  const api = (method: string, body: Record<string, unknown>) => fetch(`https://api.telegram.org/bot${token}/${method}`, {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(20000),
+  });
+  for (const chat_id of chats) {
+    try {
+      let res = photo && html.length <= 1024 ? await api("sendPhoto", { chat_id, photo, caption: html, parse_mode: "HTML" }) : null;
+      if (!res?.ok) res = await api("sendMessage", { chat_id, text: html.slice(0, 4096), parse_mode: "HTML", link_preview_options: { is_disabled: true } });
+      if (!res.ok) log(`Telegram gagal (${res.status}): ${(await res.text()).slice(0, 200)}`);
+    } catch (e: any) { log("Telegram gagal:", e?.message); }
+  }
+}
+
 // ------------------------------------------------------------------ util
 export function sheetId(value: string): string {
   const v = value.trim();
@@ -437,6 +456,7 @@ async function run() {
       String(b.date ?? "0").localeCompare(String(a.date ?? "0")));
 
     let posted = 0, attempts = 0;
+    const skipped: string[] = [];
     const budget = { calls: 400 };
     for (const c of candidates) {
       if (posted >= PER_RUN || attempts >= 8 || budget.calls <= 0) break;
@@ -461,6 +481,7 @@ async function run() {
       if (imgs.length < 4) {
         const reason = imgs.length ? `hanya ${imgs.length} foto` : accessError ? "folder Drive tidak bisa diakses publik" : "tidak ada foto di folder";
         log(`Lewati ${label}: ${reason}`);
+        skipped.push(`${c.name} (${c.venue}): ${reason}`);
         await mark("skipped", reason);
         continue;
       }
@@ -477,25 +498,26 @@ async function run() {
           files.push({ full, thumb });
         } catch (e: any) { log(`  foto ${p.path} gagal: ${e?.message}`); }
       }
-      if (files.length < 4) { log(`Lewati ${label}: foto gagal diunduh`); await mark("skipped", "foto gagal diunduh"); continue; }
+      if (files.length < 4) { log(`Lewati ${label}: foto gagal diunduh`); skipped.push(`${c.name} (${c.venue}): foto gagal diunduh`); await mark("skipped", "foto gagal diunduh"); continue; }
 
       const story = await writeStory(c, loc?.name ?? c.venue, files.map((f) => f.thumb), categories);
       const excluded = new Set((story.exclude_indexes ?? []).filter((i) => i !== story.cover_index));
       const order = [story.cover_index, ...files.map((_, i) => i).filter((i) => i !== story.cover_index)]
         .filter((i) => i >= 0 && i < files.length && !excluded.has(i));
-      if (order.length < 3) { log(`Lewati ${label}: foto layak kurang dari 3`); await mark("skipped", "foto layak kurang dari 3"); continue; }
+      if (order.length < 3) { log(`Lewati ${label}: foto layak kurang dari 3`); skipped.push(`${c.name} (${c.venue}): foto layak kurang dari 3`); await mark("skipped", "foto layak kurang dari 3"); continue; }
       const bio = story.bio.replace(/[*_#`]/g, "").replace(/\s+/g, " ").trim();
       const specialization = story.specialization.trim().slice(0, 40);
 
       if (DRY_RUN) {
         log(`DRY RUN ${c.name} | kategori: ${specialization} | sampul: foto ${story.cover_index} (${picked[story.cover_index]?.path}) | galeri ${order.length} foto | dibuang: ${[...excluded].join(",") || "-"}`);
         log(`DRY RUN cerita: ${bio}`);
+        await telegram(`🧪 <b>[Uji coba] Agen portfolio</b>\n${esc(c.name)} · ${esc(loc?.name ?? c.venue)} · ${order.length} foto\n\n${esc(bio)}`);
         posted++;
         continue;
       }
       // cek ulang tepat sebelum simpan, untuk jaga-jaga ada yang baru ditambah lewat CMS
       const fresh = (await sql`SELECT name FROM trainers`).map((r: any) => new Set(norm(String(r.name ?? "")).split(" ").filter(Boolean)));
-      if (alreadyOnWeb(partners(c.name), fresh)) { log(`Lewati ${label}: sudah ada di website`); await mark("skipped", "sudah ada di website"); continue; }
+      if (alreadyOnWeb(partners(c.name), fresh)) { log(`Lewati ${label}: sudah ada di website`); skipped.push(`${c.name} (${c.venue}): sudah ada di website`); await mark("skipped", "sudah ada di website"); continue; }
       const slugBase = norm(c.name).replace(/ /g, "-") || "portfolio";
       const urls: string[] = [];
       for (const [n, i] of order.entries()) {
@@ -512,11 +534,23 @@ async function run() {
       await mark("published", null, row.id);
       perVenue.set(c.venue, (perVenue.get(c.venue) ?? 0) + 1);
       log(`Selesai: ${c.name} -> ${SITE_URL}/portfolio/${row.slug ?? row.id} (${urls.length} foto, ${PUBLISH ? "tayang" : "nonaktif"})`);
+      const dateText = c.date ? new Date(`${c.date}T00:00:00Z`).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) : "-";
+      await telegram(
+        `💍 <b>Portfolio baru ${PUBLISH ? "tayang" : "tersimpan (nonaktif)"}</b>\n\n<b>${esc(c.name)}</b>\n📍 ${esc(loc?.name ?? c.venue)}\n📅 ${esc(dateText)}` +
+        `${c.concept ? ` · ${esc(c.concept)}` : ""}\n🖼 ${urls.length} foto · kategori ${esc(specialization)}\n📋 Sumber: sheet ${esc(c.venue)}, tab ${esc(c.tab)} baris ${c.row}\n` +
+        `⏳ Sisa antrean: ${Math.max(0, candidates.length - attempts)} pasangan\n\n${SITE_URL}/portfolio/${row.slug ?? row.id}`, urls[0]);
       posted++;
     }
-    if (!posted) log("Tidak ada portfolio yang diposting kali ini.");
+    if (!posted) {
+      log("Tidak ada portfolio yang diposting kali ini.");
+      await telegram(`ℹ️ <b>Agen portfolio: tidak ada yang diposting hari ini</b>\nKandidat tersisa: ${candidates.length}` +
+        (skipped.length ? `\n\nDilewati:\n${skipped.slice(0, 10).map((x) => `• ${esc(x)}`).join("\n")}` : ""));
+    } else if (skipped.length) {
+      await telegram(`ℹ️ Dilewati saat mencari kandidat:\n${skipped.slice(0, 10).map((x) => `• ${esc(x)}`).join("\n")}`);
+    }
   } catch (e: any) {
     log("GAGAL:", e?.message ?? e);
+    await telegram(`⚠️ <b>Agen portfolio gagal</b>\n<code>${esc(String(e?.message ?? e).slice(0, 500))}</code>`);
     process.exitCode = 1;
   } finally {
     await sql.close();

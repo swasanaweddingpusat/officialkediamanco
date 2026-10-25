@@ -32,6 +32,25 @@ const STORAGE_URL = (env.STORAGE_PUBLIC_URL || "https://bucket-jwta-production.u
 
 const log = (...a: unknown[]) => console.log("[article-agent]", ...a);
 
+// ------------------------------------------------------------------ laporan Telegram
+// TELEGRAM_BOT_TOKEN (dari @BotFather) + TELEGRAM_CHAT_ID (boleh beberapa, pisahkan koma). Kosong = tidak kirim.
+const esc = (v: unknown) => String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+async function telegram(html: string, photo?: string | null): Promise<void> {
+  const token = env.TELEGRAM_BOT_TOKEN?.trim();
+  const chats = String(env.TELEGRAM_CHAT_ID ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  if (!token || !chats.length) return;
+  const api = (method: string, body: Record<string, unknown>) => fetch(`https://api.telegram.org/bot${token}/${method}`, {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(20000),
+  });
+  for (const chat_id of chats) {
+    try {
+      let res = photo && html.length <= 1024 ? await api("sendPhoto", { chat_id, photo, caption: html, parse_mode: "HTML" }) : null;
+      if (!res?.ok) res = await api("sendMessage", { chat_id, text: html.slice(0, 4096), parse_mode: "HTML", link_preview_options: { is_disabled: true } });
+      if (!res.ok) log(`Telegram gagal (${res.status}): ${(await res.text()).slice(0, 200)}`);
+    } catch (e: any) { log("Telegram gagal:", e?.message); }
+  }
+}
+
 // ------------------------------------------------------------------ util
 export function slugify(text: string): string {
   return text.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "")
@@ -329,9 +348,11 @@ async function run() {
     const [{ n }] = await sql`SELECT count(*)::int AS n FROM articles WHERE slug = ${slug}`;
     if (n > 0) slug = `${slug}-${new Date().toISOString().slice(0, 10)}`;
     const body = credit ? `${content}\n<p><em>${credit}</em></p>` : content;
+    const words = content.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
 
     if (DRY_RUN) {
-      log("DRY RUN judul:", draft.title, "| slug:", slug, "| gambar:", imageSource, imageRef, driveFile ? `(${driveFile.path})` : "", "| kata:", content.replace(/<[^>]*>/g, " ").split(/\s+/).length);
+      log("DRY RUN judul:", draft.title, "| slug:", slug, "| gambar:", imageSource, imageRef, driveFile ? `(${driveFile.path})` : "", "| kata:", words);
+      await telegram(`🧪 <b>[Uji coba] Agen artikel</b>\n${esc(draft.title)}\nKeyword: ${esc(keyword)} · ${words} kata · gambar: ${esc(imageSource)}`);
       return;
     }
     const featured = imageBytes ? await storeImage(imageBytes, s3) : null;
@@ -346,8 +367,14 @@ async function run() {
     await sql`INSERT INTO article_agent_runs (keyword, article_id, image_source, image_ref, status)
               VALUES (${keyword}, ${article.id}, ${imageSource}, ${imageRef}, ${PUBLISH ? "published" : "draft"})`;
     log(`Selesai: "${draft.title}" -> ${SITE_URL}/artikel/${article.slug} (gambar: ${imageSource})`);
+    const src: Record<string, string> = { drive: "Google Drive", pexels: "Pexels", openverse: "Openverse", none: "tanpa gambar" };
+    await telegram(
+      `📰 <b>Artikel baru ${PUBLISH ? "tayang" : "tersimpan sebagai draft"}</b>\n\n<b>${esc(draft.title)}</b>\n${esc(draft.excerpt)}\n\n` +
+      `🔑 Keyword: ${esc(keyword)}\n📝 ${words} kata · ${draft.reading_time || 5} menit baca\n🖼 Gambar: ${esc(src[imageSource] ?? imageSource)}\n\n` +
+      `${SITE_URL}/artikel/${article.slug}`, featured);
   } catch (e: any) {
     log("GAGAL:", e?.message ?? e);
+    await telegram(`⚠️ <b>Agen artikel gagal</b>\nKeyword: ${esc(keyword || "-")}\n<code>${esc(String(e?.message ?? e).slice(0, 500))}</code>`);
     try { await sql`INSERT INTO article_agent_runs (keyword, status, error) VALUES (${keyword || "-"}, 'failed', ${String(e?.message ?? e).slice(0, 1000)})`; } catch { /* abaikan */ }
     process.exitCode = 1;
   } finally {
