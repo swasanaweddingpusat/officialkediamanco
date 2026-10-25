@@ -51,6 +51,29 @@ async function telegram(html: string, photo?: string | null): Promise<void> {
   }
 }
 
+
+// ------------------------------------------------------------------ laporan WhatsApp (Cloud API resmi Meta)
+// WHATSAPP_TOKEN (token permanen System User), WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_TO (mis. 62812xxx, boleh koma),
+// WHATSAPP_TEMPLATE (default laporan_konten), WHATSAPP_TEMPLATE_LANG (default id), WHATSAPP_API_VERSION (default v23.0).
+// Template utility berisi 4 variabel: {{1}} judul laporan, {{2}} subjek, {{3}} rincian, {{4}} link. Kosong = tidak kirim.
+const waText = (v: unknown, max = 900) => String(v ?? "").replace(/[\r\n\t]+/g, " · ").replace(/ {4,}/g, "   ").trim().slice(0, max) || "-";
+async function whatsapp(title: string, subject: string, details: string, link: string): Promise<void> {
+  const token = env.WHATSAPP_TOKEN?.trim(), phoneId = env.WHATSAPP_PHONE_NUMBER_ID?.trim();
+  const to = String(env.WHATSAPP_TO ?? "").split(",").map((s) => s.replace(/\D/g, "").replace(/^0/, "62")).filter(Boolean);
+  if (!token || !phoneId || !to.length) return;
+  const url = `https://graph.facebook.com/${env.WHATSAPP_API_VERSION || "v23.0"}/${phoneId}/messages`;
+  const parameters = [title, subject, details, link].map((t) => ({ type: "text", text: waText(t) }));
+  for (const n of to) {
+    try {
+      const res = await fetch(url, {
+        method: "POST", headers: { authorization: `Bearer ${token}`, "content-type": "application/json" }, signal: AbortSignal.timeout(20000),
+        body: JSON.stringify({ messaging_product: "whatsapp", to: n, type: "template",
+          template: { name: env.WHATSAPP_TEMPLATE || "laporan_konten", language: { code: env.WHATSAPP_TEMPLATE_LANG || "id" }, components: [{ type: "body", parameters }] } }),
+      });
+      if (!res.ok) log(`WhatsApp gagal (${res.status}): ${(await res.text()).slice(0, 300)}`);
+    } catch (e: any) { log("WhatsApp gagal:", e?.message); }
+  }
+}
 // ------------------------------------------------------------------ util
 export function slugify(text: string): string {
   return text.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "")
@@ -372,9 +395,12 @@ async function run() {
       `📰 <b>Artikel baru ${PUBLISH ? "tayang" : "tersimpan sebagai draft"}</b>\n\n<b>${esc(draft.title)}</b>\n${esc(draft.excerpt)}\n\n` +
       `🔑 Keyword: ${esc(keyword)}\n📝 ${words} kata · ${draft.reading_time || 5} menit baca\n🖼 Gambar: ${esc(src[imageSource] ?? imageSource)}\n\n` +
       `${SITE_URL}/artikel/${article.slug}`, featured);
+    await whatsapp(`Artikel baru ${PUBLISH ? "tayang" : "tersimpan sebagai draft"}`, draft.title,
+      `Keyword: ${keyword} · ${words} kata · gambar: ${src[imageSource] ?? imageSource}`, `${SITE_URL}/artikel/${article.slug}`);
   } catch (e: any) {
     log("GAGAL:", e?.message ?? e);
     await telegram(`⚠️ <b>Agen artikel gagal</b>\nKeyword: ${esc(keyword || "-")}\n<code>${esc(String(e?.message ?? e).slice(0, 500))}</code>`);
+    await whatsapp("Agen artikel gagal", `Keyword: ${keyword || "-"}`, String(e?.message ?? e).slice(0, 500), SITE_URL);
     try { await sql`INSERT INTO article_agent_runs (keyword, status, error) VALUES (${keyword || "-"}, 'failed', ${String(e?.message ?? e).slice(0, 1000)})`; } catch { /* abaikan */ }
     process.exitCode = 1;
   } finally {
