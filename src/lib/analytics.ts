@@ -7,6 +7,10 @@
 // - Script dimuat setelah interaksi pertama atau saat browser idle (maks. ~4 detik setelah load),
 //   supaya tidak menambah beban render awal (PageSpeed). Event sebelum itu antre di dataLayer.
 // - Halaman admin/login tidak dilacak supaya aktivitas staf tidak tercatat.
+// - Snippet GTM resmi (GTM-5GMWFZ55) dipasang statis di index.html atas permintaan pemilik situs.
+//   Selama GA4 belum dikonfigurasi di dalam GTM, GA4 tetap dimuat langsung lewat VITE_GA4_ID.
+//   Setelah tag GA4 di GTM dipublish: hapus VITE_GA4_ID dan set VITE_GTM_ID di Railway,
+//   supaya page view tidak tercatat dua kali.
 // - Page view SPA ditangani GA4 lewat "Enhanced measurement → Page changes based on browser
 //   history events" (aktif secara default), jadi tidak ada page_view manual di sini.
 
@@ -55,6 +59,8 @@ function load(): void {
   if (loaded || !ENABLED || isPrivatePath(location.pathname)) return;
   loaded = true;
   if (GTM_ID) {
+    // index.html sudah memuat snippet GTM resmi di <head>; jangan muat dua kali.
+    if (document.querySelector(`script[src*="gtm.js?id=${GTM_ID}"]`)) return;
     dataLayer().push({ "gtm.start": Date.now(), event: "gtm.js" });
     addScript(`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(GTM_ID)}`);
   } else {
