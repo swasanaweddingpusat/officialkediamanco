@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
+import { track } from '@/lib/analytics';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings, useVenueSessions, useExternalBookedDates, useLocations, useTrackVenueInterest, useVenueInterest } from '@/hooks/useCMS';
 
@@ -272,6 +273,14 @@ export function BallroomBookingForm({
         locationId,
         eventType: 'booking_request',
         scheduleDate: format(data.booking_date, 'yyyy-MM-dd'),
+      });
+
+      track('generate_lead', {
+        lead_source: 'booking_form',
+        venue_name: locationName,
+        event_type: data.event_type || undefined,
+        booking_date: format(data.booking_date, 'yyyy-MM-dd'),
+        guest_count: data.guest_count || undefined,
       });
 
       const link = buildWaLink(data);
