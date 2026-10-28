@@ -1,23 +1,29 @@
-// Google Tag Manager untuk situs publik kediaman.co.
+// Google Analytics 4 / Google Tag Manager untuk situs publik kediaman.co.
 //
-// - ID container dibaca dari VITE_GTM_ID saat build (set di variabel Railway, contoh "GTM-XXXXXXX").
-//   Tanpa ID, tidak ada script Google yang dimuat.
-// - GTM dimuat setelah interaksi pertama atau saat browser idle (maks. ~4 detik setelah load),
-//   supaya tidak menambah beban render awal (PageSpeed). Event yang terjadi sebelum itu
-//   tetap antre di dataLayer dan terkirim saat GTM siap.
-// - Halaman admin/login tidak dimuati GTM supaya aktivitas staf tidak tercatat.
+// - ID dibaca saat build dari variabel Railway:
+//     VITE_GTM_ID  = "GTM-XXXXXXX"  → muat Google Tag Manager (GA4 diatur di dalam GTM)
+//     VITE_GA4_ID  = "G-XXXXXXXXXX" → muat GA4 langsung (gtag.js), dipakai bila GTM tidak di-set
+//   Tanpa keduanya, tidak ada script Google yang dimuat.
+// - Script dimuat setelah interaksi pertama atau saat browser idle (maks. ~4 detik setelah load),
+//   supaya tidak menambah beban render awal (PageSpeed). Event sebelum itu antre di dataLayer.
+// - Halaman admin/login tidak dilacak supaya aktivitas staf tidak tercatat.
 // - Page view SPA ditangani GA4 lewat "Enhanced measurement → Page changes based on browser
-//   history events" (aktif secara default), jadi tidak ada push page_view manual di sini.
+//   history events" (aktif secara default), jadi tidak ada page_view manual di sini.
 
-type DataLayerEvent = Record<string, unknown>;
+type Params = Record<string, unknown>;
 
 declare global {
   interface Window {
-    dataLayer: DataLayerEvent[];
+    dataLayer: unknown[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
-const GTM_ID = (import.meta.env.VITE_GTM_ID as string | undefined)?.trim() ?? "";
+const RAW_GTM = ((import.meta.env.VITE_GTM_ID as string | undefined) ?? "").trim();
+const RAW_GA4 = ((import.meta.env.VITE_GA4_ID as string | undefined) ?? "").trim();
+const GTM_ID = /^GTM-[A-Z0-9]+$/.test(RAW_GTM) ? RAW_GTM : "";
+const GA4_ID = !GTM_ID && /^G-[A-Z0-9]+$/.test(RAW_GA4) ? RAW_GA4 : "";
+const ENABLED = Boolean(GTM_ID || GA4_ID);
 const PRIVATE_PATHS = ["/admin", "/auth", "/.lovable"];
 
 let loaded = false;
@@ -26,26 +32,41 @@ function isPrivatePath(pathname: string): boolean {
   return PRIVATE_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
-function dataLayer(): DataLayerEvent[] {
+function dataLayer(): unknown[] {
   window.dataLayer = window.dataLayer || [];
   return window.dataLayer;
 }
 
-function loadGtm(): void {
-  if (loaded || !/^GTM-[A-Z0-9]+$/.test(GTM_ID)) return;
-  if (isPrivatePath(location.pathname)) return;
-  loaded = true;
-  dataLayer().push({ "gtm.start": Date.now(), event: "gtm.js" });
+function gtag(...args: unknown[]): void {
+  // gtag.js membaca objek `arguments`, bukan array biasa.
+  // eslint-disable-next-line prefer-rest-params
+  dataLayer().push(arguments);
+  void args;
+}
+
+function addScript(src: string): void {
   const s = document.createElement("script");
   s.async = true;
-  s.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(GTM_ID)}`;
+  s.src = src;
   document.head.appendChild(s);
 }
 
-/** Kirim event ke dataLayer (diteruskan GTM ke GA4). Jangan masukkan data pribadi (nama, email, nomor HP). */
-export function track(event: string, params: DataLayerEvent = {}): void {
-  if (!GTM_ID || isPrivatePath(location.pathname)) return;
-  dataLayer().push({ event, ...params });
+function load(): void {
+  if (loaded || !ENABLED || isPrivatePath(location.pathname)) return;
+  loaded = true;
+  if (GTM_ID) {
+    dataLayer().push({ "gtm.start": Date.now(), event: "gtm.js" });
+    addScript(`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(GTM_ID)}`);
+  } else {
+    addScript(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA4_ID)}`);
+  }
+}
+
+/** Kirim event ke GA4 (langsung atau lewat GTM). Jangan masukkan data pribadi (nama, email, nomor HP). */
+export function track(event: string, params: Params = {}): void {
+  if (!ENABLED || isPrivatePath(location.pathname)) return;
+  if (GTM_ID) dataLayer().push({ event, ...params });
+  else gtag("event", event, params);
 }
 
 function classifyLink(href: string): { event: string; method: string } | null {
@@ -57,16 +78,21 @@ function classifyLink(href: string): { event: string; method: string } | null {
   return null;
 }
 
-/** Pasang GTM + pelacakan klik WhatsApp/telepon/email. Dipanggil sekali dari main.tsx. */
+/** Pasang GA4/GTM + pelacakan klik WhatsApp/telepon/email. Dipanggil sekali dari main.tsx. */
 export function initAnalytics(): void {
-  if (!GTM_ID) return;
+  if (!ENABLED || isPrivatePath(location.pathname)) return;
   dataLayer();
+  if (GA4_ID) {
+    window.gtag = gtag;
+    gtag("js", new Date());
+    gtag("config", GA4_ID);
+  }
 
   const start = () => {
     window.removeEventListener("pointerdown", start);
     window.removeEventListener("keydown", start);
     window.removeEventListener("scroll", start);
-    loadGtm();
+    load();
   };
   window.addEventListener("pointerdown", start, { once: true, passive: true });
   window.addEventListener("keydown", start, { once: true });
