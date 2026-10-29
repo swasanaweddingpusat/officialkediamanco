@@ -21,6 +21,7 @@ import { cors } from "hono/cors";
 import { sign, verify } from "hono/jwt";
 import { SQL, S3Client } from "bun";
 import sharp from "sharp";
+import { randomBytes, timingSafeEqual } from "node:crypto";
 
 const env = Bun.env;
 const sql = new SQL(env.DATABASE_URL!);
@@ -228,6 +229,26 @@ ALTER TABLE programs ADD COLUMN IF NOT EXISTS content text;
 ALTER TABLE programs ADD COLUMN IF NOT EXISTS terms jsonb NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE programs ADD COLUMN IF NOT EXISTS promo_code text;
 ALTER TABLE programs ADD COLUMN IF NOT EXISTS location_ids jsonb NOT NULL DEFAULT '[]'::jsonb;
+
+-- Pelanggan newsletter (diisi dari CTA "Langganan" di website; dikirim otomatis oleh agent)
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email text NOT NULL,
+  name text,
+  source text,
+  status text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'unsubscribed')),
+  unsubscribe_token text NOT NULL,
+  consent_at timestamptz NOT NULL DEFAULT now(),
+  unsubscribed_at timestamptz,
+  last_sent_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS newsletter_subscribers_email_key ON newsletter_subscribers (lower(email));
+CREATE UNIQUE INDEX IF NOT EXISTS newsletter_subscribers_token_key ON newsletter_subscribers (unsubscribe_token);
+CREATE INDEX IF NOT EXISTS newsletter_subscribers_status_idx ON newsletter_subscribers (status, created_at);
+CREATE OR REPLACE TRIGGER newsletter_subscribers_set_updated_at BEFORE UPDATE ON newsletter_subscribers
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 `;
 
 // ---------------------------------------------------------------------
@@ -763,6 +784,79 @@ app.post("/rest/v1/rpc/:fn", async (c) => {
   }
 });
 
+// ---------------------------------------------------------------------
+// Newsletter: langganan publik, berhenti langganan, dan akses untuk agent pengirim
+// ---------------------------------------------------------------------
+const TOKEN_RE = /^[a-f0-9]{64}$/;
+
+app.post("/functions/v1/newsletter-subscribe", async (c) => {
+  if (limited(`newsletter:${ip(c)}`, 5, 10 * 60_000)) return c.json({ error: "Terlalu banyak percobaan, coba lagi nanti." }, 429);
+  const body: any = await c.req.json().catch(() => ({}));
+  // Honeypot: bot biasanya mengisi semua kolom. Balas sukses tanpa menyimpan.
+  if (String(body?.company ?? "").trim()) return c.json({ ok: true });
+  const email = String(body?.email ?? "").trim().toLowerCase();
+  if (!validEmail(email)) return c.json({ error: "Alamat email tidak valid." }, 400);
+  const name = String(body?.name ?? "").trim().slice(0, 100) || null;
+  const source = String(body?.source ?? "website").trim().slice(0, 50) || "website";
+  const token = randomBytes(32).toString("hex");
+  try {
+    await sql`
+      INSERT INTO newsletter_subscribers (email, name, source, unsubscribe_token)
+      VALUES (${email}, ${name}, ${source}, ${token})
+      ON CONFLICT ((lower(email))) DO UPDATE SET
+        status = 'active', unsubscribed_at = NULL, consent_at = now(),
+        name = coalesce(EXCLUDED.name, newsletter_subscribers.name)`;
+    return c.json({ ok: true });
+  } catch (e: any) {
+    console.error("newsletter-subscribe:", e?.message ?? e);
+    return c.json({ error: "Gagal menyimpan, coba lagi." }, 500);
+  }
+});
+
+app.post("/functions/v1/newsletter-unsubscribe", async (c) => {
+  if (limited(`unsub:${ip(c)}`, 20)) return c.json({ error: "Terlalu banyak percobaan." }, 429);
+  const body: any = await c.req.json().catch(() => ({}));
+  const token = String(body?.token ?? "").trim().toLowerCase();
+  if (!TOKEN_RE.test(token)) return c.json({ ok: false }, 400);
+  const r = await sql`UPDATE newsletter_subscribers SET status = 'unsubscribed', unsubscribed_at = now()
+                      WHERE unsubscribe_token = ${token} RETURNING id`;
+  return c.json({ ok: r.length > 0 });
+});
+
+/** Agent pengirim newsletter memakai header x-agent-key = env NEWSLETTER_AGENT_KEY. */
+function agentAuthorized(c: any): boolean {
+  const expected = env.NEWSLETTER_AGENT_KEY;
+  const given = c.req.header("x-agent-key") ?? "";
+  if (!expected || !given) return false;
+  const a = Buffer.from(expected), b = Buffer.from(given);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+app.get("/functions/v1/newsletter-subscribers", async (c) => {
+  if (!env.NEWSLETTER_AGENT_KEY) return c.json({ error: "Newsletter agent belum dikonfigurasi" }, 503);
+  if (limited(`agent:${ip(c)}`, 30)) return c.json({ error: "Too many requests" }, 429);
+  if (!agentAuthorized(c)) return c.json({ error: "Unauthorized" }, 401);
+  const limit = Math.min(500, Math.max(1, Number(c.req.query("limit") ?? 500) || 500));
+  const after = c.req.query("after");
+  const afterId = after && UUID_RE.test(after) ? after : null;
+  const rows = await sql`
+    SELECT id, email, name, unsubscribe_token, last_sent_at, created_at FROM newsletter_subscribers
+    WHERE status = 'active' AND (${afterId}::uuid IS NULL OR id > ${afterId}::uuid)
+    ORDER BY id LIMIT ${limit}`;
+  return c.json({ data: rows, next: rows.length === limit ? rows[rows.length - 1].id : null });
+});
+
+app.post("/functions/v1/newsletter-mark-sent", async (c) => {
+  if (!env.NEWSLETTER_AGENT_KEY) return c.json({ error: "Newsletter agent belum dikonfigurasi" }, 503);
+  if (limited(`agent:${ip(c)}`, 30)) return c.json({ error: "Too many requests" }, 429);
+  if (!agentAuthorized(c)) return c.json({ error: "Unauthorized" }, 401);
+  const body: any = await c.req.json().catch(() => ({}));
+  const ids = (Array.isArray(body?.ids) ? body.ids : []).map(String).filter((x: string) => UUID_RE.test(x)).slice(0, 1000);
+  if (!ids.length) return c.json({ updated: 0 });
+  const r = await sql`UPDATE newsletter_subscribers SET last_sent_at = now() WHERE id = ANY(string_to_array(${ids.join(",")}, ',')::uuid[]) RETURNING id`;
+  return c.json({ updated: r.length });
+});
+
 // Pengganti edge function track-booking
 app.post("/functions/v1/track-booking", async (c) => {
   const body = await c.req.json().catch(() => ({}));
@@ -939,6 +1033,13 @@ async function selfTest() {
     const gv = await call("/rest/v1/rpc/get_venue_interest", { _location_id: anyLoc });
     await sql`DELETE FROM venue_interest_events WHERE visitor_key = 'self-test'`;
     out.push(`rpc track=${tv.status} get=${gv.status} rows=${gv.json.data?.length ?? gv.json.error?.message}`);
+    const nsEmail = `self-test+${Date.now()}@kediaman.invalid`;
+    const ns = await call("/functions/v1/newsletter-subscribe", { email: nsEmail, source: "self-test" });
+    const [nsRow] = await sql`SELECT unsubscribe_token FROM newsletter_subscribers WHERE lower(email) = ${nsEmail}`;
+    const nu = await call("/functions/v1/newsletter-unsubscribe", { token: nsRow?.unsubscribe_token ?? "" });
+    const na = await call("/rest/v1/query", { table: "newsletter_subscribers", action: "select", select: "id" });
+    await sql`DELETE FROM newsletter_subscribers WHERE lower(email) = ${nsEmail}`;
+    out.push(`newsletter sub=${ns.status} unsub=${nu.json.ok} anon-baca=${na.status}`);
     const pr = await call("/rest/v1/query", { table: "ballroom_schedules", action: "select", select: "id,promo_type,promo_label,promo_expires_at", limit: 1 });
     out.push(`promo=${pr.status}`);
     const smRes = await app.fetch(new Request("http://local/sitemap.xml"));

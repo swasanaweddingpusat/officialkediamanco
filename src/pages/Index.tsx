@@ -7,6 +7,7 @@ import { useArticlePreviews, useHeroSlides, useLocations, usePortfolioPreviews, 
 import { useFaqs, useStartingPrices, useVenueReviews, summarizeReviews } from '@/hooks/useOta';
 import { SearchWidget } from '@/components/ota/SearchWidget';
 import { SectionHeader, VenueCard, ReviewCard, RatingStars } from '@/components/ota/OtaKit';
+import { NewsletterCta } from '@/components/ota/NewsletterCta';
 import { CMSImage } from '@/components/CMSImage';
 import { cmsImageUrl, cmsImageSrcSet } from '@/lib/cms-image';
 import { portfolioPath, promotionPath } from '@/lib/content-url';
@@ -217,6 +218,8 @@ const Index = () => {
             </Accordion>
           </section>
         )}
+
+        <NewsletterCta source="homepage" />
       </div>
     </Layout>
   );
