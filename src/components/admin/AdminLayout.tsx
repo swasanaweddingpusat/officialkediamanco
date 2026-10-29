@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Image, Zap, Dumbbell, Users, MapPin, Settings, LogOut, Home, CalendarDays, CalendarCheck, FileText, Video, Info } from 'lucide-react';
+import { LayoutDashboard, Image, Zap, Dumbbell, Users, MapPin, Settings, LogOut, Home, CalendarDays, CalendarCheck, FileText, Video, Info, Wallet, HelpCircle, Star } from 'lucide-react';
+import { useOtaTheme } from '@/hooks/useOtaTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -14,11 +15,14 @@ const navItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Hero Slides', href: '/admin/hero', icon: Image },
   { name: 'Features', href: '/admin/features', icon: Zap },
-  { name: 'Programs', href: '/admin/programs', icon: Dumbbell },
+  { name: 'Promo', href: '/admin/programs', icon: Dumbbell },
+  { name: 'Paket & Harga', href: '/admin/packages', icon: Wallet },
   { name: 'Portfolio', href: '/admin/trainers', icon: Users },
   { name: 'Locations', href: '/admin/locations', icon: MapPin },
   { name: 'Articles', href: '/admin/articles', icon: FileText },
   { name: 'Video Testimonials', href: '/admin/video-testimonials', icon: Video },
+  { name: 'Ulasan', href: '/admin/reviews', icon: Star },
+  { name: 'Bantuan / FAQ', href: '/admin/faqs', icon: HelpCircle },
   { name: 'Jadwal Ballroom', href: '/admin/ballroom-schedules', icon: CalendarDays },
   { name: 'Booking Requests', href: '/admin/ballroom-bookings', icon: CalendarCheck },
   { name: 'Tentang Kami', href: '/admin/about', icon: Info },
@@ -29,6 +33,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
   const { user, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  useOtaTheme(false);
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {

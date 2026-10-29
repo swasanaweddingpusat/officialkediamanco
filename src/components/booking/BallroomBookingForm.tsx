@@ -60,6 +60,8 @@ type BookingFormValues = z.infer<typeof bookingSchema>;
 interface BallroomBookingFormProps {
   locationId?: string;
   locationName?: string;
+  /** yyyy-MM-dd yang sudah dipilih di pencarian/halaman venue. */
+  initialDate?: string;
   onClose?: () => void;
 }
 
@@ -93,6 +95,7 @@ const overlaps = (aS: string, aE: string, bS?: string | null, bE?: string | null
 export function BallroomBookingForm({
   locationId: propLocationId,
   locationName: propLocationName,
+  initialDate,
   onClose,
 }: BallroomBookingFormProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -149,6 +152,9 @@ export function BallroomBookingForm({
       event_type: '',
       notes: '',
       session_id: '',
+      ...(initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate) && new Date(`${initialDate}T00:00:00`) >= startOfToday()
+        ? { booking_date: new Date(`${initialDate}T00:00:00`) }
+        : {}),
     },
   });
 

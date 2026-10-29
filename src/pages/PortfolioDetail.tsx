@@ -134,14 +134,14 @@ const PortfolioDetail = () => {
               onClick={() => setLightboxImage(portfolio.photo_url)}
             >
               <img src={portfolio.photo_url} alt={portfolio.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-12">
                 <div className="flex flex-wrap items-center gap-3 mb-4">
                   {portfolio.specialization && (
-                    <span className="text-primary text-[10px] tracking-[0.2em] uppercase">{portfolio.specialization}</span>
+                    <span className="text-white text-[10px] tracking-[0.2em] uppercase">{portfolio.specialization}</span>
                   )}
                   {location && (
-                    <span className="text-muted-foreground text-[10px] flex items-center gap-1">
+                    <span className="text-white/85 text-[10px] flex items-center gap-1">
                       <MapPin className="w-3 h-3" /> {location.name}
                     </span>
                   )}

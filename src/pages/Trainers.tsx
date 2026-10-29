@@ -1,200 +1,95 @@
-import { useState, useMemo } from 'react';
-import { portfolioPath } from '@/lib/content-url';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Images, Search, X, ArrowRight } from 'lucide-react';
+// Portfolio (tabel trainers) — gaya OTA.
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Images, Search } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
-import { useTrainers } from '@/hooks/useCMS';
+import { useLocations, useTrainers } from '@/hooks/useCMS';
 import { useSEO } from '@/hooks/useSEO';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import trainerImage from '@/assets/trainer-1.jpg';
+import { CMSImage } from '@/components/CMSImage';
+import { PageHeader, EmptyState } from '@/components/ota/OtaKit';
+import { portfolioPath } from '@/lib/content-url';
+
+const PAGE = 24;
 
 const Trainers = () => {
   const { data: trainers, isLoading } = useTrainers();
-  
+  const { data: locations = [] } = useLocations();
+  const [category, setCategory] = useState('');
+  const [venue, setVenue] = useState('');
+  const [query, setQuery] = useState('');
+  const [limit, setLimit] = useState(PAGE);
+
   useSEO({
-    title: "Portfolio Acara & Pernikahan | Kediaman Corp",
-    description: "Temukan inspirasi dari berbagai acara yang telah kami selenggarakan.",
-    url: "https://kediaman.co/portfolio",
-    breadcrumbs: [
-      { name: "Home", url: "https://kediaman.co/" },
-      { name: "Portfolio", url: "https://kediaman.co/portfolio" }
-    ]
+    title: 'Portfolio Acara & Pernikahan | Kediaman Corp',
+    description: 'Inspirasi dari pernikahan dan acara yang sudah digelar di ballroom Kediaman.',
+    url: 'https://kediaman.co/portfolio',
+    breadcrumbs: [{ name: 'Home', url: 'https://kediaman.co/' }, { name: 'Portfolio', url: 'https://kediaman.co/portfolio' }],
   });
 
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const activeTrainers = trainers?.filter(t => t.is_active) || [];
-
-  const categories = useMemo(() => {
-    const cats = new Set<string>();
-    activeTrainers.forEach(t => { if (t.specialization) cats.add(t.specialization); });
-    return Array.from(cats).sort();
-  }, [activeTrainers]);
-
-  const filteredPortfolios = useMemo(() => {
-    let filtered = activeTrainers;
-    if (selectedCategory) filtered = filtered.filter(t => t.specialization === selectedCategory);
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(t => t.name.toLowerCase().includes(query) || t.bio?.toLowerCase().includes(query) || t.specialization?.toLowerCase().includes(query));
-    }
-    return filtered;
-  }, [activeTrainers, selectedCategory, searchQuery]);
-
-  const clearFilters = () => { setSelectedCategory(null); setSearchQuery(''); };
-  const hasActiveFilters = selectedCategory !== null || searchQuery.trim() !== '';
+  const active = useMemo(() => (trainers || []).filter((t) => t.is_active), [trainers]);
+  const categories = useMemo(() => [...new Set(active.map((t) => t.specialization).filter(Boolean) as string[])].sort(), [active]);
+  const venues = useMemo(() => locations.filter((l) => active.some((t) => (t as { location_id?: string | null }).location_id === l.id)), [locations, active]);
+  const filtered = active.filter((t) => {
+    const q = query.trim().toLowerCase();
+    const loc = (t as { location_id?: string | null }).location_id;
+    return (!category || t.specialization === category) && (!venue || loc === venue) && (!q || t.name.toLowerCase().includes(q) || t.bio?.toLowerCase().includes(q));
+  });
+  const venueName = (id?: string | null) => locations.find((l) => l.id === id)?.name;
 
   return (
     <Layout>
-      {/* Hero */}
-      <section className="pt-16 lg:pt-24 pb-12 lg:pb-16">
-        <div className="container mx-auto px-6 lg:px-12">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="text-primary text-[11px] tracking-[0.3em] uppercase mb-4 flex items-center gap-3">
-              <span className="w-8 h-px bg-primary" />
-              Portfolio
-            </p>
-            <h1 className="font-serif text-4xl lg:text-6xl font-bold mb-4">
-              Portfolio <span className="text-primary">Kami</span>
-            </h1>
-            <p className="text-muted-foreground text-sm lg:text-base max-w-xl">
-              Temukan inspirasi dari berbagai acara yang telah kami selenggarakan
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Filters */}
-      <section className="pb-8 border-b border-border/50 sticky top-16 lg:top-20 z-30 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-6 lg:px-12 space-y-4 py-4">
-          <div className="relative max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Cari portfolio..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="pl-10 pr-10 bg-transparent border-border/50 text-sm"
-            />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                <X className="w-4 h-4" />
-              </button>
-            )}
+      <PageHeader title="Portfolio" subtitle="Inspirasi dari pernikahan dan acara yang sudah digelar di ballroom Kediaman." crumbs={[{ name: 'Portfolio' }]}>
+        <div className="mt-4 flex flex-col md:flex-row gap-3 md:items-center">
+          <div className="ota-scroll-x flex-1">
+            <button type="button" className="ota-chip" aria-pressed={!category} onClick={() => { setCategory(''); setLimit(PAGE); }}>Semua</button>
+            {categories.map((c) => <button key={c} type="button" className="ota-chip" aria-pressed={category === c} onClick={() => { setCategory(c); setLimit(PAGE); }}>{c}</button>)}
           </div>
-          {categories.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className={`px-3 py-1.5 text-[10px] tracking-[0.15em] uppercase rounded-full border transition-all duration-300 ${
-                  !selectedCategory ? 'bg-primary text-primary-foreground border-primary' : 'border-border/50 text-muted-foreground hover:border-primary'
-                }`}
-              >
-                Semua
-              </button>
-              {categories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-3 py-1.5 text-[10px] tracking-[0.15em] uppercase rounded-full border transition-all duration-300 ${
-                    selectedCategory === category ? 'bg-primary text-primary-foreground border-primary' : 'border-border/50 text-muted-foreground hover:border-primary'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-              {hasActiveFilters && (
-                <button onClick={clearFilters} className="px-3 py-1.5 text-[10px] tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground flex items-center gap-1">
-                  <X className="w-3 h-3" /> Reset
-                </button>
-              )}
-            </div>
+          {venues.length > 0 && (
+            <select value={venue} onChange={(e) => { setVenue(e.target.value); setLimit(PAGE); }} aria-label="Filter venue" className="h-10 rounded-xl border border-input bg-card px-3 text-sm font-bold">
+              <option value="">Semua venue</option>
+              {venues.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
+            </select>
           )}
+          <label className="flex items-center gap-2 h-10 px-3.5 rounded-full bg-muted md:w-64">
+            <Search className="size-4 text-muted-foreground" aria-hidden="true" />
+            <input value={query} onChange={(e) => { setQuery(e.target.value); setLimit(PAGE); }} placeholder="Cari nama pasangan" aria-label="Cari portfolio" className="bg-transparent outline-none text-sm w-full" />
+          </label>
         </div>
-      </section>
+      </PageHeader>
 
-      {/* Grid */}
-      <section className="py-12 lg:py-20 pb-24 lg:pb-32">
-        <div className="container mx-auto px-6 lg:px-12">
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-              {[...Array(6)].map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-sm" />)}
+      <div className="ota-container py-6">
+        {isLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />)}</div>
+        ) : filtered.length === 0 ? (
+          <EmptyState title="Portfolio tidak ditemukan">Coba kata kunci atau filter lain.</EmptyState>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground mb-3">{filtered.length} acara</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+              {filtered.slice(0, limit).map((t) => {
+                const loc = venueName((t as { location_id?: string | null }).location_id);
+                return (
+                  <Link key={t.id} to={portfolioPath(t)} className="group ota-card overflow-hidden flex flex-col">
+                    <div className="relative aspect-[4/5] bg-muted">
+                      {t.photo_url && <CMSImage src={t.photo_url} imageWidth={480} sizes="(max-width: 768px) 50vw, 280px" alt={t.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />}
+                      {t.images && t.images.length > 0 && <span className="absolute right-2.5 top-2.5 ota-badge"><Images className="size-3.5" aria-hidden="true" />{t.images.length + 1}</span>}
+                    </div>
+                    <div className="p-3">
+                      <p className="text-[11px] font-bold uppercase tracking-wide text-accent-foreground">{t.specialization || 'Wedding'}</p>
+                      <p className="font-bold text-sm line-clamp-1">{t.name}</p>
+                      {loc && <p className="text-xs text-muted-foreground line-clamp-1">{loc}</p>}
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
-          ) : filteredPortfolios.length > 0 ? (
-            <>
-              {hasActiveFilters && (
-                <p className="text-muted-foreground text-xs mb-8">
-                  {filteredPortfolios.length} portfolio ditemukan
-                </p>
-              )}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedCategory || 'all'}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"
-                >
-                  {filteredPortfolios.map((portfolio, index) => {
-                    const location = portfolio.locations as { name: string } | null;
-                    return (
-                      <motion.div
-                        key={portfolio.id}
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                      >
-                        <Link to={portfolioPath(portfolio)} className="group block">
-                          <div className="relative overflow-hidden aspect-[3/4] rounded-sm mb-4">
-                            <img
-                              src={portfolio.photo_url || trainerImage}
-                              alt={portfolio.name}
-                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
-                            {portfolio.images && portfolio.images.length > 0 && (
-                              <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-background/60 backdrop-blur-sm rounded-full flex items-center gap-1.5 text-xs">
-                                <Images className="w-3 h-3" />
-                                {portfolio.images.length}
-                              </div>
-                            )}
-                            <div className="absolute top-4 right-4 w-9 h-9 rounded-full border border-foreground/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:border-primary">
-                              <ArrowRight className="w-3.5 h-3.5 text-primary" />
-                            </div>
-                          </div>
-                          <h3 className="font-serif text-lg lg:text-xl mb-1 group-hover:text-primary transition-colors font-bold line-clamp-1">
-                            {portfolio.name}
-                          </h3>
-                          <div className="flex flex-wrap items-center gap-2">
-                            {portfolio.specialization && (
-                              <span className="text-primary text-[10px] tracking-[0.15em] uppercase">{portfolio.specialization}</span>
-                            )}
-                            {location && (
-                              <span className="text-muted-foreground text-[10px]">· {location.name}</span>
-                            )}
-                          </div>
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
-                </motion.div>
-              </AnimatePresence>
-            </>
-          ) : (
-            <div className="text-center py-24">
-              <p className="text-muted-foreground mb-4">Tidak ada portfolio ditemukan.</p>
-              {hasActiveFilters && (
-                <button onClick={clearFilters} className="text-primary text-sm hover:underline">
-                  Reset Filter
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
+            {filtered.length > limit && (
+              <div className="text-center mt-6"><button type="button" onClick={() => setLimit((l) => l + PAGE)} className="h-11 px-6 rounded-xl border border-input font-bold hover:border-primary">Tampilkan lebih banyak</button></div>
+            )}
+          </>
+        )}
+      </div>
     </Layout>
   );
 };

@@ -20,6 +20,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { sign, verify } from "hono/jwt";
 import { SQL, S3Client } from "bun";
+import sharp from "sharp";
 
 const env = Bun.env;
 const sql = new SQL(env.DATABASE_URL!);
@@ -99,6 +100,134 @@ CREATE OR REPLACE TRIGGER venue_sessions_set_updated_at BEFORE UPDATE ON venue_s
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE OR REPLACE TRIGGER ballroom_bookings_set_updated_at BEFORE UPDATE ON ballroom_bookings
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- Promo per jadwal ballroom (Special/Limited Offer) dari versi Lovable terbaru.
+ALTER TABLE ballroom_schedules ADD COLUMN IF NOT EXISTS promo_type text;
+ALTER TABLE ballroom_schedules ADD COLUMN IF NOT EXISTS promo_label text;
+ALTER TABLE ballroom_schedules ADD COLUMN IF NOT EXISTS promo_expires_at timestamptz;
+
+-- Statistik minat venue (dilihat, tanggal diklik, permintaan booking).
+CREATE TABLE IF NOT EXISTS venue_interest_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  location_id uuid NOT NULL REFERENCES locations(id) ON DELETE CASCADE,
+  event_type text NOT NULL CHECK (event_type IN ('venue_view', 'date_click', 'booking_request')),
+  visitor_key text NOT NULL,
+  schedule_date date,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS venue_interest_events_lookup_idx
+  ON venue_interest_events (location_id, event_type, schedule_date);
+
+-- Slug untuk URL ramah (/portfolio/<slug>, /tentang-kami/<slug>, lokasi). Diisi otomatis dari nama.
+CREATE OR REPLACE FUNCTION kdm_slugify(t text) RETURNS text AS $$
+  SELECT nullif(trim(both '-' from regexp_replace(lower(coalesce(t, '')), '[^a-z0-9]+', '-', 'g')), '')
+$$ LANGUAGE sql IMMUTABLE;
+
+CREATE OR REPLACE FUNCTION kdm_unique_slug(tbl text, base text, rid uuid) RETURNS text AS $$
+DECLARE cand text := base; n int := 1; taken boolean;
+BEGIN
+  LOOP
+    EXECUTE format('SELECT EXISTS (SELECT 1 FROM %I WHERE slug = $1 AND id <> $2)', tbl) INTO taken USING cand, rid;
+    EXIT WHEN NOT taken;
+    n := n + 1;
+    cand := base || '-' || n;
+  END LOOP;
+  RETURN cand;
+END $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION kdm_fill_slug() RETURNS trigger AS $$
+DECLARE j jsonb := to_jsonb(NEW);
+BEGIN
+  IF coalesce(NEW.slug, '') = '' THEN
+    NEW.slug := kdm_unique_slug(TG_TABLE_NAME,
+      coalesce(kdm_slugify(j->>'name'), kdm_slugify(j->>'title'), left(NEW.id::text, 8)), NEW.id);
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+DO $$
+DECLARE t text; r record;
+BEGIN
+  FOREACH t IN ARRAY ARRAY['trainers', 'locations', 'programs'] LOOP
+    EXECUTE format('ALTER TABLE %I ADD COLUMN IF NOT EXISTS slug text', t);
+    EXECUTE format('CREATE OR REPLACE TRIGGER %I BEFORE INSERT OR UPDATE ON %I FOR EACH ROW EXECUTE FUNCTION kdm_fill_slug()', t || '_fill_slug', t);
+    IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = t || '_set_updated_at') THEN
+      EXECUTE format('ALTER TABLE %I DISABLE TRIGGER %I', t, t || '_set_updated_at');
+    END IF;
+    FOR r IN EXECUTE format('SELECT id, to_jsonb(x) AS j FROM %I x WHERE coalesce(slug, %L) = %L ORDER BY created_at, id', t, '', '') LOOP
+      EXECUTE format('UPDATE %I SET slug = $1 WHERE id = $2', t)
+        USING kdm_unique_slug(t, coalesce(kdm_slugify(r.j->>'name'), kdm_slugify(r.j->>'title'), left(r.id::text, 8)), r.id), r.id;
+    END LOOP;
+    IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = t || '_set_updated_at') THEN
+      EXECUTE format('ALTER TABLE %I ENABLE TRIGGER %I', t, t || '_set_updated_at');
+    END IF;
+    EXECUTE format('CREATE UNIQUE INDEX IF NOT EXISTS %I ON %I (slug)', t || '_slug_key', t);
+  END LOOP;
+END $$;
+
+-- Paket & harga per venue (CMS "Paket & Harga")
+CREATE TABLE IF NOT EXISTS venue_packages (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  location_id uuid REFERENCES locations(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  description text,
+  inclusions jsonb NOT NULL DEFAULT '[]'::jsonb,
+  price numeric(14,2),
+  price_note text,
+  min_pax integer,
+  max_pax integer,
+  image_url text,
+  is_featured boolean NOT NULL DEFAULT false,
+  sort_order integer NOT NULL DEFAULT 0,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS venue_packages_location_idx ON venue_packages (location_id);
+CREATE OR REPLACE TRIGGER venue_packages_set_updated_at BEFORE UPDATE ON venue_packages
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- Bantuan / FAQ (CMS "FAQ")
+CREATE TABLE IF NOT EXISTS faqs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  category text NOT NULL DEFAULT 'Umum',
+  question text NOT NULL,
+  answer text NOT NULL,
+  sort_order integer NOT NULL DEFAULT 0,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE OR REPLACE TRIGGER faqs_set_updated_at BEFORE UPDATE ON faqs
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- Ulasan pasangan (diinput & dimoderasi admin)
+CREATE TABLE IF NOT EXISTS venue_reviews (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  location_id uuid REFERENCES locations(id) ON DELETE SET NULL,
+  reviewer_name text NOT NULL,
+  event_date date,
+  event_type text,
+  rating integer NOT NULL DEFAULT 5 CHECK (rating BETWEEN 1 AND 5),
+  title text,
+  body text NOT NULL,
+  photo_url text,
+  is_published boolean NOT NULL DEFAULT false,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS venue_reviews_location_idx ON venue_reviews (location_id);
+CREATE OR REPLACE TRIGGER venue_reviews_set_updated_at BEFORE UPDATE ON venue_reviews
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- Detail promo (tabel programs = promo)
+ALTER TABLE programs ADD COLUMN IF NOT EXISTS start_date date;
+ALTER TABLE programs ADD COLUMN IF NOT EXISTS end_date date;
+ALTER TABLE programs ADD COLUMN IF NOT EXISTS content text;
+ALTER TABLE programs ADD COLUMN IF NOT EXISTS terms jsonb NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE programs ADD COLUMN IF NOT EXISTS promo_code text;
+ALTER TABLE programs ADD COLUMN IF NOT EXISTS location_ids jsonb NOT NULL DEFAULT '[]'::jsonb;
 `;
 
 // ---------------------------------------------------------------------
@@ -111,6 +240,7 @@ type Filter = [string, string, unknown];
 const CONTENT_TABLES = new Set([
   "site_settings", "hero_slides", "features", "programs", "trainers", "locations", "testimonials",
   "ballroom_schedules", "articles", "video_testimonials", "about_sections", "about_settings", "venue_sessions",
+  "venue_packages", "faqs", "venue_reviews",
 ]);
 // Filter wajib untuk pengunjung non-admin (sama dengan policy SELECT di Supabase).
 const PUBLIC_ROW_FILTER: Record<string, Filter> = {
@@ -123,6 +253,9 @@ const PUBLIC_ROW_FILTER: Record<string, Filter> = {
   venue_sessions: ["is_active", "eq", true],
   articles: ["is_published", "eq", true],
   about_sections: ["is_visible", "eq", true],
+  venue_packages: ["is_active", "eq", true],
+  faqs: ["is_active", "eq", true],
+  venue_reviews: ["is_published", "eq", true],
 };
 
 class ApiError extends Error {
@@ -169,7 +302,7 @@ export function authorize(table: string, action: string, ctx: Ctx, values?: any[
 // ---------------------------------------------------------------------
 type Schema = Record<string, Record<string, string>>; // table -> column -> udt_name
 let schema: Schema = {};
-const HIDDEN_TABLES = new Set(["users"]);
+const HIDDEN_TABLES = new Set(["users", "venue_interest_events"]);
 
 async function loadSchema() {
   const rows = await sql`SELECT table_name, column_name, udt_name FROM information_schema.columns
@@ -478,6 +611,158 @@ app.post("/storage/v1/object/:bucket/*", async (c) => {
   }
 });
 
+// ---------------------------------------------------------------------
+// Gambar responsif: /img/<path di bucket gym-images>?w=640&q=70 -> WebP yang sudah dikecilkan.
+// Hasil disimpan di MinIO (_r/...) sehingga hanya dibuat sekali, lalu di-cache browser/CDN 1 tahun.
+// ---------------------------------------------------------------------
+const IMG_WIDTHS = [48, 96, 160, 320, 480, 640, 768, 960, 1280, 1440, 1920];
+const imgBucket = () => new S3Client({
+  accessKeyId: env.MINIO_ROOT_USER, secretAccessKey: env.MINIO_ROOT_PASSWORD,
+  endpoint: env.MINIO_ENDPOINT, bucket: "gym-images",
+});
+const imgInflight = new Map<string, Promise<Uint8Array>>();
+const IMG_HEADERS = {
+  "Content-Type": "image/webp",
+  "Cache-Control": "public, max-age=31536000, immutable",
+  "Access-Control-Allow-Origin": "*",
+  "Timing-Allow-Origin": "*",
+};
+
+app.get("/img/*", async (c) => {
+  const key = decodeURIComponent(c.req.path.slice("/img/".length));
+  if (!key || key.includes("..") || key.startsWith("/") || key.startsWith("_r/")) return c.text("Bad path", 400);
+  const reqW = Number(c.req.query("w") ?? 1280);
+  const w = IMG_WIDTHS.find((x) => x >= reqW) ?? IMG_WIDTHS[IMG_WIDTHS.length - 1];
+  const q = Math.min(90, Math.max(40, Math.round(Number(c.req.query("q") ?? 70)) || 70));
+  const original = `${(env.STORAGE_PUBLIC_URL || "https://bucket-jwta-production.up.railway.app").replace(/\/$/, "")}/gym-images/${key}`;
+  if (/\.(svg|gif)$/i.test(key)) return c.redirect(original, 302);
+  const cacheKey = `_r/w${w}q${q}/${key}.webp`;
+  const s3 = imgBucket();
+  try {
+    const cached = s3.file(cacheKey);
+    if (await cached.exists()) return new Response(cached.stream(), { headers: IMG_HEADERS });
+    let job = imgInflight.get(cacheKey);
+    if (!job) {
+      job = (async () => {
+        const src = new Uint8Array(await s3.file(key).arrayBuffer());
+        const out = await sharp(src, { failOn: "none" }).rotate()
+          .resize({ width: w, withoutEnlargement: true })
+          .webp({ quality: q, effort: 4 }).toBuffer();
+        const bytes = new Uint8Array(out);
+        await s3.write(cacheKey, bytes, { type: "image/webp" });
+        return bytes;
+      })().finally(() => imgInflight.delete(cacheKey));
+      imgInflight.set(cacheKey, job);
+    }
+    return new Response(await job, { headers: IMG_HEADERS });
+  } catch (e: any) {
+    console.error("img error:", key, e?.message ?? e);
+    return c.redirect(original, 302);
+  }
+});
+
+// ---------------------------------------------------------------------
+// Sitemap dinamis (diproxy Caddy dari kediaman.co/sitemap.xml) agar artikel/venue baru
+// langsung terdaftar tanpa deploy ulang frontend.
+// ---------------------------------------------------------------------
+const SITEMAP_BASE = "https://kediaman.co";
+const SITEMAP_STATIC: [string, string, string][] = [
+  ["/", "weekly", "1.0"], ["/landing", "weekly", "0.8"], ["/venue-only", "weekly", "0.8"],
+  ["/tentang-kami", "monthly", "0.8"], ["/portfolio", "weekly", "0.8"], ["/paket", "weekly", "0.9"],
+  ["/lokasi", "weekly", "0.9"], ["/artikel", "daily", "0.8"],
+];
+let sitemapCache: { xml: string; at: number } | null = null;
+const xmlEscape = (v: string) => v.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&apos;");
+
+app.get("/sitemap.xml", async (c) => {
+  if (!sitemapCache || Date.now() - sitemapCache.at > 10 * 60_000) {
+    const entries: { path: string; freq: string; pri: string; mod?: string }[] =
+      SITEMAP_STATIC.map(([path, freq, pri]) => ({ path, freq, pri }));
+    const day = (d: any) => (d ? new Date(d).toISOString().slice(0, 10) : undefined);
+    for (const r of await sql`SELECT slug, updated_at FROM articles WHERE is_published AND slug IS NOT NULL ORDER BY published_at DESC NULLS LAST`)
+      entries.push({ path: `/artikel/${r.slug}`, freq: "monthly", pri: "0.7", mod: day(r.updated_at) });
+    for (const r of await sql`SELECT id, slug, updated_at FROM locations WHERE is_active ORDER BY sort_order`)
+      entries.push({ path: `/lokasi/${r.slug || r.id}`, freq: "monthly", pri: "0.8", mod: day(r.updated_at) });
+    for (const r of await sql`SELECT slug, updated_at FROM programs WHERE is_active AND slug IS NOT NULL ORDER BY sort_order`)
+      entries.push({ path: `/tentang-kami/${r.slug}`, freq: "monthly", pri: "0.7", mod: day(r.updated_at) });
+    for (const r of await sql`SELECT slug, updated_at FROM trainers WHERE is_active AND slug IS NOT NULL ORDER BY sort_order`)
+      entries.push({ path: `/portfolio/${r.slug}`, freq: "monthly", pri: "0.6", mod: day(r.updated_at) });
+    const seen = new Set<string>();
+    const urls = entries.filter((e) => !seen.has(e.path) && seen.add(e.path)).map((e) =>
+      `  <url>\n    <loc>${xmlEscape(SITEMAP_BASE + e.path)}</loc>\n${e.mod ? `    <lastmod>${e.mod}</lastmod>\n` : ""}    <changefreq>${e.freq}</changefreq>\n    <priority>${e.pri}</priority>\n  </url>`);
+    sitemapCache = {
+      xml: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`,
+      at: Date.now(),
+    };
+  }
+  return new Response(sitemapCache.xml, {
+    headers: { "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=600" },
+  });
+});
+
+// Pengganti fungsi database (supabase.rpc) yang dipakai frontend.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const INTEREST_EVENTS = new Set(["venue_view", "date_click", "booking_request"]);
+
+app.post("/rest/v1/rpc/:fn", async (c) => {
+  const fn = c.req.param("fn");
+  const args: any = await c.req.json().catch(() => ({}));
+  try {
+    if (fn === "track_venue_interest") {
+      if (limited(`interest:${ip(c)}`, 60)) throw new ApiError(429, "Too many requests");
+      const loc = String(args?._location_id ?? "");
+      const type = String(args?._event_type ?? "");
+      const visitor = String(args?._visitor_key ?? "").slice(0, 100);
+      const date = args?._schedule_date == null || args._schedule_date === "" ? null : String(args._schedule_date);
+      if (!UUID_RE.test(loc) || !INTEREST_EVENTS.has(type) || !visitor || (date !== null && !DATE_RE.test(date))) {
+        throw new ApiError(400, "Argumen tidak valid", "22023");
+      }
+      // Satu pengunjung dihitung sekali per hari untuk venue/tanggal/jenis yang sama.
+      await sql`
+        INSERT INTO venue_interest_events (location_id, event_type, visitor_key, schedule_date)
+        SELECT ${loc}::uuid, ${type}, ${visitor}, ${date}::date
+        WHERE EXISTS (SELECT 1 FROM locations WHERE id = ${loc}::uuid)
+          AND NOT EXISTS (
+            SELECT 1 FROM venue_interest_events
+            WHERE location_id = ${loc}::uuid AND event_type = ${type} AND visitor_key = ${visitor}
+              AND schedule_date IS NOT DISTINCT FROM ${date}::date
+              AND created_at > now() - interval '1 day')`;
+      return c.json({ data: null, error: null });
+    }
+    if (fn === "get_venue_interest") {
+      const loc = args?._location_id ? String(args._location_id) : null;
+      if (loc !== null && !UUID_RE.test(loc)) throw new ApiError(400, "Argumen tidak valid", "22023");
+      const [row] = await sql`
+        WITH ev AS (
+          SELECT * FROM venue_interest_events WHERE (${loc}::uuid IS NULL OR location_id = ${loc}::uuid)
+        ), views AS (
+          SELECT location_id, count(DISTINCT visitor_key) AS view_count FROM ev
+          WHERE event_type = 'venue_view' AND created_at > now() - interval '30 days'
+          GROUP BY location_id
+        ), dates AS (
+          SELECT location_id, schedule_date,
+                 count(DISTINCT visitor_key) FILTER (WHERE event_type = 'date_click') AS date_click_count,
+                 count(DISTINCT visitor_key) FILTER (WHERE event_type = 'booking_request') AS booking_count
+          FROM ev WHERE schedule_date IS NOT NULL AND schedule_date >= current_date
+          GROUP BY location_id, schedule_date
+        )
+        SELECT coalesce(json_agg(json_build_object(
+          'location_id', coalesce(d.location_id, v.location_id),
+          'schedule_date', d.schedule_date,
+          'view_count', coalesce(v.view_count, 0),
+          'date_click_count', coalesce(d.date_click_count, 0),
+          'booking_count', coalesce(d.booking_count, 0))), '[]'::json) AS data
+        FROM views v FULL JOIN dates d ON d.location_id = v.location_id`;
+      const data = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
+      return c.json({ data, error: null });
+    }
+    throw new ApiError(404, `Fungsi tidak dikenal: ${fn}`, "PGRST202");
+  } catch (e) {
+    return fail(c, e);
+  }
+});
+
 // Pengganti edge function track-booking
 app.post("/functions/v1/track-booking", async (c) => {
   const body = await c.req.json().catch(() => ({}));
@@ -647,6 +932,18 @@ async function selfTest() {
     out.push(`anon-user_roles=${b.status}`);
     const w = await call("/rest/v1/query", { table: "hero_slides", action: "update", values: { title: "x" }, filters: [["id", "eq", "00000000-0000-0000-0000-000000000000"]] });
     out.push(`anon-tulis=${w.status}`);
+    const sl = await call("/rest/v1/query", { table: "trainers", action: "select", select: "id,slug,name,locations(id, name, slug)", limit: 2 });
+    out.push(`slug=${sl.status} ${JSON.stringify((sl.json.data ?? []).map((x: any) => x.slug))} ${sl.json.error?.message ?? ""}`);
+    const [{ id: anyLoc }] = await sql`SELECT id FROM locations LIMIT 1`;
+    const tv = await call("/rest/v1/rpc/track_venue_interest", { _location_id: anyLoc, _event_type: "venue_view", _visitor_key: "self-test" });
+    const gv = await call("/rest/v1/rpc/get_venue_interest", { _location_id: anyLoc });
+    await sql`DELETE FROM venue_interest_events WHERE visitor_key = 'self-test'`;
+    out.push(`rpc track=${tv.status} get=${gv.status} rows=${gv.json.data?.length ?? gv.json.error?.message}`);
+    const pr = await call("/rest/v1/query", { table: "ballroom_schedules", action: "select", select: "id,promo_type,promo_label,promo_expires_at", limit: 1 });
+    out.push(`promo=${pr.status}`);
+    const smRes = await app.fetch(new Request("http://local/sitemap.xml"));
+    const smText = await smRes.text();
+    out.push(`sitemap=${smRes.status} ${(smText.match(/<loc>/g) || []).length}url`);
     const s = await call("/rest/v1/query", { table: "ballroom_schedules", action: "select", select: "schedule_date,start_time", limit: 1 });
     out.push(`tanggal=${JSON.stringify(s.json.data?.[0] ?? null)}`);
     if (env.ADMIN_EMAIL && env.ADMIN_PASSWORD) {
@@ -662,6 +959,12 @@ async function selfTest() {
     const [{ url }] = await sql`SELECT photo_url AS url FROM trainers WHERE photo_url IS NOT NULL LIMIT 1`;
     const key = String(url).split("/gym-images/")[1];
     out.push(`minio=${key ? await s3.exists(key) : "tanpa-sampel"}`);
+    if (key) {
+      const t0 = Date.now();
+      const ir = await app.fetch(new Request(`http://local/img/${key}?w=640&q=70`));
+      const ib = await ir.arrayBuffer();
+      out.push(`img=${ir.status} ${ir.headers.get("content-type")} ${ib.byteLength}B ${Date.now() - t0}ms`);
+    }
   } catch (e: any) {
     out.push(`ERROR ${e?.message ?? e}`);
   }

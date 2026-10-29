@@ -1,244 +1,98 @@
+// Daftar promo (tabel programs) — gaya OTA. Rute: /promo (juga /paket untuk tautan lama).
 import { useMemo, useState } from 'react';
-import { promotionPath } from '@/lib/content-url';
-import { motion } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowRight, Search } from 'lucide-react';
+import { CalendarClock, Search } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePrograms, useSiteSettings } from '@/hooks/useCMS';
 import { useSEO } from '@/hooks/useSEO';
+import { promotionPath } from '@/lib/content-url';
+import { CMSImage } from '@/components/CMSImage';
+import { PageHeader, EmptyState } from '@/components/ota/OtaKit';
 
-const WHATSFORM_URL = 'https://whatsform.com/kediaman-flashsale';
+type Promo = {
+  id: string; slug: string | null; name: string; description: string | null; image_url: string | null; category: string | null;
+  is_active: boolean | null; start_date?: string | null; end_date?: string | null; promo_code?: string | null;
+};
+
+export const promoPeriod = (p: { start_date?: string | null; end_date?: string | null }) => {
+  const f = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  if (p.start_date && p.end_date) return `${f(p.start_date)} – ${f(p.end_date)}`;
+  if (p.end_date) return `Berlaku s.d. ${f(p.end_date)}`;
+  if (p.start_date) return `Mulai ${f(p.start_date)}`;
+  return null;
+};
+
+export const promoExpired = (p: { end_date?: string | null }) => !!p.end_date && new Date(`${p.end_date}T23:59:59`) < new Date();
 
 const Packages = () => {
   const { data: programs, isLoading } = usePrograms();
   const { data: settings } = useSiteSettings();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const [query, setQuery] = useState('');
-
-  const activeGroup = searchParams.get('kategori') || '';
+  const active = params.get('kategori') || '';
   const siteName = settings?.site_name || 'Kediaman Corp';
 
   useSEO({
-    title: `Paket & Promo Venue | ${siteName}`,
-    description: `Daftar lengkap paket dan promo venue ${siteName}. Pilih kategori, cek detail, dan ajukan penawaran langsung lewat formulir WhatsApp.`,
-    url: 'https://kediaman.co/paket',
-    breadcrumbs: [
-      { name: 'Home', url: 'https://kediaman.co/' },
-      { name: 'Paket', url: 'https://kediaman.co/paket' },
-    ],
+    title: `Promo Venue & Ballroom | ${siteName}`,
+    description: `Promo dan penawaran spesial venue ${siteName}: diskon paket, bonus, dan event pameran pernikahan.`,
+    url: 'https://kediaman.co/promo',
+    breadcrumbs: [{ name: 'Home', url: 'https://kediaman.co/' }, { name: 'Promo', url: 'https://kediaman.co/promo' }],
   });
 
-  const activePrograms = useMemo(
-    () => (programs || []).filter((p: any) => p.is_active),
-    [programs]
-  );
-
-  const categories = useMemo(() => {
-    const map = new Map<string, string>();
-    activePrograms.forEach((p: any) => {
-      const raw = (p.category || '').trim();
-      if (raw) map.set(raw.toLowerCase(), raw);
-    });
-    return Array.from(map.values());
-  }, [activePrograms]);
-
-  const filtered = useMemo(() => {
+  const promos = useMemo(() => ((programs || []) as Promo[]).filter((p) => p.is_active && !promoExpired(p)), [programs]);
+  const categories = useMemo(() => [...new Set(promos.map((p) => (p.category || '').trim()).filter(Boolean))], [promos]);
+  const filtered = promos.filter((p) => {
     const q = query.trim().toLowerCase();
-    return activePrograms.filter((p: any) => {
-      const matchGroup =
-        !activeGroup ||
-        (p.category || '').trim().toLowerCase() === activeGroup.trim().toLowerCase();
-      const matchQuery =
-        !q ||
-        p.name?.toLowerCase().includes(q) ||
-        p.description?.toLowerCase().includes(q);
-      return matchGroup && matchQuery;
-    });
-  }, [activePrograms, activeGroup, query]);
-
-  const selectCategory = (cat: string) => {
-    const next = new URLSearchParams(searchParams);
-    if (cat) next.set('kategori', cat);
-    else next.delete('kategori');
-    setSearchParams(next, { replace: true });
-  };
+    return (!active || (p.category || '').trim() === active) && (!q || p.name.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q));
+  });
 
   return (
     <Layout>
-      {/* Header */}
-      <section className="bg-card border-b border-border">
-        <div className="container mx-auto px-6 lg:px-12 py-16 lg:py-24">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl"
-          >
-            <p className="text-primary text-[11px] tracking-[0.3em] uppercase mb-5">
-              Jadwal &amp; Biaya
-            </p>
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-5">
-              News &amp; Promo Venue
-            </h1>
-            <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
-              Pilih paket yang paling sesuai dengan kebutuhan acara Anda. Ketersediaan
-              tanggal dan harga dapat berubah sewaktu-waktu.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Filter bar */}
-      <section className="sticky top-16 lg:top-20 z-30 bg-background/95 backdrop-blur border-b border-border">
-        <div className="container mx-auto px-6 lg:px-12 py-5 space-y-4">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-            <span className="text-[11px] tracking-[0.25em] uppercase text-muted-foreground shrink-0">
-              Kategori
-            </span>
-            <div className="flex gap-2 overflow-x-auto pb-1 -mb-1">
-              <FilterChip
-                label="Semua Paket"
-                active={!activeGroup}
-                onClick={() => selectCategory('')}
-              />
-              {categories.map((cat) => (
-                <FilterChip
-                  key={cat}
-                  label={cat}
-                  active={activeGroup === cat}
-                  onClick={() => selectCategory(cat)}
-                />
-              ))}
-            </div>
-            <div className="relative lg:ml-auto lg:w-72 shrink-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Cari paket..."
-                className="pl-9 rounded-full"
-                aria-label="Cari paket"
-              />
-            </div>
+      <PageHeader title="Promo spesial" subtitle="Penawaran terbaru untuk venue, paket pernikahan, dan acara Anda." crumbs={[{ name: 'Promo' }]}>
+        <div className="mt-4 flex flex-col md:flex-row gap-3 md:items-center">
+          <div className="ota-scroll-x flex-1">
+            <button type="button" className="ota-chip" aria-pressed={!active} onClick={() => setParams({})}>Semua</button>
+            {categories.map((c) => <button key={c} type="button" className="ota-chip" aria-pressed={active === c} onClick={() => setParams({ kategori: c })}>{c}</button>)}
           </div>
+          <label className="flex items-center gap-2 h-10 px-3.5 rounded-full bg-muted md:w-72">
+            <Search className="size-4 text-muted-foreground" aria-hidden="true" />
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari promo" aria-label="Cari promo" className="bg-transparent outline-none text-sm w-full" />
+          </label>
         </div>
-      </section>
+      </PageHeader>
 
-      {/* Grid */}
-      <section className="py-14 lg:py-20">
-        <div className="container mx-auto px-6 lg:px-12">
-          <p className="text-sm text-muted-foreground mb-8">
-            Menampilkan <span className="text-foreground font-medium">{filtered.length}</span> paket
-          </p>
-
-          {isLoading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />
-              ))}
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="py-20 text-center">
-              <p className="font-serif text-2xl mb-2">Paket tidak ditemukan</p>
-              <p className="text-muted-foreground text-sm">
-                Coba ubah kata kunci atau pilih kategori lain.
-              </p>
-            </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {filtered.map((program: any, index: number) => (
-                <motion.article
-                  key={program.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: Math.min(index, 5) * 0.06 }}
-                  className="group flex flex-col rounded-2xl overflow-hidden border border-border bg-card"
-                >
-                  <Link to={promotionPath(program)} className="block relative aspect-[4/3] overflow-hidden bg-muted">
-                    {program.image_url ? (
-                      <img
-                        src={program.image_url}
-                        alt={program.name}
-                        loading="lazy"
-                        className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-muted" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent pointer-events-none" />
-                    {program.category && (
-                      <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-primary text-primary-foreground text-[10px] tracking-[0.15em] uppercase">
-                        {program.category}
-                      </span>
-                    )}
-                  </Link>
-
-                  <div className="flex flex-col flex-1 p-6">
-                    <h2 className="font-serif text-xl lg:text-2xl font-semibold leading-snug mb-3 group-hover:text-primary transition-colors">
-                      <Link to={promotionPath(program)}>{program.name}</Link>
-                    </h2>
-                    {program.description && (
-                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 mb-6">
-                        {program.description}
-                      </p>
-                    )}
-                    <div className="mt-auto flex items-center gap-3">
-                      <Link to={promotionPath(program)} className="flex-1">
-                        <Button variant="outline" className="w-full rounded-full text-xs tracking-[0.05em] uppercase">
-                          Detail
-                          <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                      </Link>
-                      <a
-                        href={program.cta_link || WHATSFORM_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1"
-                      >
-                        <Button className="w-full rounded-full text-xs tracking-[0.05em] uppercase">
-                          {program.cta_label || 'Pesan'}
-                        </Button>
-                      </a>
+      <div className="ota-container py-6">
+        {isLoading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-72 rounded-2xl" />)}</div>
+        ) : filtered.length === 0 ? (
+          <EmptyState title="Belum ada promo yang cocok">Promo baru akan tampil di sini. Pantau terus, atau tanya tim kami lewat WhatsApp.</EmptyState>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((p) => {
+              const period = promoPeriod(p);
+              return (
+                <Link key={p.id} to={promotionPath(p)} className="ota-card overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
+                  <div className="relative aspect-[16/9] bg-muted">
+                    {p.image_url && <CMSImage src={p.image_url} imageWidth={720} sizes="(max-width: 640px) 100vw, 380px" alt={p.name} className="absolute inset-0 w-full h-full object-cover" />}
+                    {p.category && <span className="absolute left-3 top-3 ota-badge">{p.category}</span>}
+                  </div>
+                  <div className="p-4 flex flex-col gap-2 flex-1">
+                    <p className="font-extrabold leading-snug line-clamp-2">{p.name}</p>
+                    {p.description && <p className="text-sm text-muted-foreground line-clamp-2">{p.description}</p>}
+                    <div className="mt-auto pt-2 flex items-center justify-between gap-2 text-xs">
+                      {period ? <span className="inline-flex items-center gap-1.5 text-muted-foreground"><CalendarClock className="size-4" aria-hidden="true" />{period}</span> : <span />}
+                      {p.promo_code && <span className="rounded-md border border-dashed border-primary px-2 py-0.5 font-mono font-bold text-primary">{p.promo_code}</span>}
                     </div>
                   </div>
-                </motion.article>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-    
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </Layout>
   );
 };
-
-function FilterChip({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`shrink-0 px-4 py-2 rounded-full text-xs tracking-[0.05em] uppercase border transition-colors ${
-        active
-          ? 'bg-primary text-primary-foreground border-primary'
-          : 'bg-transparent text-muted-foreground border-border hover:border-primary hover:text-primary'
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
 
 export default Packages;

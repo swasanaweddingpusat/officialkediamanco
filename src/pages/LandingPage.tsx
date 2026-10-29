@@ -1,4 +1,5 @@
 import { HeroSection } from '@/components/home/HeroSection';
+import { useOtaTheme } from '@/hooks/useOtaTheme';
 import { FeaturesSection } from '@/components/home/FeaturesSection';
 import { CTASection } from '@/components/home/CTASection';
 import { FullLocationsSection } from '@/components/landing/FullLocationsSection';
@@ -9,6 +10,8 @@ import { VideoTestimonialsSection } from '@/components/landing/VideoTestimonials
 import { useSiteSettings } from '@/hooks/useCMS';
 
 const LandingPage = () => {
+  // Halaman iklan khusus tetap memakai tampilan lamanya (tema gelap).
+  useOtaTheme(false);
   const { data: siteSettings } = useSiteSettings();
 
   return (

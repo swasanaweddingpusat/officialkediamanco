@@ -35,6 +35,12 @@ const ArticleDetail = lazy(() => import("./pages/ArticleDetail"));
 const BookingTrack = lazy(() => import("./pages/BookingTrack"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
+const PriceList = lazy(() => import("./pages/PriceList"));
+const Help = lazy(() => import("./pages/Help"));
+const Reviews = lazy(() => import("./pages/Reviews"));
+const AdminPackages = lazy(() => import("./pages/admin/AdminPackages"));
+const AdminFaqs = lazy(() => import("./pages/admin/AdminFaqs"));
+const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
 import { DeferredChat } from "./components/DeferredChat";
 import { RouteIndexingManager } from "./components/RouteIndexingManager";
 
@@ -64,6 +70,11 @@ const App = () => (
               <Route path="/portfolio" element={<Trainers />} />
               <Route path="/portfolio/:id" element={<PortfolioDetail />} />
               <Route path="/paket" element={<Packages />} />
+              <Route path="/promo" element={<Packages />} />
+              <Route path="/promo/:id" element={<ProgramDetail />} />
+              <Route path="/harga" element={<PriceList />} />
+              <Route path="/bantuan" element={<Help />} />
+              <Route path="/ulasan" element={<Reviews />} />
               <Route path="/lokasi" element={<Locations />} />
               <Route path="/lokasi/:id" element={<LocationDetail />} />
               <Route path="/artikel" element={<Blog />} />
@@ -81,6 +92,9 @@ const App = () => (
               <Route path="/admin/articles" element={<AdminArticles />} />
               <Route path="/admin/video-testimonials" element={<AdminVideoTestimonials />} />
               <Route path="/admin/about" element={<AdminAbout />} />
+              <Route path="/admin/packages" element={<AdminPackages />} />
+              <Route path="/admin/faqs" element={<AdminFaqs />} />
+              <Route path="/admin/reviews" element={<AdminReviews />} />
               <Route path="/admin/ballroom-schedules" element={<AdminBallroomSchedules />} />
               <Route path="/admin/ballroom-bookings" element={<AdminBallroomBookings />} />
               <Route path="*" element={<NotFound />} />

@@ -1,331 +1,205 @@
-import { CMSImage } from '@/components/CMSImage';
-import { venuePath } from '@/lib/venue-url';
-import { useState, useMemo, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, ArrowRight, X } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
+import { id as idLocale } from 'date-fns/locale';
+import { MapPin, Users, SlidersHorizontal, X, Eye } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
-import { useBallroomSchedules, useLocations, useVenueInterest } from '@/hooks/useCMS';
+import { useLocations, useVenueInterest, useExternalDeals } from '@/hooks/useCMS';
+import { useStartingPrices, formatRupiah } from '@/hooks/useOta';
 import { useSEO } from '@/hooks/useSEO';
-import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
-import { VenueInterestBadge } from '@/components/venue/VenueInterestBadge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { CMSImage } from '@/components/CMSImage';
+import { Breadcrumbs, EmptyState, venueImage } from '@/components/ota/OtaKit';
+import { SearchWidget } from '@/components/ota/SearchWidget';
+import { venuePath } from '@/lib/venue-url';
+import { cn } from '@/lib/utils';
 
-const LOCATION_CATEGORIES = ['Semua', 'Jakarta Selatan', 'Jakarta Timur', 'Bintaro', 'Bandung'] as const;
+type Sort = 'relevan' | 'harga' | 'populer';
+
+const norm = (v?: string | null) => (v ?? '').toLowerCase().trim();
 
 const Locations = () => {
-  const { data: locations, isLoading } = useLocations();
-  const { data: schedules = [] } = useBallroomSchedules(undefined, true);
+  const { data: locations = [], isLoading } = useLocations();
   const { data: interest = {} } = useVenueInterest();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const q = searchParams.get('q')?.trim() || '';
-  const date = searchParams.get('date') || '';
+  const { data: prices } = useStartingPrices();
+  const { data: deals = [] } = useExternalDeals();
+  const [params, setParams] = useSearchParams();
+  const q = params.get('q')?.trim() || '';
+  const date = params.get('date') || '';
+  const [cities, setCities] = useState<string[]>([]);
+  const [onlyAvailable, setOnlyAvailable] = useState(true);
+  const [only360, setOnly360] = useState(false);
+  const [sort, setSort] = useState<Sort>('relevan');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [blocked, setBlocked] = useState<Set<string>>(new Set());
 
   useSEO({
-    title: "Lokasi Venue & Ballroom | Kediaman Corp",
-    description: "Kunjungi lokasi-lokasi premium Kediaman Corp di Jakarta, Bintaro, dan Bandung.",
-    url: "https://kediaman.co/lokasi",
-    breadcrumbs: [
-      { name: "Home", url: "https://kediaman.co/" },
-      { name: "Lokasi", url: "https://kediaman.co/lokasi" }
-    ]
+    title: 'Cari Venue & Ballroom | Kediaman Corp',
+    description: 'Bandingkan ballroom Kediaman di Jakarta dan Bandung: cek tanggal kosong, kapasitas, fasilitas, dan harga paket.',
+    url: 'https://kediaman.co/lokasi',
+    breadcrumbs: [{ name: 'Home', url: 'https://kediaman.co/' }, { name: 'Lokasi', url: 'https://kediaman.co/lokasi' }],
   });
 
-  const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
-  const [unavailableIds, setUnavailableIds] = useState<Set<string>>(new Set());
-
   useEffect(() => {
-    if (!date) { setUnavailableIds(new Set()); return; }
+    if (!date) { setBlocked(new Set()); return; }
     let cancelled = false;
-    supabase
-      .from('ballroom_schedules')
-      .select('location_id,status')
-      .eq('schedule_date', date)
-      .in('status', ['booked', 'blocked'])
-      .then(({ data }) => {
-        if (cancelled) return;
-        setUnavailableIds(new Set((data || []).map((r) => r.location_id as string)));
-      });
+    supabase.from('ballroom_schedules').select('location_id,status').eq('schedule_date', date).in('status', ['booked', 'blocked'])
+      .then(({ data }: { data: { location_id: string }[] | null }) => { if (!cancelled) setBlocked(new Set((data || []).map((r) => r.location_id))); });
     return () => { cancelled = true; };
   }, [date]);
 
-  const activeLocations = locations?.filter(l => l.is_active) || [];
-  const filteredLocations = useMemo(() => {
-    let list = activeLocations;
-    if (selectedCategory !== 'Semua') list = list.filter(l => l.category === selectedCategory);
+  const venues = useMemo(() => locations.filter((l) => l.is_active), [locations]);
+  const allCities = useMemo(() => [...new Set(venues.map((v) => v.category).filter(Boolean) as string[])], [venues]);
+
+  // Tanggal yang sudah terisi menurut data deals eksternal (dicocokkan lewat nama venue).
+  const dealBlocked = useMemo(() => {
+    const set = new Set<string>();
+    if (!date) return set;
+    for (const v of venues) {
+      const n = norm(v.name);
+      if (deals.some((d) => (d.tanggalAcara ?? '').slice(0, 10) === date && (norm(d.namaVenue) === n || (n.length > 3 && norm(d.namaVenue).includes(n))))) set.add(v.id);
+    }
+    return set;
+  }, [deals, venues, date]);
+
+  const isFull = (id: string) => blocked.has(id) || dealBlocked.has(id);
+
+  const results = useMemo(() => {
+    let list = venues;
     if (q) {
       const needle = q.toLowerCase();
-      list = list.filter(
-        (l) =>
-          l.name?.toLowerCase().includes(needle) ||
-          l.address?.toLowerCase().includes(needle) ||
-          l.category?.toLowerCase().includes(needle),
-      );
+      list = list.filter((l) => l.name.toLowerCase().includes(needle) || l.address?.toLowerCase().includes(needle) || l.category?.toLowerCase().includes(needle));
     }
-    return list;
-  }, [activeLocations, selectedCategory, q]);
+    if (cities.length) list = list.filter((l) => l.category && cities.includes(l.category));
+    if (only360) list = list.filter((l) => l.matterport_360_url);
+    if (date && onlyAvailable) list = list.filter((l) => !isFull(l.id) && !l.is_coming_soon);
+    const sorted = [...list];
+    if (sort === 'harga') sorted.sort((a, b) => (prices[a.id] ?? Infinity) - (prices[b.id] ?? Infinity));
+    if (sort === 'populer') sorted.sort((a, b) => (interest[b.id]?.views ?? 0) - (interest[a.id]?.views ?? 0));
+    return sorted;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [venues, q, cities, only360, date, onlyAvailable, sort, prices, interest, blocked, dealBlocked]);
 
-  const comingSoonLocations = filteredLocations.filter(l => l.is_coming_soon);
-  const openLocations = filteredLocations
-    .filter(l => !l.is_coming_soon)
-    .filter(l => !date || !unavailableIds.has(l.id));
-  const unavailableForDate = date
-    ? filteredLocations.filter(l => !l.is_coming_soon && unavailableIds.has(l.id))
-    : [];
+  const dateLabel = date ? format(parseISO(date), 'EEEE, d MMMM yyyy', { locale: idLocale }) : '';
+  const carry = date ? `?date=${date}` : '';
+  const toggleCity = (c: string) => setCities((cur) => (cur.includes(c) ? cur.filter((x) => x !== c) : [...cur, c]));
+  const clear = () => { setCities([]); setOnly360(false); setOnlyAvailable(true); setParams({}); };
 
-  const clearSearch = () => setSearchParams({});
+  const filters = (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between"><p className="font-extrabold">Filter</p><button type="button" onClick={clear} className="text-sm font-bold text-primary">Reset</button></div>
+      {date && (
+        <label className="flex items-center gap-2.5 text-sm"><input type="checkbox" checked={onlyAvailable} onChange={(e) => setOnlyAvailable(e.target.checked)} className="size-4 accent-[hsl(var(--primary))]" />Hanya yang masih kosong</label>
+      )}
+      <fieldset className="space-y-2.5 border-t border-border pt-4">
+        <legend className="font-bold text-sm mb-2.5">Area</legend>
+        {allCities.map((c) => (
+          <label key={c} className="flex items-center gap-2.5 text-sm"><input type="checkbox" checked={cities.includes(c)} onChange={() => toggleCity(c)} className="size-4 accent-[hsl(var(--primary))]" />{c}</label>
+        ))}
+      </fieldset>
+      <fieldset className="space-y-2.5 border-t border-border pt-4">
+        <legend className="font-bold text-sm mb-2.5">Fasilitas</legend>
+        <label className="flex items-center gap-2.5 text-sm"><input type="checkbox" checked={only360} onChange={(e) => setOnly360(e.target.checked)} className="size-4 accent-[hsl(var(--primary))]" />Tur virtual 360°</label>
+      </fieldset>
+    </div>
+  );
 
   return (
     <Layout>
-      {/* Hero */}
-      <section className="pt-16 lg:pt-24 pb-12 lg:pb-16">
-        <div className="container mx-auto px-6 lg:px-12">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="text-primary text-[11px] tracking-[0.3em] uppercase mb-4 flex items-center gap-3">
-              <span className="w-8 h-px bg-primary" />
-              Venue
-            </p>
-            <h1 className="font-serif text-4xl lg:text-6xl font-bold mb-8">
-              Lokasi <span className="text-primary">Kami</span>
+      <div className="bg-card border-b border-border">
+        <div className="ota-container py-4">
+          <Breadcrumbs items={[{ name: 'Venue' }]} className="mb-3" />
+          <details className="group">
+            <summary className="list-none cursor-pointer flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full border border-input bg-background px-4 py-2.5 text-sm [&::-webkit-details-marker]:hidden">
+              <span className="font-bold">{q || 'Semua area'}</span>
+              <span className="text-muted-foreground">·</span>
+              <span>{dateLabel || 'Tanggal fleksibel'}</span>
+              <span className="ml-auto inline-flex items-center h-8 px-4 rounded-full bg-primary text-primary-foreground font-bold text-xs group-open:hidden">Ubah</span>
+            </summary>
+            <SearchWidget className="mt-3" />
+          </details>
+        </div>
+      </div>
+
+      <div className="ota-container py-6 flex gap-6 items-start">
+        <aside className="hidden lg:block w-64 shrink-0 ota-card p-5 sticky top-32">{filters}</aside>
+
+        <section className="flex-1 min-w-0 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h1 className="text-lg md:text-xl font-extrabold">
+              {isLoading ? 'Memuat venue…' : date ? `${results.length} venue ${onlyAvailable ? 'masih kosong' : 'ditemukan'} untuk ${dateLabel}` : `${results.length} venue ditemukan`}
             </h1>
-          </motion.div>
-
-          {/* Category Filter */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex flex-wrap gap-2"
-          >
-            {LOCATION_CATEGORIES.map(category => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 text-[11px] tracking-[0.15em] uppercase rounded-full border transition-all duration-300 ${
-                  selectedCategory === category
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-border/50 text-muted-foreground hover:border-primary hover:text-primary'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </motion.div>
-
-          {(q || date) && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mt-6 flex flex-wrap items-center gap-2 text-xs"
-            >
-              <span className="text-muted-foreground uppercase tracking-widest text-[10px]">Filter aktif:</span>
-              {q && (
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary">
-                  Pencarian: <strong>{q}</strong>
-                </span>
-              )}
-              {date && (
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary">
-                  Tanggal: <strong>{new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
-                </span>
-              )}
-              <button
-                onClick={clearSearch}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-border/50 text-muted-foreground hover:text-foreground hover:border-foreground/50 transition-colors"
-              >
-                <X className="w-3 h-3" /> Reset
-              </button>
-            </motion.div>
-          )}
-        </div>
-      </section>
-
-
-      {/* Locations Grid */}
-      <section className="pb-24 lg:pb-32">
-        <div className="container mx-auto px-6 lg:px-12">
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-              {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="aspect-[3/4] rounded-sm" />
-              ))}
+            <div className="flex items-center gap-2">
+              <Button type="button" variant="outline" className="lg:hidden rounded-xl" onClick={() => setFiltersOpen(true)}><SlidersHorizontal className="size-4" />Filter</Button>
+              <label className="flex items-center gap-2 text-sm">
+                <span className="hidden sm:inline">Urutkan</span>
+                <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="h-10 rounded-xl border border-input bg-card px-3 font-bold text-sm">
+                  <option value="relevan">Paling relevan</option>
+                  <option value="harga">Harga termurah</option>
+                  <option value="populer">Paling banyak dilihat</option>
+                </select>
+              </label>
             </div>
-          ) : openLocations.length > 0 || comingSoonLocations.length > 0 ? (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={selectedCategory}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                {openLocations.length > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-16">
-                    {openLocations.map((location, index) => (
-                      <LocationCard key={location.id} location={location} index={index} views={interest[location.id]?.views} promoLabel={getPromoLabel(schedules, location.id)} />
-                    ))}
+          </div>
+
+          {isLoading && Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-48 rounded-2xl" />)}
+          {!isLoading && results.length === 0 && (
+            <EmptyState title="Belum ada venue yang cocok">
+              Coba ubah filter atau tanggal, atau <a className="font-bold text-primary" href="https://wa.me/6281117797567">tanya tim kami</a> untuk alternatif.
+            </EmptyState>
+          )}
+
+          {results.map((v) => {
+            const full = !!date && isFull(v.id);
+            const views = interest[v.id]?.views ?? 0;
+            return (
+              <article key={v.id} className={cn('ota-card overflow-hidden flex flex-col sm:flex-row', full && 'opacity-75')}>
+                <Link to={`${venuePath(v)}${carry}`} className="relative sm:w-64 shrink-0 aspect-[16/10] sm:aspect-auto bg-muted">
+                  <CMSImage src={venueImage(v)} imageWidth={520} sizes="(max-width: 640px) 100vw, 256px" alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  <span className="absolute left-2.5 top-2.5 flex gap-1.5">
+                    {v.is_coming_soon && <span className="ota-badge">Segera hadir</span>}
+                    {v.matterport_360_url && <span className="ota-badge">Tur 360°</span>}
+                  </span>
+                </Link>
+                <div className="flex-1 min-w-0 p-4 flex flex-col gap-1.5">
+                  <Link to={`${venuePath(v)}${carry}`} className="font-extrabold text-lg leading-snug hover:text-primary">{v.name}</Link>
+                  {v.category && <p className="text-sm text-muted-foreground flex items-center gap-1.5"><MapPin className="size-4" aria-hidden="true" />{v.category}</p>}
+                  {v.address && <p className="text-xs text-muted-foreground line-clamp-1">{v.address}</p>}
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                    {v.ballroom_layout_capacity && <span className="flex items-center gap-1.5"><Users className="size-4" aria-hidden="true" />{v.ballroom_layout_capacity}</span>}
+                    {views >= 10 && <span className="flex items-center gap-1.5"><Eye className="size-4" aria-hidden="true" />Dilihat {views}× minggu ini</span>}
                   </div>
-                )}
+                  {date && (
+                    <p className="mt-auto pt-2"><span className={cn('inline-flex items-center h-7 px-2.5 rounded-full text-xs font-bold', full ? 'ota-pill-full' : 'ota-pill-ok')}>{full ? 'Sudah terisi' : 'Tanggal masih kosong'}</span></p>
+                  )}
+                </div>
+                <div className="p-4 sm:w-52 shrink-0 border-t sm:border-t-0 sm:border-l border-border flex sm:flex-col items-end justify-between sm:justify-end gap-2 text-right">
+                  <div>
+                    <p className="text-[11px] text-muted-foreground">Paket mulai</p>
+                    <p className="ota-price text-lg">{formatRupiah(prices[v.id]) ?? 'Hubungi kami'}</p>
+                  </div>
+                  <Link to={`${venuePath(v)}${carry}`} className={cn('inline-flex items-center justify-center h-11 px-5 rounded-xl font-extrabold text-sm', full ? 'border border-input' : 'bg-primary text-primary-foreground')}>
+                    {full ? 'Lihat tanggal lain' : 'Pilih venue'}
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      </div>
 
-                {comingSoonLocations.length > 0 && (
-                  <>
-                    <div className="mb-10">
-                      <p className="text-primary text-[11px] tracking-[0.3em] uppercase flex items-center gap-3">
-                        <span className="w-8 h-px bg-primary" />
-                        Segera Hadir
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-16">
-                      {comingSoonLocations.map((location, index) => (
-                        <LocationCard key={location.id} location={location} index={index} isComingSoon />
-                      ))}
-                    </div>
-                  </>
-                )}
-
-                {unavailableForDate.length > 0 && (
-                  <>
-                    <div className="mb-10">
-                      <p className="text-destructive text-[11px] tracking-[0.3em] uppercase flex items-center gap-3">
-                        <span className="w-8 h-px bg-destructive" />
-                        Tidak Tersedia Untuk Tanggal Ini
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 opacity-60">
-                      {unavailableForDate.map((location, index) => (
-                        <LocationCard key={location.id} location={location} index={index} views={interest[location.id]?.views} promoLabel={getPromoLabel(schedules, location.id)} />
-                      ))}
-                    </div>
-                  </>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          ) : (
-            <div className="text-center py-24 space-y-4">
-              <p className="text-muted-foreground">
-                {q || date
-                  ? 'Tidak ada venue yang cocok dengan pencarian Anda.'
-                  : selectedCategory === 'Semua'
-                  ? 'Belum ada lokasi tersedia.'
-                  : `Tidak ada lokasi di ${selectedCategory}.`}
-              </p>
-              {(q || date) && (
-                <button
-                  onClick={clearSearch}
-                  className="text-primary text-xs tracking-widest uppercase underline underline-offset-4"
-                >
-                  Reset Pencarian
-                </button>
-              )}
-            </div>
-          )}
-
+      {filtersOpen && (
+        <div className="lg:hidden fixed inset-0 z-[60] bg-black/40" onClick={() => setFiltersOpen(false)}>
+          <div role="dialog" aria-modal="true" aria-label="Filter" className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto rounded-t-3xl bg-card p-5" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-end mb-1"><Button variant="ghost" size="icon" onClick={() => setFiltersOpen(false)} aria-label="Tutup filter"><X /></Button></div>
+            {filters}
+            <Button className="w-full mt-6 h-12 rounded-xl font-extrabold" onClick={() => setFiltersOpen(false)}>Tampilkan {results.length} venue</Button>
+          </div>
         </div>
-      </section>
-
-      {/* Lightbox */}
-      <AnimatePresence>
-        {lightboxImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/95 flex items-center justify-center p-4"
-            onClick={() => setLightboxImage(null)}
-          >
-            <button className="absolute top-4 right-4 p-2 bg-secondary rounded-full" onClick={() => setLightboxImage(null)}>
-              <X className="w-5 h-5" />
-            </button>
-            <img src={lightboxImage} alt="Gallery" className="max-w-full max-h-[90vh] rounded-sm object-contain" />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      )}
     </Layout>
-  );
-};
-
-interface LocationCardProps {
-  location: {
-    slug?: string | null;
-    id: string;
-    name: string;
-    address: string | null;
-    image_url: string | null;
-    is_coming_soon: boolean | null;
-    category: string | null;
-  };
-  index: number;
-  isComingSoon?: boolean;
-  views?: number;
-  promoLabel?: string | null;
-}
-
-const getPromoLabel = (schedules: { location_id: string; promo_type: string | null; promo_label: string | null; promo_expires_at: string | null }[], locationId: string) => {
-  const promo = schedules.find((schedule) => schedule.location_id === locationId && schedule.promo_type && (!schedule.promo_expires_at || new Date(schedule.promo_expires_at) >= new Date()));
-  return promo?.promo_label || (promo?.promo_type === 'limited_offer' ? 'Limited Offer' : promo?.promo_type ? 'Special Offer' : null);
-};
-
-const LocationCard = ({ location, index, isComingSoon, views, promoLabel }: LocationCardProps) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: Math.min(index * 0.08, 0.3) }}
-    >
-      <Link
-        to={venuePath(location)}
-        className="group block relative overflow-hidden aspect-[3/4] rounded-sm"
-      >
-        {location.image_url ? (
-          <CMSImage
-            src={location.image_url}
-            width={400} height={533}
-            sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 400px"
-            loading={index === 0 ? 'eager' : 'lazy'}
-            fetchPriority={index === 0 ? 'high' : 'auto'}
-            alt={location.name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-        ) : (
-          <div className="w-full h-full bg-muted flex items-center justify-center">
-            <MapPin className="w-12 h-12 opacity-20" />
-          </div>
-        )}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
-
-        {isComingSoon && (
-          <div className="absolute top-4 right-4 px-3 py-1.5 bg-accent/80 text-accent-foreground text-[10px] tracking-[0.1em] uppercase rounded-full">
-            Segera Hadir
-          </div>
-        )}
-
-        {!isComingSoon && <VenueInterestBadge views={views} promoLabel={promoLabel} compact className="absolute left-4 top-4 max-w-[75%]" />}
-
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          {location.category && (
-            <span className="text-primary text-[10px] tracking-[0.2em] uppercase mb-2 block">
-              {location.category}
-            </span>
-          )}
-          <h3 className="font-serif text-xl lg:text-2xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">
-            {location.name}
-          </h3>
-          {location.address && (
-            <p className="text-muted-foreground text-xs flex items-center gap-1.5 line-clamp-1">
-              <MapPin className="w-3 h-3 shrink-0" />
-              {location.address}
-            </p>
-          )}
-        </div>
-
-        <div className="absolute top-6 right-6 w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:border-primary">
-          <ArrowRight className="w-4 h-4 text-primary" />
-        </div>
-      </Link>
-    </motion.div>
   );
 };
 

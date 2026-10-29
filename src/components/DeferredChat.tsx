@@ -9,6 +9,6 @@ export function DeferredChat() {
   const [activated, setActivated] = useState(false);
   const { pathname } = useLocation();
   if (pathname === '/venue-only') return null;
-  const launcher = <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6"><Button type="button" size="icon" onClick={() => setActivated(true)} className="size-14 rounded-2xl shadow-2xl transition-transform hover:scale-105" aria-label="Buka concierge Kediaman"><MessageCircle className="size-6" /></Button></div>;
+  const launcher = <div className="fixed bottom-24 right-4 z-50 md:bottom-6 md:right-6"><Button type="button" size="icon" onClick={() => setActivated(true)} className="size-14 rounded-2xl shadow-2xl transition-transform hover:scale-105" aria-label="Buka concierge Kediaman"><MessageCircle className="size-6" /></Button></div>;
   return activated ? <Suspense fallback={launcher}><FloatingChat initiallyOpen /></Suspense> : launcher;
 }

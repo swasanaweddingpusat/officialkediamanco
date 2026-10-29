@@ -23,8 +23,11 @@ export const MAIN_SECTIONS = [
   { name: "Tentang Kami", path: "/tentang-kami" },
   { name: "Portfolio", path: "/portfolio" },
   { name: "Lokasi Venue", path: "/lokasi" },
-  { name: "Paket & Promo", path: "/paket" },
+  { name: "Paket & Harga", path: "/harga" },
+  { name: "Promo", path: "/promo" },
+  { name: "Ulasan", path: "/ulasan" },
   { name: "Artikel", path: "/artikel" },
+  { name: "Bantuan", path: "/bantuan" },
 ];
 
 const HOME = { name: "Beranda", path: "/" };
@@ -57,6 +60,34 @@ export const STATIC_PAGES: PageMeta[] = [
     description: `Daftar lengkap paket dan promo venue ${SITE_NAME}. Pilih kategori, cek detail, dan ajukan penawaran langsung lewat formulir WhatsApp.`,
     heading: "Paket & Promo Venue",
     breadcrumbs: [HOME, { name: "Paket & Promo", path: "/paket" }],
+  },
+  {
+    path: "/promo",
+    title: `Promo Venue & Ballroom | ${SITE_NAME}`,
+    description: `Promo dan penawaran spesial venue ${SITE_NAME}: diskon paket, bonus, dan event pameran pernikahan.`,
+    heading: "Promo spesial",
+    breadcrumbs: [HOME, { name: "Promo", path: "/promo" }],
+  },
+  {
+    path: "/harga",
+    title: `Paket & Harga Venue Pernikahan | ${SITE_NAME}`,
+    description: "Bandingkan paket dan harga pernikahan di setiap ballroom Kediaman: isi paket, kapasitas tamu, dan harga mulai.",
+    heading: "Paket & harga",
+    breadcrumbs: [HOME, { name: "Paket & Harga", path: "/harga" }],
+  },
+  {
+    path: "/ulasan",
+    title: `Ulasan Pasangan | ${SITE_NAME}`,
+    description: "Cerita dan penilaian pasangan yang sudah menikah di ballroom Kediaman.",
+    heading: "Ulasan pasangan",
+    breadcrumbs: [HOME, { name: "Ulasan", path: "/ulasan" }],
+  },
+  {
+    path: "/bantuan",
+    title: `Pusat Bantuan & FAQ | ${SITE_NAME}`,
+    description: "Jawaban seputar booking venue, pembayaran, survei, dan hari acara di Kediaman Corp.",
+    heading: "Bantuan",
+    breadcrumbs: [HOME, { name: "Bantuan", path: "/bantuan" }],
   },
   {
     path: "/artikel",
@@ -173,7 +204,7 @@ export async function dynamicPages(apiUrl: string): Promise<PageMeta[]> {
   await settle("programs", async () => {
     for (const row of await query(apiUrl, "programs", "slug,name,description,image_url", "is_active")) {
       if (!row.slug) continue;
-      const path = `/tentang-kami/${row.slug}`;
+      const path = `/promo/${row.slug}`;
       const name = plain(row.name, 90);
       pages.push({
         path,
@@ -181,7 +212,7 @@ export async function dynamicPages(apiUrl: string): Promise<PageMeta[]> {
         description: plain(row.description) || `Penawaran dan paket venue ${SITE_NAME} untuk acara Anda.`,
         image: (row.image_url as string) || null,
         heading: name,
-        breadcrumbs: [HOME, { name: "Tentang Kami", path: "/tentang-kami" }, { name, path }],
+        breadcrumbs: [HOME, { name: "Promo", path: "/promo" }, { name, path }],
       });
     }
   });
@@ -282,7 +313,8 @@ async function main() {
   const snapshotPath = resolve("src/generated/hero-slides.json");
   const slides = existsSync(snapshotPath) ? JSON.parse(readFileSync(snapshotPath, "utf8")) as Record<string, unknown>[] : [];
   const firstSlide = slides.find((slide) => slide.is_active !== false);
-  const bootHero = homeBootHero(firstSlide, apiUrl, readEnv("VITE_STORAGE_PUBLIC_URL"));
+  // Desain OTA: hero beranda dirender oleh React (tanpa salinan statis bergaya editorial).
+  const bootHero = process.env.BOOT_HERO === "on" ? homeBootHero(firstSlide, apiUrl, readEnv("VITE_STORAGE_PUBLIC_URL")) : "";
   if (bootHero) {
     home = home.replace('<div id="root"></div>', `<div id="root"></div>${bootHero}`);
     home = deferAppScript(home);

@@ -10,6 +10,10 @@ const PUBLIC_ROUTE_PATTERNS = [
   /^\/tentang-kami(?:\/[^/]+)?\/?$/,
   /^\/portfolio(?:\/[^/]+)?\/?$/,
   /^\/paket\/?$/,
+  /^\/promo(?:\/[^/]+)?\/?$/,
+  /^\/harga\/?$/,
+  /^\/ulasan\/?$/,
+  /^\/bantuan\/?$/,
   /^\/lokasi(?:\/[^/]+)?\/?$/,
   /^\/artikel(?:\/[^/]+)?\/?$/,
 ];

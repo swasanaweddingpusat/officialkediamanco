@@ -1,4 +1,5 @@
 import { venuePath } from '@/lib/venue-url';
+import { useOtaTheme } from '@/hooks/useOtaTheme';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Phone, MapPin, ArrowRight, Check, Star, Users, Calendar, Shield, Sparkles, Building2 } from 'lucide-react';
@@ -25,6 +26,8 @@ const whyChoose = [
 ];
 
 export default function VenueOnly() {
+  // Halaman iklan khusus tetap memakai tampilan lamanya (tema gelap).
+  useOtaTheme(false);
   const [searchParams] = useSearchParams();
   const customPhone = searchParams.get('phone') || searchParams.get('wa');
   const { data: locations } = useLocations();
