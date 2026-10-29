@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
-import { MapPin, Users, Ruler, CalendarDays, Images, Check, MessageCircle, Share2, Navigation, Clock } from 'lucide-react';
+import { MapPin, Users, Ruler, CalendarDays, Images, Check, MessageCircle, Share2, Navigation, Clock, Move3d } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useLocations, useBallroomSchedules, usePortfoliosByLocation, useTrackVenueInterest, useVenueInterest, useSiteSettings } from '@/hooks/useCMS';
 import { useVenuePackages, useVenueReviews, summarizeReviews, formatRupiah } from '@/hooks/useOta';
@@ -60,6 +60,7 @@ const LocationDetail = () => {
 
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [tourStarted, setTourStarted] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const initial = searchParams.get('date');
   const [date, setDate] = useState<Date | undefined>(initial && /^\d{4}-\d{2}-\d{2}$/.test(initial) ? parseISO(initial) : undefined);
@@ -230,7 +231,7 @@ const LocationDetail = () => {
             <p className="text-sm text-muted-foreground mt-1 flex items-start gap-1.5"><MapPin className="size-4 shrink-0 mt-0.5" aria-hidden="true" />{location.address || location.category}</p>
             <div className="flex flex-wrap gap-2 mt-2">
               {summary.count > 0 && <a href="#ulasan" className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-xs font-bold text-primary"><RatingStars value={summary.average} />{summary.average.toFixed(1)} · {summary.count} ulasan</a>}
-              {location.matterport_360_url && <a href="#tur-360" className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-primary">Tur virtual 360°</a>}
+              {location.matterport_360_url && <a href="#tur-360" onClick={() => setTourStarted(true)} className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-primary">Tur virtual 360°</a>}
               {views >= 10 && <span className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">Dilihat {views} kali dalam 7 hari</span>}
               {location.is_coming_soon && <span className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">Segera hadir</span>}
             </div>
@@ -243,7 +244,7 @@ const LocationDetail = () => {
 
         {/* Galeri */}
         {images.length > 0 && (
-          <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[260px] sm:h-[360px] md:h-[420px] rounded-2xl overflow-hidden">
+          <div className="relative grid grid-cols-4 grid-rows-2 gap-2 h-[260px] sm:h-[360px] md:h-[420px] rounded-2xl overflow-hidden">
             {images.slice(0, 5).map((src, i) => (
               <button key={src + i} type="button" onClick={() => setLightboxImage(src)} className={cn('relative bg-muted overflow-hidden', i === 0 ? 'col-span-4 row-span-2 sm:col-span-2' : 'hidden sm:block')} aria-label={`Lihat foto ${i + 1}`}>
                 <CMSImage src={src} imageWidth={i === 0 ? 1200 : 480} sizes={i === 0 ? '(max-width: 640px) 100vw, 600px' : '300px'} loading={i === 0 ? 'eager' : 'lazy'} alt={i === 0 ? location.name : ''} className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
@@ -252,6 +253,15 @@ const LocationDetail = () => {
                 )}
               </button>
             ))}
+            {location.matterport_360_url && (
+              <button
+                type="button"
+                onClick={() => { setTourStarted(true); document.getElementById('tur-360')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                className="absolute left-3 bottom-3 inline-flex items-center gap-2 rounded-full bg-primary/90 backdrop-blur px-4 py-2 text-sm font-bold text-primary-foreground shadow-lg hover:bg-primary"
+              >
+                <Move3d className="size-4" aria-hidden="true" />Tur virtual 360°
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -318,7 +328,7 @@ const LocationDetail = () => {
 
           {location.matterport_360_url && (
             <section id="tur-360" className="ota-card p-5 scroll-mt-48">
-              <Matterport360Embed url={location.matterport_360_url} />
+              <Matterport360Embed url={location.matterport_360_url} poster={images[0]} venueName={location.name} started={tourStarted} onStartedChange={setTourStarted} />
             </section>
           )}
 
