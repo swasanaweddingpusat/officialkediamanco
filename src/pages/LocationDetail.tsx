@@ -63,6 +63,15 @@ const LocationDetail = () => {
   const [tourStarted, setTourStarted] = useState(false);
   const [bookingPackageId, setBookingPackageId] = useState<string | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
+  // Kotak booking hanya dirender di satu tempat (samping di desktop, bawah konten di HP).
+  // Sebelumnya dirender dua kali (satu disembunyikan CSS) sehingga popover kalender ikut terbuka dua kali.
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches);
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 1024px)');
+    const onChange = () => { setIsDesktop(mql.matches); setCalendarOpen(false); };
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
   const initial = searchParams.get('date');
   const [date, setDate] = useState<Date | undefined>(initial && /^\d{4}-\d{2}-\d{2}$/.test(initial) ? parseISO(initial) : undefined);
 
@@ -377,7 +386,7 @@ const LocationDetail = () => {
           </section>
         </div>
 
-        <aside className="hidden lg:block w-[340px] shrink-0 sticky top-40">{bookingBox}</aside>
+        {isDesktop && <aside className="w-[340px] shrink-0 sticky top-40">{bookingBox}</aside>}
       </div>
 
       {/* Bar booking menempel di HP */}
@@ -388,11 +397,11 @@ const LocationDetail = () => {
               <p className="text-[11px] text-muted-foreground">Paket mulai</p>
               <p className="ota-price">{formatRupiah(minPrice) ?? 'Hubungi kami'}</p>
             </div>
-            <Button className="ml-auto h-11 px-6 rounded-xl font-extrabold" onClick={() => setBookingOpen(true)}>Ajukan booking</Button>
+            <Button className="ml-auto h-11 px-6 rounded-xl font-extrabold" onClick={() => { setBookingPackageId(undefined); setBookingOpen(true); }}>Ajukan booking</Button>
           </div>
         </div>
       )}
-      <div className="lg:hidden ota-container pb-24">{bookingBox}</div>
+      {!isDesktop && <div className="ota-container pb-24">{bookingBox}</div>}
 
       <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} locationId={location.id} locationName={location.name} initialDate={dateKey || undefined} initialPackageId={bookingPackageId} />
       <LocationLightbox image={lightboxImage} images={allImages} onClose={() => setLightboxImage(null)} onNavigate={handleLightboxNavigate} />
