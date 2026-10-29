@@ -1,98 +1,113 @@
-import { AdminLayout } from '@/components/admin/AdminLayout';
-import { Card } from '@/components/ui/card';
-import { useHeroSlides, useFeatures, usePrograms, useTrainers, useLocations, useArticles, useAllVideoTestimonials } from '@/hooks/useCMS';
-import { Image, Zap, Dumbbell, Users, MapPin, ArrowRight, FileText, Video } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { CalendarCheck, MapPin, Wallet, Tag, Users, FileText, Star, HelpCircle, ArrowRight, CheckCircle2, CircleAlert, Plus } from 'lucide-react';
+import { AdminLayout } from '@/components/admin/AdminLayout';
+import { useBallroomBookings, useLocations, usePrograms, useTrainers, useArticles } from '@/hooks/useCMS';
+import { useVenuePackages, useFaqs, useVenueReviews } from '@/hooks/useOta';
+import { promoExpired } from '@/pages/Packages';
+
+type Booking = { id: string; status: string; booking_date: string; contact_name: string; event_name: string; created_at: string; locations?: { name: string } | null };
 
 const Admin = () => {
-  const { data: slides } = useHeroSlides();
-  const { data: features } = useFeatures();
-  const { data: programs } = usePrograms();
-  const { data: trainers } = useTrainers();
-  const { data: locations } = useLocations();
-  const { data: articles } = useArticles();
-  const { data: videoTestimonials } = useAllVideoTestimonials();
+  const { data: bookings = [] } = useBallroomBookings();
+  const { data: locations = [] } = useLocations();
+  const { data: programs = [] } = usePrograms();
+  const { data: portfolios = [] } = useTrainers();
+  const { data: articles = [] } = useArticles();
+  const { data: packages = [] } = useVenuePackages();
+  const { data: faqs = [] } = useFaqs();
+  const { data: reviews = [] } = useVenueReviews();
+
+  const allBookings = bookings as Booking[];
+  const pending = allBookings.filter((b) => b.status === 'pending');
+  const activePromos = (programs as { is_active: boolean | null; end_date?: string | null }[]).filter((p) => p.is_active && !promoExpired(p));
+  const venuesWithoutPackage = locations.filter((l) => !packages.some((p) => p.location_id === l.id && p.is_active));
+  const venuesWithoutCapacity = locations.filter((l) => !l.ballroom_layout_capacity);
 
   const stats = [
-    { name: 'Hero Slides', count: slides?.length || 0, icon: Image, href: '/admin/hero', color: 'bg-blue-500/10 text-blue-500' },
-    { name: 'Features', count: features?.length || 0, icon: Zap, href: '/admin/features', color: 'bg-yellow-500/10 text-yellow-500' },
-    { name: 'Programs', count: programs?.length || 0, icon: Dumbbell, href: '/admin/programs', color: 'bg-green-500/10 text-green-500' },
-    { name: 'Portfolio', count: trainers?.length || 0, icon: Users, href: '/admin/trainers', color: 'bg-purple-500/10 text-purple-500' },
-    { name: 'Locations', count: locations?.length || 0, icon: MapPin, href: '/admin/locations', color: 'bg-red-500/10 text-red-500' },
-    { name: 'Articles', count: articles?.length || 0, icon: FileText, href: '/admin/articles', color: 'bg-cyan-500/10 text-cyan-500' },
-    { name: 'Video Testimonials', count: videoTestimonials?.length || 0, icon: Video, href: '/admin/video-testimonials', color: 'bg-pink-500/10 text-pink-500' },
+    { name: 'Booking menunggu', value: pending.length, href: '/admin/ballroom-bookings', icon: CalendarCheck, highlight: pending.length > 0 },
+    { name: 'Venue', value: locations.length, href: '/admin/locations', icon: MapPin },
+    { name: 'Paket aktif', value: packages.filter((p) => p.is_active).length, href: '/admin/packages', icon: Wallet },
+    { name: 'Promo berjalan', value: activePromos.length, href: '/admin/programs', icon: Tag },
+    { name: 'Portfolio', value: portfolios.length, href: '/admin/trainers', icon: Users },
+    { name: 'Artikel', value: articles.length, href: '/admin/articles', icon: FileText },
+    { name: 'Ulasan terbit', value: reviews.filter((r) => r.is_published).length, href: '/admin/reviews', icon: Star },
+    { name: 'FAQ tampil', value: faqs.filter((f) => f.is_active).length, href: '/admin/faqs', icon: HelpCircle },
   ];
 
+  const todos = [
+    { done: venuesWithoutPackage.length === 0, text: venuesWithoutPackage.length ? `${venuesWithoutPackage.length} venue belum punya paket & harga` : 'Semua venue sudah punya paket', href: '/admin/packages' },
+    { done: venuesWithoutCapacity.length === 0, text: venuesWithoutCapacity.length ? `${venuesWithoutCapacity.length} venue belum diisi kapasitas` : 'Kapasitas semua venue terisi', href: '/admin/locations' },
+    { done: faqs.some((f) => f.is_active), text: faqs.some((f) => f.is_active) ? 'Halaman Bantuan sudah berisi FAQ' : 'Halaman Bantuan masih kosong — tambah FAQ', href: '/admin/faqs' },
+    { done: reviews.some((r) => r.is_published), text: reviews.some((r) => r.is_published) ? 'Ulasan pasangan sudah tampil' : 'Belum ada ulasan pasangan yang terbit', href: '/admin/reviews' },
+    { done: activePromos.length > 0, text: activePromos.length ? `${activePromos.length} promo sedang berjalan` : 'Tidak ada promo yang berjalan', href: '/admin/programs' },
+  ];
+  const openTodos = todos.filter((t) => !t.done).length;
+
+  const fmtDate = (d: string) => new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
   return (
-    <AdminLayout title="Dashboard">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-        {stats.map((stat) => (
-          <Link key={stat.name} to={stat.href}>
-            <Card className="p-6 hover:border-primary/50 transition-colors cursor-pointer group">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-lg ${stat.color}`}>
-                  <stat.icon className="w-6 h-6" />
-                </div>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </div>
-              <p className="text-muted-foreground text-sm">{stat.name}</p>
-              <p className="font-serif text-3xl font-bold">{stat.count}</p>
-            </Card>
+    <AdminLayout title="Dashboard" description="Ringkasan booking dan kelengkapan konten website kediaman.co.">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        {stats.map((s) => (
+          <Link key={s.name} to={s.href} className={`ota-card p-4 md:p-5 group hover:shadow-md transition-shadow ${s.highlight ? 'ring-2 ring-gold' : ''}`}>
+            <div className="flex items-center justify-between">
+              <span className="grid place-items-center size-9 rounded-lg bg-secondary text-primary"><s.icon className="size-4" aria-hidden="true" /></span>
+              <ArrowRight className="size-4 text-muted-foreground group-hover:text-primary transition-colors" aria-hidden="true" />
+            </div>
+            <p className="mt-3 text-2xl md:text-3xl font-extrabold">{s.value}</p>
+            <p className="text-sm text-muted-foreground">{s.name}</p>
           </Link>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-        <Card className="p-6">
-          <h2 className="font-serif text-2xl mb-4 font-bold">Welcome to Admin CMS</h2>
-          <p className="text-muted-foreground mb-4">
-            Gunakan menu di sidebar untuk mengelola konten website Anda:
-          </p>
-          <ul className="space-y-2 text-muted-foreground">
-            <li className="flex items-center gap-2">
-              <Image className="w-4 h-4 text-primary" />
-              <span><strong>Hero Slides</strong> - Slider gambar di halaman utama</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-primary" />
-              <span><strong>Features</strong> - Keunggulan gym Anda</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Dumbbell className="w-4 h-4 text-primary" />
-              <span><strong>Programs</strong> - Kelas dan program fitness</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-primary" />
-              <span><strong>Portfolio</strong> - Our portfolio items</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-primary" />
-              <span><strong>Locations</strong> - Lokasi cabang gym</span>
-            </li>
-          </ul>
-        </Card>
-
-        <Card className="p-6">
-          <h2 className="font-serif text-2xl mb-4 font-bold">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <Link to="/admin/hero" className="p-4 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors text-center">
-              <Image className="w-6 h-6 mx-auto mb-2" />
-              <span className="text-sm">Add Slide</span>
-            </Link>
-            <Link to="/admin/programs" className="p-4 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors text-center">
-              <Dumbbell className="w-6 h-6 mx-auto mb-2" />
-              <span className="text-sm">Add Program</span>
-            </Link>
-            <Link to="/admin/trainers" className="p-4 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors text-center">
-              <Users className="w-6 h-6 mx-auto mb-2" />
-              <span className="text-sm">Add Portfolio</span>
-            </Link>
-            <Link to="/admin/locations" className="p-4 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors text-center">
-              <MapPin className="w-6 h-6 mx-auto mb-2" />
-              <span className="text-sm">Add Location</span>
-            </Link>
+      <div className="grid lg:grid-cols-5 gap-4 mt-6">
+        <section className="ota-card p-5 lg:col-span-3">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-extrabold">Booking terbaru</h2>
+            <Link to="/admin/ballroom-bookings" className="text-sm font-semibold text-primary hover:underline">Lihat semua</Link>
           </div>
-        </Card>
+          {allBookings.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">Belum ada permintaan booking.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {allBookings.slice(0, 6).map((b) => (
+                <li key={b.id} className="py-3 flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate">{b.event_name || b.contact_name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{b.locations?.name || '-'} · acara {fmtDate(b.booking_date)}</p>
+                  </div>
+                  <span className={b.status === 'pending' ? 'ota-badge' : b.status === 'approved' ? 'ota-pill-ok' : 'ota-pill-full'}>
+                    {b.status === 'pending' ? 'Menunggu' : b.status === 'approved' ? 'Disetujui' : b.status === 'rejected' ? 'Ditolak' : b.status}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="ota-card p-5 lg:col-span-2">
+          <h2 className="text-lg font-extrabold">Kelengkapan website</h2>
+          <p className="text-sm text-muted-foreground mb-3">{openTodos ? `${openTodos} hal perlu dilengkapi agar halaman publik terlihat penuh.` : 'Semua sudah lengkap.'}</p>
+          <ul className="space-y-1">
+            {todos.map((t) => (
+              <li key={t.text}>
+                <Link to={t.href} className="flex items-start gap-2.5 rounded-lg px-2 py-2 text-sm hover:bg-muted">
+                  {t.done
+                    ? <CheckCircle2 className="size-4 mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+                    : <CircleAlert className="size-4 mt-0.5 shrink-0 text-gold" aria-hidden="true" />}
+                  <span className={t.done ? 'text-muted-foreground' : 'font-semibold'}>{t.text}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="grid grid-cols-2 gap-2 mt-4">
+            {[['Paket baru', '/admin/packages'], ['Promo baru', '/admin/programs'], ['Artikel baru', '/admin/articles'], ['Portfolio baru', '/admin/trainers']].map(([label, href]) => (
+              <Link key={href} to={href} className="flex items-center justify-center gap-1.5 h-10 rounded-lg bg-secondary text-sm font-semibold text-primary hover:bg-secondary/70">
+                <Plus className="size-4" aria-hidden="true" />{label}
+              </Link>
+            ))}
+          </div>
+        </section>
       </div>
     </AdminLayout>
   );

@@ -26,13 +26,13 @@ export function AdminTable<T extends { id: string }>({
   onEdit,
   onDelete,
   onCreate,
-  createLabel = 'Add New',
+  createLabel = 'Tambah baru',
   isLoading,
 }: AdminTableProps<T>) {
   return (
-    <Card className="p-6">
+    <Card className="ota-card p-4 md:p-6 border-0">
       <div className="flex justify-between items-center mb-6">
-        <p className="text-muted-foreground">{data.length} items</p>
+        <p className="text-sm text-muted-foreground">{data.length} data</p>
         <Button onClick={onCreate}>
           <Plus className="w-4 h-4 mr-2" />
           {createLabel}
@@ -40,17 +40,17 @@ export function AdminTable<T extends { id: string }>({
       </div>
 
       {isLoading ? (
-        <div className="py-12 text-center text-muted-foreground">Loading...</div>
+        <div className="py-12 text-center text-muted-foreground">Memuat…</div>
       ) : data.length === 0 ? (
-        <div className="py-12 text-center text-muted-foreground">No items found</div>
+        <div className="py-12 text-center text-muted-foreground">Belum ada data. Klik "{createLabel}" untuk mulai.</div>
       ) : (
-        <Table>
+        <div className="-mx-4 md:mx-0 overflow-x-auto"><Table>
           <TableHeader>
             <TableRow>
               {columns.map((col) => (
                 <TableHead key={String(col.key)}>{col.label}</TableHead>
               ))}
-              <TableHead className="w-24">Actions</TableHead>
+              <TableHead className="w-24 text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -64,11 +64,11 @@ export function AdminTable<T extends { id: string }>({
                   </TableCell>
                 ))}
                 <TableCell>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
+                  <div className="flex gap-1 justify-end">
+                    <Button variant="ghost" size="icon" aria-label="Ubah" onClick={() => onEdit(item)}>
                       <Pencil className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => onDelete(item)}>
+                    <Button variant="ghost" size="icon" aria-label="Hapus" onClick={() => onDelete(item)}>
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </div>
@@ -76,7 +76,7 @@ export function AdminTable<T extends { id: string }>({
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </Table></div>
       )}
     </Card>
   );

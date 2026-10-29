@@ -21,7 +21,7 @@ export function AdminFormDialog({
   children,
   onSubmit,
   isSubmitting,
-  submitLabel = 'Save',
+  submitLabel = 'Simpan',
   hideSubmit = false,
   extraActions,
 }: AdminFormDialogProps) {
@@ -29,7 +29,7 @@ export function AdminFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-serif text-2xl font-bold tracking-tight">{title}</DialogTitle>
+          <DialogTitle className="text-xl font-extrabold tracking-tight">{title}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">{children}</div>
         {!hideSubmit && (
@@ -39,10 +39,10 @@ export function AdminFormDialog({
             </div>
             <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                Batal
               </Button>
               <Button onClick={onSubmit} disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : submitLabel}
+                {isSubmitting ? 'Menyimpan…' : submitLabel}
               </Button>
             </div>
           </DialogFooter>

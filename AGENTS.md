@@ -5,7 +5,7 @@
 - Generate venue slugs on insertion in the database and keep them stable across name edits so existing public addresses do not break.
 - Scope Editorial Luxe tokens and typography to the venue detail wrapper so other site pages retain their existing design.
 - Serve the selected font families as immutable CDN WOFF2 assets with local font-face declarations and preload first-viewport faces; never use remote CSS imports, so fonts avoid external stylesheet chains.
-- Apply public editorial styling through the shared Layout wrapper, excluding venue details to preserve their scoped visual system and admin pages to preserve editing controls.
+- Apply the light OTA theme (html.ota-theme) through the shared Layout wrapper and AdminLayout; only LandingPage and VenueOnly opt out to keep their own look.
 - Enforce active-only public video testimonial reads through RLS, with a separate user_roles-backed admin read policy, so unpublished videos remain private without blocking CMS management.
 - Scope journal palette and reading typography to article pages and share masthead, metadata, sharing, and sidebar elements between listing and detail, so their magazine presentation stays consistent without restyling other pages.
 - Split page routes and load concierge and booking form code on interaction so public visitors do not download administrative editors, charts, or chat renderers on arrival.
