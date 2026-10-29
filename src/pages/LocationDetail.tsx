@@ -110,6 +110,14 @@ const LocationDetail = () => {
   const summary = summarizeReviews(reviews);
   const views = location ? interest[location.id]?.views ?? 0 : 0;
   const wa = waLinkFrom(settings);
+  const facilityItems = (Array.isArray(location?.facility_items) ? location?.facility_items : []) as { name: string; image_url?: string; description?: string }[];
+  const hasFacilities = (location?.facilities?.length ?? 0) > 0 || facilityItems.length > 0;
+  const quickFacts = location ? [
+    { icon: Users, label: 'Kapasitas', value: location.ballroom_layout_capacity },
+    { icon: Ruler, label: 'Ukuran', value: location.ballroom_layout_dimensions },
+    { icon: MapPin, label: 'Area', value: location.category },
+    { icon: Clock, label: 'Area loading', value: location.loading_area_capacity },
+  ].filter((f) => f.value) : [];
   const visibleTabs = TABS.filter((t) => {
     if (!location) return false;
     if (t.id === 'tur-360') return !!location.matterport_360_url;
@@ -117,6 +125,7 @@ const LocationDetail = () => {
     if (t.id === 'ulasan') return summary.count > 0;
     if (t.id === 'dokumentasi') return portfolios.length > 0;
     if (t.id === 'paket') return activePackages.length > 0;
+    if (t.id === 'fasilitas') return hasFacilities;
     return true;
   });
 
@@ -259,10 +268,10 @@ const LocationDetail = () => {
           <section id="ringkasan" className="ota-card p-5 scroll-mt-48">
             <h2 className="text-lg font-extrabold mb-4">Sekilas venue</h2>
             <dl className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="rounded-xl bg-muted p-3"><dt className="text-xs text-muted-foreground flex items-center gap-1.5"><Users className="size-3.5" aria-hidden="true" />Kapasitas</dt><dd className="font-extrabold text-sm mt-0.5">{location.ballroom_layout_capacity || '—'}</dd></div>
-              <div className="rounded-xl bg-muted p-3"><dt className="text-xs text-muted-foreground flex items-center gap-1.5"><Ruler className="size-3.5" aria-hidden="true" />Ukuran</dt><dd className="font-extrabold text-sm mt-0.5">{location.ballroom_layout_dimensions || '—'}</dd></div>
-              <div className="rounded-xl bg-muted p-3"><dt className="text-xs text-muted-foreground flex items-center gap-1.5"><MapPin className="size-3.5" aria-hidden="true" />Area</dt><dd className="font-extrabold text-sm mt-0.5">{location.category || '—'}</dd></div>
-              <div className="rounded-xl bg-muted p-3"><dt className="text-xs text-muted-foreground flex items-center gap-1.5"><Clock className="size-3.5" aria-hidden="true" />Area loading</dt><dd className="font-extrabold text-sm mt-0.5">{location.loading_area_capacity || '—'}</dd></div>
+              {quickFacts.map(({ icon: Icon, label, value }) => (
+                <div key={label} className="rounded-xl bg-muted p-3"><dt className="text-xs text-muted-foreground flex items-center gap-1.5"><Icon className="size-3.5" aria-hidden="true" />{label}</dt><dd className="font-extrabold text-sm mt-0.5">{value}</dd></div>
+              ))}
+              <div className="rounded-xl bg-muted p-3"><dt className="text-xs text-muted-foreground flex items-center gap-1.5"><CalendarDays className="size-3.5" aria-hidden="true" />Sesi</dt><dd className="font-extrabold text-sm mt-0.5">Pagi · Malam</dd></div>
             </dl>
             {location.ballroom_layout_description && <p className="text-sm text-muted-foreground mt-4 whitespace-pre-line">{location.ballroom_layout_description}</p>}
           </section>
@@ -294,13 +303,11 @@ const LocationDetail = () => {
             </section>
           )}
 
-          <section id="fasilitas" className="ota-card p-5 scroll-mt-48">
-            <LocationFacilities
-              facilities={location.facilities || []}
-              facilityItems={(Array.isArray(location.facility_items) ? location.facility_items : []) as { name: string; image_url?: string; description?: string }[]}
-              onOpenLightbox={setLightboxImage}
-            />
-          </section>
+          {hasFacilities && (
+            <section id="fasilitas" className="ota-card p-5 scroll-mt-48">
+              <LocationFacilities facilities={location.facilities || []} facilityItems={facilityItems} onOpenLightbox={setLightboxImage} />
+            </section>
+          )}
 
           {visibleTabs.some((t) => t.id === 'tata-letak') && (
             <section id="tata-letak" className="ota-card p-5 space-y-8 scroll-mt-48">

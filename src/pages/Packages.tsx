@@ -77,14 +77,14 @@ const Packages = () => {
                     {p.image_url && <CMSImage src={p.image_url} imageWidth={720} sizes="(max-width: 640px) 100vw, 380px" alt={p.name} className="absolute inset-0 w-full h-full object-cover" />}
                     {p.category && <span className="absolute left-3 top-3 ota-badge">{p.category}</span>}
                   </div>
-                  <div className="p-4 flex flex-col gap-2 flex-1">
+                  {(p.name.trim() || p.description || period || p.promo_code) && <div className="p-4 flex flex-col gap-2 flex-1">
                     <p className="font-extrabold leading-snug line-clamp-2">{p.name}</p>
                     {p.description && <p className="text-sm text-muted-foreground line-clamp-2">{p.description}</p>}
                     <div className="mt-auto pt-2 flex items-center justify-between gap-2 text-xs">
                       {period ? <span className="inline-flex items-center gap-1.5 text-muted-foreground"><CalendarClock className="size-4" aria-hidden="true" />{period}</span> : <span />}
                       {p.promo_code && <span className="rounded-md border border-dashed border-primary px-2 py-0.5 font-mono font-bold text-primary">{p.promo_code}</span>}
                     </div>
-                  </div>
+                  </div>}
                 </Link>
               );
             })}
