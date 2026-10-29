@@ -8,12 +8,14 @@ interface BookingDialogProps {
   locationName?: string;
   /** Tanggal yang sudah dipilih pengunjung (yyyy-MM-dd), supaya tidak perlu memilih ulang. */
   initialDate?: string;
+  /** Paket yang sudah dipilih (venue_packages.id). */
+  initialPackageId?: string;
   /** Mode terkontrol (dibuka dari luar, mis. kotak booking di halaman venue). */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-export function BookingDialog({ children, locationId, locationName, initialDate, open: controlledOpen, onOpenChange }: BookingDialogProps) {
+export function BookingDialog({ children, locationId, locationName, initialDate, initialPackageId, open: controlledOpen, onOpenChange }: BookingDialogProps) {
   const [uncontrolled, setUncontrolled] = useState(false);
   const open = controlledOpen ?? uncontrolled;
   const setOpen = (v: boolean) => { if (onOpenChange) onOpenChange(v); else setUncontrolled(v); };
@@ -26,6 +28,7 @@ export function BookingDialog({ children, locationId, locationName, initialDate,
           locationId={locationId}
           locationName={locationName}
           initialDate={initialDate}
+          initialPackageId={initialPackageId}
           onClose={() => setOpen(false)}
         /></Suspense>}
       </DialogContent>

@@ -230,6 +230,10 @@ ALTER TABLE programs ADD COLUMN IF NOT EXISTS terms jsonb NOT NULL DEFAULT '[]':
 ALTER TABLE programs ADD COLUMN IF NOT EXISTS promo_code text;
 ALTER TABLE programs ADD COLUMN IF NOT EXISTS location_ids jsonb NOT NULL DEFAULT '[]'::jsonb;
 
+-- Paket yang dipilih pengunjung di form booking (nama disalin agar tetap terbaca bila paket dihapus)
+ALTER TABLE ballroom_bookings ADD COLUMN IF NOT EXISTS package_id uuid REFERENCES venue_packages(id) ON DELETE SET NULL;
+ALTER TABLE ballroom_bookings ADD COLUMN IF NOT EXISTS package_name text;
+
 -- Pelanggan newsletter (diisi dari CTA "Langganan" di website; dikirim otomatis oleh agent)
 CREATE TABLE IF NOT EXISTS newsletter_subscribers (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

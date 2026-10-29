@@ -88,7 +88,7 @@ const PriceList = () => {
                       <p className="text-[11px] text-muted-foreground">{p.price_note || 'Mulai'}</p>
                       <p className="ota-price text-xl">{formatRupiah(p.price) ?? 'Hubungi kami'}</p>
                     </div>
-                    <BookingDialog locationId={v?.id} locationName={v?.name}><Button className="rounded-xl font-extrabold">Pilih paket</Button></BookingDialog>
+                    <BookingDialog locationId={v?.id} locationName={v?.name} initialPackageId={p.id}><Button className="rounded-xl font-extrabold">Pilih paket</Button></BookingDialog>
                   </div>
                 </article>
               );

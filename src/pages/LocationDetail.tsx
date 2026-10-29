@@ -61,6 +61,7 @@ const LocationDetail = () => {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [tourStarted, setTourStarted] = useState(false);
+  const [bookingPackageId, setBookingPackageId] = useState<string | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const initial = searchParams.get('date');
   const [date, setDate] = useState<Date | undefined>(initial && /^\d{4}-\d{2}-\d{2}$/.test(initial) ? parseISO(initial) : undefined);
@@ -207,7 +208,7 @@ const LocationDetail = () => {
           {date && (
             <p className={cn('inline-flex items-center h-7 px-2.5 rounded-full text-xs font-bold', dateFull ? 'ota-pill-full' : 'ota-pill-ok')}>{dateFull ? 'Tanggal sudah terisi' : 'Tanggal masih kosong'}</p>
           )}
-          <Button className="w-full h-12 rounded-xl text-base font-extrabold" disabled={dateFull} onClick={() => setBookingOpen(true)}>Ajukan booking</Button>
+          <Button className="w-full h-12 rounded-xl text-base font-extrabold" disabled={dateFull} onClick={() => { setBookingPackageId(undefined); setBookingOpen(true); }}>Ajukan booking</Button>
         </>
       )}
       <a href={wa} target="_blank" rel="noopener noreferrer" className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-xl border border-input font-bold hover:border-primary">
@@ -305,7 +306,7 @@ const LocationDetail = () => {
                     <div className="md:text-right md:w-44 shrink-0">
                       <p className="text-[11px] text-muted-foreground">{p.price_note || 'Mulai'}</p>
                       <p className="ota-price text-lg">{formatRupiah(p.price) ?? 'Hubungi kami'}</p>
-                      {!location.is_coming_soon && <Button variant="outline" className="mt-2 rounded-xl border-primary font-bold" onClick={() => setBookingOpen(true)}>Pilih paket</Button>}
+                      {!location.is_coming_soon && <Button variant="outline" className="mt-2 rounded-xl border-primary font-bold" onClick={() => { setBookingPackageId(p.id); setBookingOpen(true); }}>Pilih paket</Button>}
                     </div>
                   </div>
                 ))}
@@ -393,7 +394,7 @@ const LocationDetail = () => {
       )}
       <div className="lg:hidden ota-container pb-24">{bookingBox}</div>
 
-      <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} locationId={location.id} locationName={location.name} initialDate={dateKey || undefined} />
+      <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} locationId={location.id} locationName={location.name} initialDate={dateKey || undefined} initialPackageId={bookingPackageId} />
       <LocationLightbox image={lightboxImage} images={allImages} onClose={() => setLightboxImage(null)} onNavigate={handleLightboxNavigate} />
     </Layout>
   );

@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format, isBefore, startOfToday } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
-import { CalendarIcon, CheckCircle, Eye, Flame, Loader2, User, PartyPopper, MessageCircle, Tag } from 'lucide-react';
+import { CalendarIcon, CheckCircle, Eye, Flame, Loader2, User, PartyPopper, MessageCircle, Tag, Package, Check, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings, useVenueSessions, useExternalBookedDates, useLocations, useTrackVenueInterest, useVenueInterest } from '@/hooks/useCMS';
+import { useVenuePackages, formatRupiah } from '@/hooks/useOta';
 
 const EVENT_TYPES = [
   'Wedding',
@@ -43,6 +44,7 @@ const bookingSchema = z.object({
     required_error: 'Tanggal harus dipilih',
   }),
   session_id: z.string().optional(),
+  package_id: z.string().optional(),
   start_time: z.string().optional(),
   end_time: z.string().optional(),
 
@@ -62,6 +64,8 @@ interface BallroomBookingFormProps {
   locationName?: string;
   /** yyyy-MM-dd yang sudah dipilih di pencarian/halaman venue. */
   initialDate?: string;
+  /** Paket yang sudah dipilih dari halaman venue / Paket & Harga. */
+  initialPackageId?: string;
   onClose?: () => void;
 }
 
@@ -96,6 +100,7 @@ export function BallroomBookingForm({
   locationId: propLocationId,
   locationName: propLocationName,
   initialDate,
+  initialPackageId,
   onClose,
 }: BallroomBookingFormProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -115,6 +120,12 @@ export function BallroomBookingForm({
   const { bookedDates } = useExternalBookedDates(locationName);
   const { data: interest = {} } = useVenueInterest(locationId || undefined);
   const trackInterest = useTrackVenueInterest();
+  const { data: allPackages = [] } = useVenuePackages();
+  // Paket milik venue ini + paket umum (tanpa venue), hanya yang aktif
+  const venuePackages = useMemo(
+    () => allPackages.filter((p) => p.is_active && (!p.location_id || p.location_id === locationId)),
+    [allPackages, locationId]
+  );
 
   const blockedSchedules = useMemo(
     () => schedules.filter(s => s.status === 'booked' || s.status === 'blocked'),
@@ -152,6 +163,7 @@ export function BallroomBookingForm({
       event_type: '',
       notes: '',
       session_id: '',
+      package_id: initialPackageId ?? '',
       ...(initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate) && new Date(`${initialDate}T00:00:00`) >= startOfToday()
         ? { booking_date: new Date(`${initialDate}T00:00:00`) }
         : {}),
@@ -166,7 +178,7 @@ export function BallroomBookingForm({
   const step2Done = Boolean(watched.event_name && watched.event_name.trim().length >= 2);
   const step3Done = Boolean(watched.contact_name && watched.contact_email && watched.contact_phone);
   const steps = [
-    { label: 'Venue & Jadwal', done: step1Done },
+    { label: 'Venue, Jadwal & Paket', done: step1Done },
     { label: 'Detail Acara', done: step2Done },
     { label: 'Data Pemesan', done: step3Done },
   ];
@@ -221,6 +233,7 @@ export function BallroomBookingForm({
       '6281117797567';
     const waNumber = rawNumber.startsWith('0') ? `62${rawNumber.slice(1)}` : rawNumber;
     const sessionName = sessions.find(s => s.id === data.session_id)?.name;
+    const pkg = venuePackages.find((p) => p.id === data.package_id);
 
     const lines = [
       'Halo Kediaman, saya ingin mengajukan reservasi ballroom.',
@@ -228,6 +241,7 @@ export function BallroomBookingForm({
       `*Venue* : ${locationName}`,
       `*Tanggal* : ${format(data.booking_date, 'EEEE, dd MMMM yyyy', { locale: idLocale })}`,
       sessionName ? `*Sesi* : ${sessionName}` : null,
+      pkg ? `*Paket* : ${pkg.name}${pkg.price !== null ? ` (${pkg.price_note || 'mulai'} ${formatRupiah(pkg.price)})` : ''}` : '*Paket* : Belum memilih, mohon rekomendasi',
       data.start_time || data.end_time
         ? `*Waktu* : ${data.start_time || '-'} - ${data.end_time || '-'}`
         : null,
@@ -260,11 +274,14 @@ export function BallroomBookingForm({
         return;
       }
     }
+    const chosenPackage = venuePackages.find((p) => p.id === data.package_id);
     try {
       await createBooking.mutateAsync({
         location_id: locationId,
         booking_date: format(data.booking_date, 'yyyy-MM-dd'),
         session_id: data.session_id || undefined,
+        package_id: chosenPackage?.id,
+        package_name: chosenPackage?.name,
         start_time: data.start_time || undefined,
         end_time: data.end_time || undefined,
         contact_name: data.contact_name,
@@ -285,6 +302,7 @@ export function BallroomBookingForm({
         lead_source: 'booking_form',
         venue_name: locationName,
         event_type: data.event_type || undefined,
+        package_name: chosenPackage?.name,
         booking_date: format(data.booking_date, 'yyyy-MM-dd'),
         guest_count: data.guest_count || undefined,
       });
@@ -386,6 +404,9 @@ export function BallroomBookingForm({
                 form.setValue('session_id', '');
                 form.setValue('start_time', '');
                 form.setValue('end_time', '');
+                // Paket venue lama tidak berlaku untuk venue baru (paket umum tetap)
+                const current = allPackages.find((p) => p.id === form.getValues('package_id'));
+                if (current?.location_id && current.location_id !== v) form.setValue('package_id', '');
               }}
             >
               <SelectTrigger className="h-11">
@@ -577,6 +598,76 @@ export function BallroomBookingForm({
           </div>
         )}
 
+
+        {locationId && venuePackages.length > 0 && (
+          <>
+            <SectionTitle icon={Package} title="Pilih Paket" />
+            <FormField
+              control={form.control}
+              name="package_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="sr-only">Paket</FormLabel>
+                  <div role="radiogroup" aria-label="Pilih paket" className="grid gap-2">
+                    {venuePackages.map((p) => {
+                      const active = field.value === p.id;
+                      const pax = p.min_pax || p.max_pax ? `${p.min_pax ?? ''}${p.min_pax && p.max_pax ? '–' : ''}${p.max_pax ?? ''} tamu` : null;
+                      return (
+                        <button
+                          key={p.id}
+                          type="button"
+                          role="radio"
+                          aria-checked={active}
+                          onClick={() => field.onChange(active ? '' : p.id)}
+                          className={cn(
+                            'w-full text-left rounded-xl border p-3.5 transition-colors flex gap-3',
+                            active ? 'border-primary bg-secondary ring-1 ring-primary' : 'border-border hover:border-primary/50'
+                          )}
+                        >
+                          <span className={cn('mt-0.5 grid place-items-center size-5 shrink-0 rounded-full border-2', active ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}>
+                            {active && <Check className="size-3" strokeWidth={3} />}
+                          </span>
+                          <span className="flex-1 min-w-0">
+                            <span className="flex items-start justify-between gap-3">
+                              <span className="font-bold leading-snug">
+                                {p.name}
+                                {p.is_featured && <span className="ml-2 align-middle ota-badge">Terpopuler</span>}
+                              </span>
+                              <span className="text-right shrink-0">
+                                <span className="block text-[10px] text-muted-foreground">{p.price_note || 'Mulai'}</span>
+                                <span className="block ota-price text-sm">{formatRupiah(p.price) ?? 'Hubungi kami'}</span>
+                              </span>
+                            </span>
+                            {(pax || p.inclusions.length > 0) && (
+                              <span className="mt-1 block text-xs text-muted-foreground line-clamp-2">
+                                {[pax, ...p.inclusions.slice(0, 3)].filter(Boolean).join(' · ')}
+                              </span>
+                            )}
+                          </span>
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={!field.value}
+                      onClick={() => field.onChange('')}
+                      className={cn(
+                        'w-full text-left rounded-xl border border-dashed p-3.5 transition-colors flex gap-3 items-center',
+                        !field.value ? 'border-primary bg-secondary' : 'border-border hover:border-primary/50'
+                      )}
+                    >
+                      <HelpCircle className="size-5 text-muted-foreground shrink-0" aria-hidden="true" />
+                      <span className="text-sm"><span className="font-bold">Belum tahu</span> — minta rekomendasi paket dari tim kami</span>
+                    </button>
+                  </div>
+                  <FormDescription className="text-xs">Harga final dikonfirmasi tim sesuai tanggal dan jumlah tamu.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
 
         <SectionTitle icon={PartyPopper} title="Detail Acara" />
 

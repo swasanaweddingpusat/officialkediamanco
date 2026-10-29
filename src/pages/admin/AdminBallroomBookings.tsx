@@ -47,6 +47,7 @@ type BallroomBooking = {
   event_name: string;
   event_type: string | null;
   guest_count: number | null;
+  package_name?: string | null;
   notes: string | null;
   status: string;
   admin_notes: string | null;
@@ -222,6 +223,7 @@ const AdminBallroomBookings = () => {
                       <div className="text-xs text-muted-foreground">
                         {booking.event_type} • {booking.guest_count} tamu
                       </div>
+                      {booking.package_name && <div className="text-xs font-semibold text-primary">Paket: {booking.package_name}</div>}
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">{booking.contact_name}</div>
@@ -327,6 +329,10 @@ const AdminBallroomBookings = () => {
                 <div>
                   <Label className="text-muted-foreground text-xs">Jenis Acara</Label>
                   <p className="font-medium">{selectedBooking.event_type || '-'}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground text-xs">Paket dipilih</Label>
+                  <p className="font-medium">{selectedBooking.package_name || 'Belum memilih (minta rekomendasi)'}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground text-xs">Jumlah Tamu</Label>
