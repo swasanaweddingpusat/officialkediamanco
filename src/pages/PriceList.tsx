@@ -1,15 +1,15 @@
 // Halaman baru: Paket & Harga semua venue (data dari CMS "Paket & Harga").
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Check, MapPin, Users } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useLocations } from '@/hooks/useCMS';
-import { useVenuePackages, formatRupiah, type VenuePackage } from '@/hooks/useOta';
+import { useVenuePackages, type VenuePackage } from '@/hooks/useOta';
 import { useSEO } from '@/hooks/useSEO';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { BookingDialog } from '@/components/booking/BookingDialog';
-import { PageHeader, EmptyState } from '@/components/ota/OtaKit';
+import { PageHeader, EmptyState, venueImage } from '@/components/ota/OtaKit';
+import { PackageCard } from '@/components/ota/PackageCard';
 import { venuePath } from '@/lib/venue-url';
 
 type Sort = 'urutan' | 'murah' | 'mahal';
@@ -64,33 +64,18 @@ const PriceList = () => {
         ) : list.length === 0 ? (
           <EmptyState title="Paket belum tersedia">Daftar paket sedang disiapkan. <Link to="/lokasi" className="font-bold text-primary">Lihat venue</Link> atau tanya tim kami untuk penawaran.</EmptyState>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
             {list.map((p) => {
               const v = venueOf(p);
               return (
-                <article key={p.id} className="ota-card p-5 flex flex-col gap-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      {v ? <Link to={venuePath(v)} className="text-xs font-bold text-primary hover:underline flex items-center gap-1"><MapPin className="size-3.5" aria-hidden="true" />{v.name}</Link> : <span className="text-xs font-bold text-muted-foreground">Semua venue</span>}
-                      <h2 className="text-xl font-extrabold mt-1">{p.name}</h2>
-                    </div>
-                    {p.is_featured && <span className="shrink-0 rounded-md bg-accent text-accent-foreground text-[11px] font-bold px-2 py-0.5">Terpopuler</span>}
-                  </div>
-                  {(p.min_pax || p.max_pax) && <p className="text-sm text-muted-foreground flex items-center gap-1.5"><Users className="size-4" aria-hidden="true" />{p.min_pax && p.max_pax ? `${p.min_pax}–${p.max_pax} tamu` : `${p.min_pax || p.max_pax} tamu`}</p>}
-                  {p.description && <p className="text-sm text-muted-foreground">{p.description}</p>}
-                  {p.inclusions.length > 0 && (
-                    <ul className="space-y-1.5 text-sm">
-                      {p.inclusions.map((inc) => <li key={inc} className="flex gap-2"><Check className="size-4 text-[hsl(var(--success))] shrink-0 mt-0.5" aria-hidden="true" />{inc}</li>)}
-                    </ul>
-                  )}
-                  <div className="mt-auto pt-3 border-t border-border flex items-end justify-between gap-3">
-                    <div>
-                      <p className="text-[11px] text-muted-foreground">{p.price_note || 'Mulai'}</p>
-                      <p className="ota-price text-xl">{formatRupiah(p.price) ?? 'Hubungi kami'}</p>
-                    </div>
-                    <BookingDialog locationId={v?.id} locationName={v?.name} initialPackageId={p.id}><Button className="rounded-xl font-extrabold">Pilih paket</Button></BookingDialog>
-                  </div>
-                </article>
+                <PackageCard
+                  key={p.id}
+                  pkg={p}
+                  venueName={v?.name}
+                  venueHref={v ? venuePath(v) : undefined}
+                  fallbackImage={v ? venueImage(v) : null}
+                  action={<BookingDialog locationId={v?.id} locationName={v?.name} initialPackageId={p.id}><Button className="h-11 rounded-xl px-5 font-extrabold">Pilih paket</Button></BookingDialog>}
+                />
               );
             })}
           </div>

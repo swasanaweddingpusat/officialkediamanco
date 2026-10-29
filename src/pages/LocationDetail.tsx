@@ -15,6 +15,7 @@ import { LocationAreaSection } from '@/components/location/LocationAreaSection';
 import { LocationLightbox } from '@/components/location/LocationLightbox';
 import { Matterport360Embed } from '@/components/location/Matterport360Embed';
 import { BookingDialog } from '@/components/booking/BookingDialog';
+import { PackageCard } from '@/components/ota/PackageCard';
 import { CMSImage } from '@/components/CMSImage';
 import { Breadcrumbs, RatingStars, ReviewCard, EmptyState } from '@/components/ota/OtaKit';
 import { waLinkFrom } from '@/components/layout/Navbar';
@@ -299,25 +300,16 @@ const LocationDetail = () => {
           {activePackages.length > 0 && (
             <section id="paket" className="ota-card p-5 scroll-mt-48">
               <h2 className="text-lg font-extrabold mb-4">Pilih paket</h2>
-              <div className="space-y-3">
+              <div className="grid md:grid-cols-2 gap-4 items-start">
                 {activePackages.map((p) => (
-                  <div key={p.id} className="rounded-xl border border-border p-4 flex flex-col md:flex-row md:items-center gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-extrabold flex items-center gap-2">{p.name}{p.is_featured && <span className="text-[11px] rounded-md bg-accent text-accent-foreground px-2 py-0.5">Terpopuler</span>}</p>
-                      {(p.min_pax || p.max_pax) && <p className="text-xs text-muted-foreground mt-0.5">{p.min_pax && p.max_pax ? `${p.min_pax}–${p.max_pax} tamu` : `${p.min_pax || p.max_pax} tamu`}</p>}
-                      {p.description && <p className="text-sm text-muted-foreground mt-1">{p.description}</p>}
-                      {p.inclusions.length > 0 && (
-                        <ul className="mt-2 grid sm:grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                          {p.inclusions.map((inc) => <li key={inc} className="flex gap-2"><Check className="size-4 text-[hsl(var(--success))] shrink-0 mt-0.5" aria-hidden="true" />{inc}</li>)}
-                        </ul>
-                      )}
-                    </div>
-                    <div className="md:text-right md:w-44 shrink-0">
-                      <p className="text-[11px] text-muted-foreground">{p.price_note || 'Mulai'}</p>
-                      <p className="ota-price text-lg">{formatRupiah(p.price) ?? 'Hubungi kami'}</p>
-                      {!location.is_coming_soon && <Button variant="outline" className="mt-2 rounded-xl border-primary font-bold" onClick={() => { setBookingPackageId(p.id); setBookingOpen(true); }}>Pilih paket</Button>}
-                    </div>
-                  </div>
+                  <PackageCard
+                    key={p.id}
+                    pkg={p}
+                    venueName={location.name}
+                    fallbackImage={images[0]}
+                    maxInclusions={4}
+                    action={!location.is_coming_soon ? <Button className="h-11 rounded-xl px-5 font-extrabold" onClick={() => { setBookingPackageId(p.id); setBookingOpen(true); }}>Pilih</Button> : undefined}
+                  />
                 ))}
               </div>
             </section>

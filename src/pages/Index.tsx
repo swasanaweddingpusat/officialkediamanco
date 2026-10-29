@@ -6,7 +6,8 @@ import { useSEO } from '@/hooks/useSEO';
 import { useArticlePreviews, useHeroSlides, useLocations, usePortfolioPreviews, usePrograms, useVenueInterest } from '@/hooks/useCMS';
 import { useFaqs, useStartingPrices, useVenueReviews, summarizeReviews } from '@/hooks/useOta';
 import { SearchWidget } from '@/components/ota/SearchWidget';
-import { SectionHeader, VenueCard, ReviewCard, RatingStars } from '@/components/ota/OtaKit';
+import { SectionHeader, VenueCard, ReviewCard, RatingStars, venueImage } from '@/components/ota/OtaKit';
+import { PackageCard } from '@/components/ota/PackageCard';
 import { NewsletterCta } from '@/components/ota/NewsletterCta';
 import { CMSImage } from '@/components/CMSImage';
 import { cmsImageUrl, cmsImageSrcSet } from '@/lib/cms-image';
@@ -126,14 +127,16 @@ const Index = () => {
         {featuredPackages.length > 0 && (
           <section>
             <SectionHeader title="Paket unggulan" href="/harga" linkLabel="Semua paket" />
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
               {featuredPackages.map((p) => (
-                <Link key={p.id} to={`/harga?venue=${p.location_id ?? ''}`} className="ota-card p-4 flex flex-col gap-2 hover:shadow-lg transition-shadow">
-                  <span className="text-xs font-bold text-accent-foreground bg-accent rounded-md px-2 py-0.5 self-start">{p.locations?.name || 'Semua venue'}</span>
-                  <span className="font-extrabold text-lg">{p.name}</span>
-                  {p.description && <span className="text-sm text-muted-foreground line-clamp-2">{p.description}</span>}
-                  <span className="mt-auto pt-2"><span className="block text-[11px] text-muted-foreground">Mulai</span><span className="ota-price text-lg">{p.price !== null ? `Rp${p.price.toLocaleString('id-ID')}` : 'Hubungi kami'}</span></span>
-                </Link>
+                <PackageCard
+                  key={p.id}
+                  pkg={p}
+                  venueHref={p.locations?.slug ? `/lokasi/${p.locations.slug}` : undefined}
+                  fallbackImage={(() => { const loc = locations.find((l) => l.id === p.location_id); return loc ? venueImage(loc) : null; })()}
+                  maxInclusions={3}
+                  action={<Link to={`/harga${p.location_id ? `?venue=${p.location_id}` : ''}`} className="inline-flex h-10 items-center rounded-xl bg-primary px-4 text-sm font-extrabold text-primary-foreground hover:opacity-90">Detail</Link>}
+                />
               ))}
             </div>
           </section>
