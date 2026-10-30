@@ -1,60 +1,37 @@
+// Form booking ringkas: Nama, Nomor HP, Venue, Pesan.
+// Tanggal/paket yang sudah dipilih pengunjung di halaman sebelumnya ikut terkirim sebagai info tambahan
+// (bisa dihapus), tanpa menambah kolom isian.
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format, isBefore, startOfToday } from 'date-fns';
+import { format, startOfToday } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
-import { CalendarIcon, CheckCircle, Eye, Flame, Loader2, User, PartyPopper, MessageCircle, Tag, Package, Check, HelpCircle } from 'lucide-react';
+import { CheckCircle, Loader2, MessageCircle, CalendarDays, Package, X, Copy, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { cn } from '@/lib/utils';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { track } from '@/lib/analytics';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { useCreateBallroomBooking, useBallroomSchedules, useSiteSettings, useVenueSessions, useExternalBookedDates, useLocations, useTrackVenueInterest, useVenueInterest } from '@/hooks/useCMS';
+import { useCreateBallroomBooking, useSiteSettings, useLocations, useTrackVenueInterest } from '@/hooks/useCMS';
 import { useVenuePackages, formatRupiah } from '@/hooks/useOta';
 
-const EVENT_TYPES = [
-  'Wedding',
-  'Corporate Event',
-  'Birthday Party',
-  'Seminar',
-  'Exhibition',
-  'Gala Dinner',
-  'Product Launch',
-  'Other',
-];
+const PHONE_RE = /^[+\d\s().-]+$/;
 
 const bookingSchema = z.object({
-  booking_date: z.date({
-    required_error: 'Tanggal harus dipilih',
-  }),
-  session_id: z.string().optional(),
-  package_id: z.string().optional(),
-  start_time: z.string().optional(),
-  end_time: z.string().optional(),
-
   contact_name: z.string().trim().min(2, 'Nama minimal 2 karakter').max(100, 'Nama maksimal 100 karakter'),
-  contact_email: z.string().trim().email('Email tidak valid').max(255, 'Email maksimal 255 karakter'),
-  contact_phone: z.string().trim().min(8, 'Nomor telepon minimal 8 digit').max(20, 'Nomor telepon maksimal 20 karakter'),
-  event_name: z.string().trim().min(2, 'Nama acara minimal 2 karakter').max(200, 'Nama acara maksimal 200 karakter'),
-  event_type: z.string().optional(),
-  guest_count: z.number().min(1, 'Jumlah tamu minimal 1').max(10000, 'Jumlah tamu maksimal 10000').optional(),
-  notes: z.string().max(1000, 'Catatan maksimal 1000 karakter').optional(),
+  contact_phone: z
+    .string()
+    .trim()
+    .regex(PHONE_RE, 'Nomor HP hanya boleh berisi angka')
+    .refine((v) => { const d = v.replace(/\D/g, ''); return d.length >= 8 && d.length <= 15; }, 'Nomor HP 8–15 digit'),
+  location_id: z.string().min(1, 'Pilih venue'),
+  notes: z.string().trim().max(1000, 'Pesan maksimal 1000 karakter').optional(),
+  website: z.string().optional(), // honeypot anti-bot, harus kosong
 });
 
 type BookingFormValues = z.infer<typeof bookingSchema>;
@@ -69,784 +46,173 @@ interface BallroomBookingFormProps {
   onClose?: () => void;
 }
 
-const SectionTitle = ({ icon: Icon, title }: { icon: typeof User; title: string }) => (
-  <div className="flex items-center gap-2 pt-2">
-    <span className="p-1.5 rounded-md bg-secondary">
-      <Icon className="w-3.5 h-3.5 text-primary" />
-    </span>
-    <h4 className="text-xs uppercase tracking-[0.12em] text-muted-foreground font-medium">{title}</h4>
-    <span className="flex-1 h-px bg-border" />
-  </div>
-);
+const bookingCode = (id: string) => `KDM-${id.replace(/-/g, '').slice(0, 8).toUpperCase()}`;
 
-const toMinutes = (t?: string | null) => {
-  if (!t) return null;
-  const [h, m] = t.split(':');
-  return parseInt(h, 10) * 60 + parseInt(m || '0', 10);
-};
-
-const overlaps = (aS: string, aE: string, bS?: string | null, bE?: string | null) => {
-  const bStart = toMinutes(bS);
-  const bEnd = toMinutes(bE);
-  // Jadwal tanpa jam = blok sehari penuh
-  if (bStart === null || bEnd === null) return true;
-  const aStart = toMinutes(aS);
-  const aEnd = toMinutes(aE);
-  if (aStart === null || aEnd === null) return true;
-  return aStart < bEnd && bStart < aEnd;
-};
-
-export function BallroomBookingForm({
-  locationId: propLocationId,
-  locationName: propLocationName,
-  initialDate,
-  initialPackageId,
-  onClose,
-}: BallroomBookingFormProps) {
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [waLink, setWaLink] = useState<string>('');
-  const [pickedVenueId, setPickedVenueId] = useState<string>(propLocationId ?? '');
+export function BallroomBookingForm({ locationId: propLocationId, locationName: propLocationName, initialDate, initialPackageId, onClose }: BallroomBookingFormProps) {
   const { data: locations = [] } = useLocations();
-
-  const locationId = propLocationId ?? pickedVenueId;
-  const locationName =
-    propLocationName ?? locations.find((l) => l.id === locationId)?.name ?? '';
-  const needsVenuePick = !propLocationId;
-
-  const createBooking = useCreateBallroomBooking();
-  const { data: schedules = [] } = useBallroomSchedules(locationId || undefined);
-  const { data: sessions = [] } = useVenueSessions(locationId || undefined);
-  const { data: settings } = useSiteSettings();
-  const { bookedDates } = useExternalBookedDates(locationName);
-  const { data: interest = {} } = useVenueInterest(locationId || undefined);
-  const trackInterest = useTrackVenueInterest();
   const { data: allPackages = [] } = useVenuePackages();
-  // Paket milik venue ini + paket umum (tanpa venue), hanya yang aktif
-  const venuePackages = useMemo(
-    () => allPackages.filter((p) => p.is_active && (!p.location_id || p.location_id === locationId)),
-    [allPackages, locationId]
-  );
+  const { data: settings } = useSiteSettings();
+  const createBooking = useCreateBallroomBooking();
+  const trackInterest = useTrackVenueInterest();
 
-  const blockedSchedules = useMemo(
-    () => schedules.filter(s => s.status === 'booked' || s.status === 'blocked'),
-    [schedules]
-  );
-
-  const externalSlot = (date: Date) => bookedDates.get(format(date, 'yyyy-MM-dd'));
-
-  /** Seluruh hari terblokir hanya bila ada booking eksternal tanpa info waktu */
-  const isExternallyFullDay = (date: Date) => externalSlot(date)?.fullDay === true;
-
-  const isExternallyBookedSession = (date: Date, session: { start_time: string; end_time: string }) => {
-    const slot = externalSlot(date);
-    if (!slot) return false;
-    if (slot.fullDay) return true;
-    return slot.ranges.some(r => overlaps(session.start_time, session.end_time, r.start, r.end));
-  };
-
-  const schedulesForDate = (date: Date) =>
-    blockedSchedules.filter(s => s.schedule_date === format(date, 'yyyy-MM-dd'));
-
-  const isSessionTaken = (date: Date, session: { start_time: string; end_time: string }) =>
-    isExternallyBookedSession(date, session) ||
-    schedulesForDate(date).some(s => overlaps(session.start_time, session.end_time, s.start_time, s.end_time));
-
-
+  const validInitialDate = initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate) && new Date(`${initialDate}T00:00:00`) >= startOfToday() ? initialDate : '';
+  const [date, setDate] = useState(validInitialDate);
+  const [packageId, setPackageId] = useState(initialPackageId ?? '');
+  const [result, setResult] = useState<{ code: string; waLink: string } | null>(null);
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
-    defaultValues: {
-      contact_name: '',
-      contact_email: '',
-      contact_phone: '',
-      event_name: '',
-      event_type: '',
-      notes: '',
-      session_id: '',
-      package_id: initialPackageId ?? '',
-      ...(initialDate && /^\d{4}-\d{2}-\d{2}$/.test(initialDate) && new Date(`${initialDate}T00:00:00`) >= startOfToday()
-        ? { booking_date: new Date(`${initialDate}T00:00:00`) }
-        : {}),
-    },
+    defaultValues: { contact_name: '', contact_phone: '', location_id: propLocationId ?? '', notes: '', website: '' },
   });
 
-  const selectedDate = form.watch('booking_date');
-  const selectedSessionId = form.watch('session_id');
-  const watched = form.watch();
+  const venueOptions = useMemo(() => locations.filter((l) => l.is_active && !l.is_coming_soon), [locations]);
+  const locationId = form.watch('location_id');
+  const locationName = locations.find((l) => l.id === locationId)?.name || (locationId === propLocationId ? propLocationName : '') || '';
+  // Paket hanya berlaku bila milik venue terpilih atau paket umum
+  const pkg = allPackages.find((p) => p.id === packageId && (!p.location_id || p.location_id === locationId));
 
-  const step1Done = Boolean(locationId && selectedDate && (sessions.length === 0 || selectedSessionId));
-  const step2Done = Boolean(watched.event_name && watched.event_name.trim().length >= 2);
-  const step3Done = Boolean(watched.contact_name && watched.contact_email && watched.contact_phone);
-  const steps = [
-    { label: 'Venue, Jadwal & Paket', done: step1Done },
-    { label: 'Detail Acara', done: step2Done },
-    { label: 'Data Pemesan', done: step3Done },
-  ];
-  const currentStep = !step1Done ? 0 : !step2Done ? 1 : 2;
-  const venueInterest = locationId ? interest[locationId] : undefined;
-  const selectedDateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : '';
-  const selectedDateInterest = selectedDateKey ? venueInterest?.dates[selectedDateKey] : undefined;
-
-  const activePromoSchedules = useMemo(
-    () => schedules.filter((schedule) => schedule.promo_type && (!schedule.promo_expires_at || new Date(schedule.promo_expires_at) >= new Date())),
-    [schedules]
-  );
-  const promoDates = useMemo(() => activePromoSchedules.map((schedule) => new Date(`${schedule.schedule_date}T12:00:00`)), [activePromoSchedules]);
-  const popularDates = useMemo(() => Object.entries(venueInterest?.dates || {})
-    .filter(([, activity]) => activity.clicks + activity.bookings >= 3)
-    .map(([date]) => new Date(`${date}T12:00:00`)), [venueInterest]);
-  const selectedPromo = selectedDateKey ? activePromoSchedules.find((schedule) => schedule.schedule_date === selectedDateKey) : undefined;
-
-  const sessionAvailability = useMemo(() => {
-    if (!selectedDate) return [];
-    return sessions.map(s => ({ ...s, taken: isSessionTaken(selectedDate, s) }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDate, sessions, blockedSchedules, bookedDates]);
-
-  const isDateDisabled = (date: Date) => {
-    if (isBefore(date, startOfToday())) return true;
-    // Sebelum venue dipilih, jangan tandai tanggal apa pun sebagai penuh
-    if (!locationId) return false;
-    const daySchedules = schedulesForDate(date);
-    const external = externalSlot(date);
-    // Tanpa data sesi: booking eksternal atau jadwal apa pun menutup tanggal
-    if (sessions.length === 0) return Boolean(external) || daySchedules.length > 0;
-    // Booking eksternal tanpa info waktu menutup seluruh hari
-    if (isExternallyFullDay(date)) return true;
-    if (daySchedules.length === 0 && !external) return false;
-    // Dengan sesi: tanggal ditutup hanya jika semua sesi penuh
-    return sessions.every(s => isSessionTaken(date, s));
-  };
-
-
-
-  const handleSelectSession = (session: { id: string; start_time: string; end_time: string }) => {
-    form.setValue('session_id', session.id, { shouldValidate: true });
-    form.setValue('start_time', session.start_time.slice(0, 5));
-    form.setValue('end_time', session.end_time.slice(0, 5));
-  };
-
-  const buildWaLink = (data: BookingFormValues) => {
-    const rawNumber =
-      settings?.phone?.replace(/[^0-9]/g, '') ||
-      settings?.whatsapp_link?.replace(/[^0-9]/g, '') ||
-      '6281117797567';
+  const buildWaLink = (data: BookingFormValues, code: string) => {
+    const rawNumber = settings?.phone?.replace(/[^0-9]/g, '') || settings?.whatsapp_link?.replace(/[^0-9]/g, '') || '6281117797567';
     const waNumber = rawNumber.startsWith('0') ? `62${rawNumber.slice(1)}` : rawNumber;
-    const sessionName = sessions.find(s => s.id === data.session_id)?.name;
-    const pkg = venuePackages.find((p) => p.id === data.package_id);
-
     const lines = [
-      'Halo Kediaman, saya ingin mengajukan reservasi ballroom.',
+      'Halo Kediaman, saya ingin reservasi venue.',
       '',
+      `*Kode booking* : ${code}`,
+      `*Nama* : ${data.contact_name}`,
+      `*No. HP* : ${data.contact_phone}`,
       `*Venue* : ${locationName}`,
-      `*Tanggal* : ${format(data.booking_date, 'EEEE, dd MMMM yyyy', { locale: idLocale })}`,
-      sessionName ? `*Sesi* : ${sessionName}` : null,
-      pkg ? `*Paket* : ${pkg.name}${pkg.price !== null ? ` (${pkg.price_note || 'mulai'} ${formatRupiah(pkg.price)})` : ''}` : '*Paket* : Belum memilih, mohon rekomendasi',
-      data.start_time || data.end_time
-        ? `*Waktu* : ${data.start_time || '-'} - ${data.end_time || '-'}`
-        : null,
-      `*Nama Acara* : ${data.event_name}`,
-      data.event_type ? `*Jenis Acara* : ${data.event_type}` : null,
-      data.guest_count ? `*Perkiraan Tamu* : ${data.guest_count} orang` : null,
-      '',
-      '*Data Pemesan*',
-      `Nama : ${data.contact_name}`,
-      `Email : ${data.contact_email}`,
-      `Telepon : ${data.contact_phone}`,
-      data.notes ? `\n*Catatan* : ${data.notes}` : null,
-      '',
-      'Mohon informasi ketersediaan dan penawarannya. Terima kasih.',
+      date ? `*Tanggal* : ${format(new Date(`${date}T00:00:00`), 'EEEE, dd MMMM yyyy', { locale: idLocale })}` : null,
+      pkg ? `*Paket* : ${pkg.name}` : null,
+      data.notes ? `*Pesan* : ${data.notes}` : null,
     ].filter(Boolean) as string[];
-
     return `https://wa.me/${waNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
   };
 
   const onSubmit = async (data: BookingFormValues) => {
-    if (!locationId) return;
-    if (sessions.length > 0) {
-      const chosen = sessionAvailability.find(s => s.id === data.session_id);
-      if (!chosen) {
-        form.setError('session_id', { message: 'Pilih sesi yang tersedia' });
-        return;
-      }
-      if (chosen.taken) {
-        form.setError('session_id', { message: 'Sesi ini sudah terisi, silakan pilih sesi lain' });
-        return;
-      }
-    }
-    const chosenPackage = venuePackages.find((p) => p.id === data.package_id);
+    if (data.website) return; // bot
     try {
-      await createBooking.mutateAsync({
-        location_id: locationId,
-        booking_date: format(data.booking_date, 'yyyy-MM-dd'),
-        session_id: data.session_id || undefined,
-        package_id: chosenPackage?.id,
-        package_name: chosenPackage?.name,
-        start_time: data.start_time || undefined,
-        end_time: data.end_time || undefined,
-        contact_name: data.contact_name,
-        contact_email: data.contact_email,
-        contact_phone: data.contact_phone,
-        event_name: data.event_name,
-        event_type: data.event_type || undefined,
-        guest_count: data.guest_count || undefined,
-        notes: data.notes || undefined,
+      const row = await createBooking.mutateAsync({
+        location_id: data.location_id,
+        contact_name: data.contact_name.trim(),
+        contact_phone: data.contact_phone.trim(),
+        notes: data.notes?.trim() || undefined,
+        booking_date: date || undefined,
+        package_id: pkg?.id,
+        package_name: pkg?.name,
       });
-      trackInterest.mutate({
-        locationId,
-        eventType: 'booking_request',
-        scheduleDate: format(data.booking_date, 'yyyy-MM-dd'),
-      });
-
-      track('generate_lead', {
-        lead_source: 'booking_form',
-        venue_name: locationName,
-        event_type: data.event_type || undefined,
-        package_name: chosenPackage?.name,
-        booking_date: format(data.booking_date, 'yyyy-MM-dd'),
-        guest_count: data.guest_count || undefined,
-      });
-
-      const link = buildWaLink(data);
-      setWaLink(link);
-      setIsSubmitted(true);
-      window.open(link, '_blank', 'noopener,noreferrer');
-    } catch (error) {
-      // Error handled by mutation
+      const code = bookingCode(String((row as { id?: string } | null)?.id ?? ''));
+      if (date) trackInterest.mutate({ locationId: data.location_id, eventType: 'booking_request', scheduleDate: date });
+      track('generate_lead', { lead_source: 'booking_form', venue_name: locationName, has_date: Boolean(date), has_package: Boolean(pkg) });
+      const waLink = buildWaLink(data, code);
+      setResult({ code, waLink });
+      window.open(waLink, '_blank', 'noopener,noreferrer');
+    } catch {
+      // pesan error ditampilkan oleh mutation
     }
   };
 
-  if (isSubmitted) {
+  if (result) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="text-center py-8"
-      >
-        <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
-        <h3 className="font-serif text-2xl mb-2 font-bold">Permintaan Booking Terkirim!</h3>
-        <p className="text-muted-foreground mb-4">
-          Data Anda tersimpan. Kami juga membuka WhatsApp agar tim kami bisa langsung merespons.
-        </p>
-        <a href={waLink} target="_blank" rel="noopener noreferrer" className="block mb-3">
-          <Button className="w-full gap-2" size="lg">
-            <MessageCircle className="w-4 h-4" />
-            Lanjutkan ke WhatsApp
-          </Button>
+      <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
+        <CheckCircle className="size-14 text-primary mx-auto mb-3" />
+        <h3 className="text-xl font-extrabold mb-1">Permintaan terkirim!</h3>
+        <p className="text-sm text-muted-foreground mb-4">Tim kami akan menghubungi Anda lewat WhatsApp dalam 1×24 jam.</p>
+        <div className="rounded-xl bg-secondary p-4 mb-4">
+          <p className="text-xs text-muted-foreground">Kode booking Anda</p>
+          <div className="mt-1 flex items-center justify-center gap-2">
+            <span className="font-mono text-2xl font-extrabold tracking-wider text-primary">{result.code}</span>
+            <button type="button" onClick={() => { navigator.clipboard?.writeText(result.code); toast.success('Kode disalin'); }} className="grid place-items-center size-8 rounded-lg hover:bg-card" aria-label="Salin kode booking">
+              <Copy className="size-4" />
+            </button>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">Simpan kode ini untuk cek status booking bersama nomor HP Anda.</p>
+        </div>
+        <a href={result.waLink} target="_blank" rel="noopener noreferrer" className="block mb-2">
+          <Button className="w-full gap-2 h-11 rounded-xl font-bold"><MessageCircle className="size-4" />Lanjutkan ke WhatsApp</Button>
         </a>
-        <p className="text-sm text-muted-foreground mb-6">
-          Cek status booking kapan saja di{' '}
-          <a href="/booking/track" className="text-primary hover:underline font-medium">
-            halaman tracking
-          </a>
-        </p>
-        <Button onClick={onClose} variant="outline">
-          Tutup
-        </Button>
+        <a href="/booking/track" className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:underline mb-4"><Search className="size-4" />Cek status booking</a>
+        <div><Button onClick={onClose} variant="outline" className="rounded-xl">Tutup</Button></div>
       </motion.div>
     );
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        <div className="text-center pb-2 border-b border-border">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-1">Reservasi</p>
-          <h3 className="font-serif text-2xl font-bold">{locationName || 'Pilih Venue Anda'}</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            Isi detail acara Anda — tim kami merespons dalam 1x24 jam.
-          </p>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        <div className="pb-3 border-b border-border">
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Reservasi venue</p>
+          <h3 className="text-xl font-extrabold mt-0.5">{locationName || 'Ajukan booking'}</h3>
+          <p className="text-sm text-muted-foreground mt-1">Cukup isi 4 data di bawah, tim kami bantu cek tanggal & penawaran. Gratis, tanpa komitmen.</p>
         </div>
 
-        {/* Step indicator */}
-        <div className="flex items-center gap-2">
-          {steps.map((s, i) => (
-            <div key={s.label} className="flex-1">
-              <div className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    'w-6 h-6 shrink-0 rounded-full text-[11px] font-medium flex items-center justify-center border',
-                    s.done
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : i === currentStep
-                      ? 'border-primary text-primary'
-                      : 'border-border text-muted-foreground'
-                  )}
-                >
-                  {s.done ? <CheckCircle className="w-3.5 h-3.5" /> : i + 1}
-                </span>
-                <span
-                  className={cn(
-                    'text-[11px] tracking-wide hidden sm:block',
-                    i === currentStep ? 'text-foreground font-medium' : 'text-muted-foreground'
-                  )}
-                >
-                  {s.label}
-                </span>
-              </div>
-              <div className={cn('h-1 rounded-full mt-2', s.done ? 'bg-primary' : 'bg-border')} />
-            </div>
-          ))}
-        </div>
-
-        <SectionTitle icon={CalendarIcon} title="Venue & Jadwal Acara" />
-
-        {/* Venue picker */}
-        {needsVenuePick && (
+        <FormField control={form.control} name="contact_name" render={({ field }) => (
           <FormItem>
-            <FormLabel>Pilih Venue *</FormLabel>
-            <Select
-              value={pickedVenueId}
-              onValueChange={(v) => {
-                setPickedVenueId(v);
-                // Tanggal harus dipilih ulang sesuai ketersediaan venue baru
-                form.resetField('booking_date');
-                form.setValue('session_id', '');
-                form.setValue('start_time', '');
-                form.setValue('end_time', '');
-                // Paket venue lama tidak berlaku untuk venue baru (paket umum tetap)
-                const current = allPackages.find((p) => p.id === form.getValues('package_id'));
-                if (current?.location_id && current.location_id !== v) form.setValue('package_id', '');
-              }}
-            >
-              <SelectTrigger className="h-11">
-                <SelectValue placeholder="Pilih venue yang diinginkan" />
-              </SelectTrigger>
+            <FormLabel>Nama *</FormLabel>
+            <FormControl><Input className="h-11" autoComplete="name" placeholder="Nama lengkap" {...field} /></FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        <FormField control={form.control} name="contact_phone" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Nomor HP (WhatsApp) *</FormLabel>
+            <FormControl><Input className="h-11" type="tel" inputMode="tel" autoComplete="tel" placeholder="08xxxxxxxxxx" {...field} /></FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        <FormField control={form.control} name="location_id" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Venue *</FormLabel>
+            <Select value={field.value} onValueChange={field.onChange}>
+              <FormControl>
+                <SelectTrigger className="h-11"><SelectValue placeholder="Pilih venue" /></SelectTrigger>
+              </FormControl>
               <SelectContent>
-                {locations
-                  .filter((l) => !l.is_coming_soon)
-                  .map((l) => (
-                    <SelectItem key={l.id} value={l.id}>
-                      {l.name}
-                    </SelectItem>
-                  ))}
+                {venueOptions.map((l) => <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>)}
+                {propLocationId && !venueOptions.some((l) => l.id === propLocationId) && propLocationName && (
+                  <SelectItem value={propLocationId}>{propLocationName}</SelectItem>
+                )}
               </SelectContent>
             </Select>
-            <FormDescription className="text-xs">
-              Belum yakin? Pilih salah satu dulu, tim kami bantu carikan yang paling cocok.
-            </FormDescription>
+            <FormMessage />
           </FormItem>
-        )}
+        )} />
 
-        {/* Date Picker */}
-        <FormField
-          control={form.control}
-          name="booking_date"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Tanggal Acara *</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full h-11 pl-3 text-left font-normal',
-                        !field.value && 'text-muted-foreground'
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, 'EEEE, dd MMMM yyyy', { locale: idLocale })
-                      ) : (
-                        <span>Pilih tanggal</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={(d) => {
-                      field.onChange(d);
-                      form.setValue('session_id', '');
-                      form.setValue('start_time', '');
-                      form.setValue('end_time', '');
-                      if (d && locationId) {
-                        trackInterest.mutate({
-                          locationId,
-                          eventType: 'date_click',
-                          scheduleDate: format(d, 'yyyy-MM-dd'),
-                        });
-                      }
-                    }}
-                    disabled={isDateDisabled}
-                    modifiers={{ promo: promoDates, popular: popularDates }}
-                    modifiersClassNames={{
-                      promo: 'ring-2 ring-primary ring-offset-1 ring-offset-background font-semibold',
-                      popular: 'bg-accent text-accent-foreground font-semibold',
-                    }}
-                    initialFocus
-                    className={cn('p-3 pointer-events-auto')}
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormDescription className="text-xs">
-                Tanggal yang sudah terisi otomatis dinonaktifkan.
-              </FormDescription>
-              {locationId && (activePromoSchedules.length > 0 || popularDates.length > 0) && (
-                <div className="flex flex-wrap gap-3 pt-1 text-[11px] text-muted-foreground">
-                  {activePromoSchedules.length > 0 && <span className="inline-flex items-center gap-1"><Tag className="h-3 w-3 text-primary" /> Tanggal promo</span>}
-                  {popularDates.length > 0 && <span className="inline-flex items-center gap-1"><Flame className="h-3 w-3 text-primary" /> Banyak diminati</span>}
-                </div>
-              )}
-              {selectedDate && (selectedPromo || selectedDateInterest) && (
-                <div className="mt-2 rounded-lg border border-primary/25 bg-primary/5 p-3 text-xs">
-                  {selectedPromo && (
-                    <p className="flex items-center gap-1.5 font-semibold text-primary">
-                      <Tag className="h-3.5 w-3.5" />
-                      {selectedPromo.promo_label || (selectedPromo.promo_type === 'limited_offer' ? 'Limited Offer' : 'Special Offer')}
-                    </p>
-                  )}
-                  {selectedDateInterest && selectedDateInterest.clicks + selectedDateInterest.bookings > 0 && (
-                    <p className="mt-1 flex items-center gap-1.5 text-muted-foreground">
-                      <Eye className="h-3.5 w-3.5" />
-                      {selectedDateInterest.clicks + selectedDateInterest.bookings >= 3
-                        ? `${selectedDateInterest.clicks + selectedDateInterest.bookings} pengunjung memilih tanggal ini dalam 7 hari terakhir`
-                        : 'Tanggal ini mulai diminati'}
-                    </p>
-                  )}
-                </div>
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Slot / Sesi */}
-        {sessions.length > 0 ? (
-          <FormField
-            control={form.control}
-            name="session_id"
-            render={() => (
-              <FormItem>
-                <FormLabel>Pilih Sesi *</FormLabel>
-                {!selectedDate ? (
-                  <p className="text-sm text-muted-foreground border border-dashed border-border rounded-lg p-4">
-                    Pilih tanggal terlebih dahulu untuk melihat sesi yang tersedia.
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {sessionAvailability.map((s) => {
-                      const active = selectedSessionId === s.id;
-                      return (
-                        <button
-                          key={s.id}
-                          type="button"
-                          disabled={s.taken}
-                          onClick={() => handleSelectSession(s)}
-                          className={cn(
-                            'text-left rounded-xl border p-3 transition-colors',
-                            active
-                              ? 'border-primary bg-primary/10'
-                              : 'border-border hover:border-primary/50',
-                            s.taken && 'opacity-50 cursor-not-allowed line-through hover:border-border'
-                          )}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-sm font-medium">{s.name}</span>
-                            <span
-                              className={cn(
-                                'text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full no-underline',
-                                s.taken ? 'bg-muted text-muted-foreground' : 'bg-primary/15 text-primary'
-                              )}
-                            >
-                              {s.taken ? 'Penuh' : 'Tersedia'}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {s.start_time.slice(0, 5)} - {s.end_time.slice(0, 5)}
-                          </p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-                <FormMessage />
-              </FormItem>
+        {(date || pkg) && (
+          <div className="flex flex-wrap gap-2" aria-label="Pilihan Anda sebelumnya">
+            {date && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary pl-3 pr-1 py-1 text-xs font-bold text-primary">
+                <CalendarDays className="size-3.5" aria-hidden="true" />{format(new Date(`${date}T00:00:00`), 'EEE, d MMM yyyy', { locale: idLocale })}
+                <button type="button" onClick={() => setDate('')} className="grid place-items-center size-5 rounded-full hover:bg-card" aria-label="Hapus tanggal"><X className="size-3" /></button>
+              </span>
             )}
-          />
-        ) : (
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="start_time"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Jam Mulai</FormLabel>
-                  <FormControl>
-                    <Input type="time" className="h-11" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="end_time"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Jam Selesai</FormLabel>
-                  <FormControl>
-                    <Input type="time" className="h-11" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {pkg && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary pl-3 pr-1 py-1 text-xs font-bold text-primary">
+                <Package className="size-3.5" aria-hidden="true" />{pkg.name}{pkg.price !== null ? ` · ${formatRupiah(pkg.price, { compact: true })}` : ''}
+                <button type="button" onClick={() => setPackageId('')} className="grid place-items-center size-5 rounded-full hover:bg-card" aria-label="Hapus paket"><X className="size-3" /></button>
+              </span>
+            )}
           </div>
         )}
 
+        <FormField control={form.control} name="notes" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Pesan</FormLabel>
+            <FormControl>
+              <Textarea rows={4} placeholder="Contoh: rencana resepsi Desember 2026, ±800 tamu, mohon info paket & tanggal kosong." className="resize-none" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
 
-        {locationId && venuePackages.length > 0 && (
-          <>
-            <SectionTitle icon={Package} title="Pilih Paket" />
-            <FormField
-              control={form.control}
-              name="package_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="sr-only">Paket</FormLabel>
-                  <div role="radiogroup" aria-label="Pilih paket" className="grid gap-2">
-                    {venuePackages.map((p) => {
-                      const active = field.value === p.id;
-                      const pax = p.min_pax || p.max_pax ? `${p.min_pax ?? ''}${p.min_pax && p.max_pax ? '–' : ''}${p.max_pax ?? ''} tamu` : null;
-                      return (
-                        <button
-                          key={p.id}
-                          type="button"
-                          role="radio"
-                          aria-checked={active}
-                          onClick={() => field.onChange(active ? '' : p.id)}
-                          className={cn(
-                            'w-full text-left rounded-xl border p-3.5 transition-colors flex gap-3',
-                            active ? 'border-primary bg-secondary ring-1 ring-primary' : 'border-border hover:border-primary/50'
-                          )}
-                        >
-                          <span className={cn('mt-0.5 grid place-items-center size-5 shrink-0 rounded-full border-2', active ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}>
-                            {active && <Check className="size-3" strokeWidth={3} />}
-                          </span>
-                          <span className="flex-1 min-w-0">
-                            <span className="flex items-start justify-between gap-3">
-                              <span className="font-bold leading-snug">
-                                {p.name}
-                                {p.is_featured && <span className="ml-2 align-middle ota-badge">Terpopuler</span>}
-                              </span>
-                              <span className="text-right shrink-0">
-                                <span className="block text-[10px] text-muted-foreground">{p.price_note || 'Mulai'}</span>
-                                <span className="block ota-price text-sm">{formatRupiah(p.price) ?? 'Hubungi kami'}</span>
-                              </span>
-                            </span>
-                            {(pax || p.inclusions.length > 0) && (
-                              <span className="mt-1 block text-xs text-muted-foreground line-clamp-2">
-                                {[pax, ...p.inclusions.slice(0, 3)].filter(Boolean).join(' · ')}
-                              </span>
-                            )}
-                          </span>
-                        </button>
-                      );
-                    })}
-                    <button
-                      type="button"
-                      role="radio"
-                      aria-checked={!field.value}
-                      onClick={() => field.onChange('')}
-                      className={cn(
-                        'w-full text-left rounded-xl border border-dashed p-3.5 transition-colors flex gap-3 items-center',
-                        !field.value ? 'border-primary bg-secondary' : 'border-border hover:border-primary/50'
-                      )}
-                    >
-                      <HelpCircle className="size-5 text-muted-foreground shrink-0" aria-hidden="true" />
-                      <span className="text-sm"><span className="font-bold">Belum tahu</span> — minta rekomendasi paket dari tim kami</span>
-                    </button>
-                  </div>
-                  <FormDescription className="text-xs">Harga final dikonfirmasi tim sesuai tanggal dan jumlah tamu.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
+        {/* Honeypot: tersembunyi dari pengunjung & pembaca layar */}
+        <input type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" {...form.register('website')} />
 
-        <SectionTitle icon={PartyPopper} title="Detail Acara" />
-
-        <FormField
-          control={form.control}
-          name="event_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Acara *</FormLabel>
-              <FormControl>
-                <Input className="h-11" placeholder="Contoh: Wedding Reception John & Jane" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="event_type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Jenis Acara</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Pilih jenis acara" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {EVENT_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="guest_count"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Perkiraan Tamu</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    inputMode="numeric"
-                    className="h-11"
-                    placeholder="100"
-                    {...field}
-                    value={field.value ?? ''}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <SectionTitle icon={User} title="Data Pemesan" />
-
-        <FormField
-          control={form.control}
-          name="contact_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Lengkap *</FormLabel>
-              <FormControl>
-                <Input className="h-11" placeholder="Nama Anda" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="contact_email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email *</FormLabel>
-                <FormControl>
-                  <Input type="email" className="h-11" placeholder="email@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="contact_phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>No. WhatsApp *</FormLabel>
-                <FormControl>
-                  <Input type="tel" className="h-11" placeholder="0812 3456 7890" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Catatan / Request Khusus</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Tuliskan kebutuhan khusus Anda..."
-                  rows={3}
-                  className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* FAQ singkat */}
-        <div className="rounded-xl border border-border bg-secondary/40 px-4">
-          <Accordion type="single" collapsible>
-            <AccordionItem value="biaya" className="border-b-0">
-              <AccordionTrigger className="text-sm">Apakah mengisi form ini sudah dikenakan biaya?</AccordionTrigger>
-              <AccordionContent className="text-sm text-muted-foreground">
-                Belum. Form ini adalah permintaan ketersediaan tanggal. Tidak ada biaya sampai Anda setuju dengan penawaran dari tim kami.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="dp" className="border-b-0">
-              <AccordionTrigger className="text-sm">Bagaimana cara mengunci tanggal?</AccordionTrigger>
-              <AccordionContent className="text-sm text-muted-foreground">
-                Tanggal dikunci setelah tanda jadi (DP) dibayarkan sesuai penawaran resmi. Sebelum itu, tanggal masih berstatus sementara.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="konfirmasi" className="border-b-0">
-              <AccordionTrigger className="text-sm">Berapa lama konfirmasinya?</AccordionTrigger>
-              <AccordionContent className="text-sm text-muted-foreground">
-                Maksimal 1x24 jam pada hari kerja. Anda juga bisa memantau status kapan saja di halaman tracking booking.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-
-        <div className="sticky bottom-0 -mx-6 px-6 pt-4 pb-1 bg-background/95 backdrop-blur border-t border-border">
-          <div className="flex gap-3">
-            {onClose && (
-              <Button type="button" variant="outline" onClick={onClose} className="flex-1 h-11">
-                Batal
-              </Button>
-            )}
-            <Button type="submit" disabled={createBooking.isPending || !locationId} className="flex-1 h-11 gap-2">
-
-              {createBooking.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Mengirim...
-                </>
-              ) : (
-                <>
-                  <MessageCircle className="w-4 h-4" />
-                  Kirim & Chat WhatsApp
-                </>
-              )}
-            </Button>
-          </div>
-          <p className="text-[11px] text-center text-muted-foreground mt-2 mb-2">
-            Data tersimpan otomatis, lalu Anda diarahkan ke WhatsApp Kediaman.
-          </p>
-        </div>
+        <Button type="submit" className="w-full h-12 rounded-xl text-base font-extrabold" disabled={createBooking.isPending}>
+          {createBooking.isPending ? <><Loader2 className="size-4 mr-2 animate-spin" />Mengirim…</> : 'Kirim permintaan booking'}
+        </Button>
+        <p className="text-center text-xs text-muted-foreground">Data Anda hanya dipakai tim Kediaman untuk menghubungi Anda terkait booking ini.</p>
       </form>
     </Form>
   );

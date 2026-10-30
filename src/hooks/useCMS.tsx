@@ -687,18 +687,18 @@ export function useBallroomBookings(locationId?: string) {
 export function useCreateBallroomBooking() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (booking: { 
-      location_id: string; 
-      booking_date: string; 
-      start_time?: string; 
-      end_time?: string; 
+    mutationFn: async (booking: {
+      location_id: string;
       contact_name: string;
-      contact_email: string;
       contact_phone: string;
-      event_name: string;
+      notes?: string;
+      booking_date?: string;
+      contact_email?: string;
+      event_name?: string;
       event_type?: string;
       guest_count?: number;
-      notes?: string;
+      start_time?: string;
+      end_time?: string;
       session_id?: string;
       package_id?: string;
       package_name?: string;
@@ -710,7 +710,8 @@ export function useCreateBallroomBooking() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ballroom-bookings'] });
     },
-    onError: () => toast.error('Gagal mengirim permintaan booking'),
+    onError: (e: { message?: string; code?: string } | null) =>
+      toast.error(e?.code === 'RATE_LIMITED' && e.message ? e.message : 'Gagal mengirim permintaan booking. Coba lagi atau hubungi kami via WhatsApp.'),
   });
 }
 

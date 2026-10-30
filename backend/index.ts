@@ -233,6 +233,10 @@ ALTER TABLE programs ADD COLUMN IF NOT EXISTS location_ids jsonb NOT NULL DEFAUL
 -- Paket yang dipilih pengunjung di form booking (nama disalin agar tetap terbaca bila paket dihapus)
 ALTER TABLE ballroom_bookings ADD COLUMN IF NOT EXISTS package_id uuid REFERENCES venue_packages(id) ON DELETE SET NULL;
 ALTER TABLE ballroom_bookings ADD COLUMN IF NOT EXISTS package_name text;
+-- Form booking ringkas (nama, HP, venue, pesan): tanggal, email, dan nama acara jadi opsional
+ALTER TABLE ballroom_bookings ALTER COLUMN booking_date DROP NOT NULL;
+ALTER TABLE ballroom_bookings ALTER COLUMN contact_email DROP NOT NULL;
+ALTER TABLE ballroom_bookings ALTER COLUMN event_name DROP NOT NULL;
 
 -- Pelanggan newsletter (diisi dari CTA "Langganan" di website; dikirim otomatis oleh agent)
 CREATE TABLE IF NOT EXISTS newsletter_subscribers (
@@ -283,6 +287,39 @@ const PUBLIC_ROW_FILTER: Record<string, Filter> = {
   venue_reviews: ["is_published", "eq", true],
 };
 
+const BOOKING_FIELDS = new Set([
+  "location_id", "booking_date", "start_time", "end_time", "contact_name", "contact_email", "contact_phone",
+  "event_name", "event_type", "guest_count", "notes", "session_id", "package_id", "package_name", "user_id",
+]);
+
+/** Validasi server untuk booking dari pengunjung (jangan percaya validasi di browser saja). */
+function validatePublicBooking(v: any) {
+  const bad = (msg: string) => { throw new ApiError(400, msg, "22023"); };
+  if (!v || typeof v !== "object" || Array.isArray(v)) bad("Data booking tidak valid");
+  for (const k of Object.keys(v)) if (!BOOKING_FIELDS.has(k)) bad(`Kolom tidak diizinkan: ${k}`);
+  const str = (k: string, min: number, max: number, required = false) => {
+    const val = v[k];
+    if (val == null || val === "") { if (required) bad(`${k} wajib diisi`); return; }
+    if (typeof val !== "string") bad(`${k} tidak valid`);
+    const t = val.trim();
+    if (t.length < min || t.length > max) bad(`${k} harus ${min}–${max} karakter`);
+  };
+  str("contact_name", 2, 100, true);
+  str("contact_phone", 8, 20, true);
+  const digits = String(v.contact_phone).replace(/\D/g, "");
+  if (digits.length < 8 || digits.length > 15 || !/^[+\d\s().-]+$/.test(String(v.contact_phone))) bad("Nomor HP tidak valid");
+  if (typeof v.location_id !== "string" || !UUID_RE.test(v.location_id)) bad("Venue wajib dipilih");
+  str("notes", 0, 1000);
+  str("event_name", 0, 200);
+  str("event_type", 0, 50);
+  str("package_name", 0, 120);
+  if (v.contact_email != null && v.contact_email !== "" && !validEmail(String(v.contact_email))) bad("Email tidak valid");
+  if (v.booking_date != null && v.booking_date !== "" && !DATE_RE.test(String(v.booking_date))) bad("Tanggal tidak valid");
+  for (const k of ["session_id", "package_id"]) if (v[k] != null && v[k] !== "" && !UUID_RE.test(String(v[k]))) bad(`${k} tidak valid`);
+  for (const k of ["start_time", "end_time"]) if (v[k] != null && v[k] !== "" && !/^\d{2}:\d{2}(:\d{2})?$/.test(String(v[k]))) bad(`${k} tidak valid`);
+  if (v.guest_count != null && (!Number.isInteger(v.guest_count) || v.guest_count < 1 || v.guest_count > 10000)) bad("Jumlah tamu tidak valid");
+}
+
 class ApiError extends Error {
   constructor(public status: number, message: string, public code = "API_ERROR") { super(message); }
 }
@@ -307,7 +344,9 @@ export function authorize(table: string, action: string, ctx: Ctx, values?: any[
   }
   if (table === "ballroom_bookings") {
     if (action === "insert") {
+      if (!values || values.length !== 1) deny();
       for (const v of values ?? []) {
+        validatePublicBooking(v);
         if (v.user_id != null && v.user_id !== ctx.userId) deny();
         // pengunjung tidak boleh mengatur kolom pembayaran/status sendiri
         for (const k of ["status", "admin_notes", "payment_status", "paid_at", "midtrans_order_id",
@@ -540,14 +579,24 @@ async function makeSession(u: any) {
   return { access_token, token_type: "bearer", expires_in: SESSION_SECONDS, expires_at: exp, refresh_token: "", user: publicUser(u) };
 }
 
-const loginAttempts = new Map<string, { n: number; reset: number }>();
+// Rate limiter in-memory (fixed window). Kunci = jenis aksi + IP (atau identitas lain).
+// Reset saat server restart; cukup untuk menahan bot/brute-force tanpa layanan tambahan.
+const hits = new Map<string, { n: number; reset: number }>();
 function limited(key: string, max: number, windowMs = 60_000) {
   const now = Date.now();
-  const e = loginAttempts.get(key);
-  if (!e || e.reset < now) { loginAttempts.set(key, { n: 1, reset: now + windowMs }); return false; }
+  const e = hits.get(key);
+  if (!e || e.reset < now) {
+    if (hits.size > 200_000) hits.clear(); // pengaman memori bila diserang dari banyak IP
+    hits.set(key, { n: 1, reset: now + windowMs });
+    return false;
+  }
   e.n++;
   return e.n > max;
 }
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, e] of hits) if (e.reset < now) hits.delete(k);
+}, 60_000);
 const validEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) && e.length <= 255;
 
 // ---------------------------------------------------------------------
@@ -555,7 +604,22 @@ const validEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) && e.leng
 // ---------------------------------------------------------------------
 const app = new Hono();
 app.use("*", cors({ origin: "*", allowHeaders: ["authorization", "content-type", "x-upsert", "cache-control"], maxAge: 86400 }));
-const ip = (c: any) => c.req.header("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+// Railway mengisi X-Real-IP dengan IP asli pengunjung. Entri pertama X-Forwarded-For bisa dipalsukan klien,
+// jadi bila X-Real-IP tidak ada, pakai entri terakhir (yang ditambahkan proxy).
+const ip = (c: any): string =>
+  c.req.header("x-real-ip")?.trim() || c.req.header("x-forwarded-for")?.split(",").pop()?.trim() || "unknown";
+const tooMany = (c: any, message = "Terlalu banyak permintaan. Coba lagi sebentar lagi.", retryAfter = 60) => {
+  c.header("Retry-After", String(retryAfter));
+  return c.json(c.req.path.startsWith("/rest/") ? { data: null, error: { message, code: "RATE_LIMITED" } } : { error: message }, 429);
+};
+
+// Batas umum per IP untuk semua endpoint (gambar diberi kuota lebih besar karena satu halaman memuat banyak foto).
+app.use("*", async (c, next) => {
+  if (c.req.method === "OPTIONS") return next();
+  const isImg = c.req.path.startsWith("/img/");
+  if (limited(`global:${isImg ? "img" : "api"}:${ip(c)}`, isImg ? 600 : 300)) return tooMany(c);
+  await next();
+});
 const fail = (c: any, e: any) => {
   const status = e instanceof ApiError ? e.status : 400;
   if (!(e instanceof ApiError)) console.error("query error:", e?.message ?? e);
@@ -567,7 +631,20 @@ app.get("/", (c) => c.json({ ok: true, service: "kediaman-api" }));
 app.post("/rest/v1/query", async (c) => {
   try {
     const ctx = await getCtx(c.req.header("authorization"));
-    const body = (await c.req.json()) as QueryReq;
+    const raw = await c.req.text();
+    if (raw.length > 64 * 1024 && !ctx.isAdmin) throw new ApiError(413, "Permintaan terlalu besar", "PAYLOAD_TOO_LARGE");
+    const body = JSON.parse(raw || "{}") as QueryReq;
+    if (!ctx.isAdmin) {
+      const who = ip(c);
+      // Pembacaan data publik (daftar venue, pencarian venue/area, jadwal, dll.)
+      if (body.action === "select" && limited(`query:${who}`, 240)) return tooMany(c);
+      // Kirim form booking: maks 5 per 10 menit dan 20 per hari per IP
+      if (body.action === "insert" && body.table === "ballroom_bookings" &&
+          (limited(`booking:${who}`, 5, 10 * 60_000) || limited(`booking-day:${who}`, 20, 24 * 60 * 60_000))) {
+        return tooMany(c, "Terlalu banyak permintaan booking dari perangkat ini. Coba lagi dalam beberapa menit atau hubungi kami via WhatsApp.", 600);
+      }
+      if (body.action !== "select" && limited(`write:${who}`, 30)) return tooMany(c);
+    }
     return c.json({ data: await runQuery(body, ctx), error: null });
   } catch (e) {
     return fail(c, e);
@@ -861,18 +938,29 @@ app.post("/functions/v1/newsletter-mark-sent", async (c) => {
   return c.json({ updated: r.length });
 });
 
-// Pengganti edge function track-booking
+// Cek status booking: wajib nomor HP + kode booking (atau email lama untuk booking sebelum form ringkas).
+// Dibatasi per IP dan per nomor HP agar tidak bisa ditebak/brute-force.
+const normPhone = (p: string) => p.replace(/\D/g, "").replace(/^62/, "0");
 app.post("/functions/v1/track-booking", async (c) => {
-  const body = await c.req.json().catch(() => ({}));
+  if (limited(`track:${ip(c)}`, 10, 10 * 60_000)) return tooMany(c, "Terlalu banyak percobaan. Coba lagi dalam 10 menit.", 600);
+  const body: any = await c.req.json().catch(() => ({}));
+  const phone = normPhone(String(body?.phone ?? ""));
+  const code = String(body?.code ?? "").trim().replace(/^KDM-?/i, "").toLowerCase();
   const email = String(body?.email ?? "").trim().toLowerCase();
-  if (!validEmail(email)) return c.json({ error: "Invalid email" }, 400);
-  if (limited(`track:${ip(c)}:${email}`, 10)) return c.json({ error: "Too many requests, please try again later." }, 429);
+  if (phone.length < 8 || phone.length > 15) return c.json({ error: "Nomor HP tidak valid" }, 400);
+  if (code && !/^[0-9a-f]{8}$/.test(code)) return c.json({ error: "Kode booking tidak valid" }, 400);
+  if (!code && !validEmail(email)) return c.json({ error: "Masukkan kode booking" }, 400);
+  if (limited(`track-phone:${phone}`, 20, 60 * 60_000)) return tooMany(c, "Terlalu banyak percobaan untuk nomor ini. Coba lagi nanti.", 3600);
   const rows = await sql`
     SELECT coalesce(json_agg(x ORDER BY x.created_at DESC), '[]'::json) AS data FROM (
-      SELECT b.id, b.location_id, b.booking_date, b.start_time, b.end_time, b.contact_name, b.contact_email,
-             b.event_name, b.event_type, b.guest_count, b.notes, b.status, b.admin_notes, b.created_at,
+      SELECT upper(left(replace(b.id::text, '-', ''), 8)) AS code, b.booking_date, b.start_time, b.end_time,
+             b.event_name, b.event_type, b.guest_count, b.package_name, b.status, b.created_at,
              (SELECT json_build_object('name', l.name) FROM locations l WHERE l.id = b.location_id) AS locations
-      FROM ballroom_bookings b WHERE lower(b.contact_email) = ${email}
+      FROM ballroom_bookings b
+      WHERE regexp_replace(regexp_replace(b.contact_phone, '[^0-9]', '', 'g'), '^62', '0') = ${phone}
+        AND ((${code} <> '' AND left(replace(b.id::text, '-', ''), 8) = ${code})
+          OR (${code} = '' AND lower(b.contact_email) = ${email}))
+      LIMIT 20
     ) x`;
   const data = typeof rows[0].data === "string" ? JSON.parse(rows[0].data) : rows[0].data;
   return c.json({ bookings: data });
@@ -1044,6 +1132,19 @@ async function selfTest() {
     const na = await call("/rest/v1/query", { table: "newsletter_subscribers", action: "select", select: "id" });
     await sql`DELETE FROM newsletter_subscribers WHERE lower(email) = ${nsEmail}`;
     out.push(`newsletter sub=${ns.status} unsub=${nu.json.ok} anon-baca=${na.status}`);
+    // Booking ringkas + validasi server + cek status (data uji dihapus lagi)
+    const badB = await call("/rest/v1/query", { table: "ballroom_bookings", action: "insert", values: { location_id: anyLoc, contact_name: "X", contact_phone: "12" } });
+    const okB = await call("/rest/v1/query", { table: "ballroom_bookings", action: "insert", returning: true, single: "single",
+      values: { location_id: anyLoc, contact_name: "Self Test", contact_phone: "+62 811-0000-0000", notes: "self-test" } });
+    const bCode = String(okB.json.data?.id ?? "").replace(/-/g, "").slice(0, 8);
+    const trk = await call("/functions/v1/track-booking", { phone: "081100000000", code: `KDM-${bCode}` });
+    const trBad = await call("/functions/v1/track-booking", { phone: "081100000000", code: "KDM-00000000" });
+    const leak = JSON.stringify(trk.json).includes("contact_phone") || JSON.stringify(trk.json).includes("admin_notes");
+    if (okB.json.data?.id) await sql`DELETE FROM ballroom_bookings WHERE id = ${okB.json.data.id}::uuid`;
+    out.push(`booking invalid=${badB.status} valid=${okB.status} track=${trk.json.bookings?.length} salah=${trBad.json.bookings?.length} bocor=${leak}`);
+    let rl = 0; for (let i = 0; i < 4; i++) if (limited("self-test-rl", 3)) rl++;
+    hits.delete("self-test-rl");
+    out.push(`ratelimit=${rl === 1 ? "ok" : "GAGAL"}`);
     const pr = await call("/rest/v1/query", { table: "ballroom_schedules", action: "select", select: "id,promo_type,promo_label,promo_expires_at", limit: 1 });
     out.push(`promo=${pr.status}`);
     const smRes = await app.fetch(new Request("http://local/sitemap.xml"));

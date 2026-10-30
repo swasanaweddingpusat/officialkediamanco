@@ -5,7 +5,7 @@ import { useBallroomBookings, useLocations, usePrograms, useTrainers, useArticle
 import { useVenuePackages, useFaqs, useVenueReviews } from '@/hooks/useOta';
 import { promoExpired } from '@/pages/Packages';
 
-type Booking = { id: string; status: string; booking_date: string; contact_name: string; event_name: string; created_at: string; locations?: { name: string } | null };
+type Booking = { id: string; status: string; booking_date: string | null; contact_name: string; event_name: string | null; created_at: string; locations?: { name: string } | null };
 
 const Admin = () => {
   const { data: bookings = [] } = useBallroomBookings();
@@ -74,7 +74,7 @@ const Admin = () => {
                 <li key={b.id} className="py-3 flex items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold truncate">{b.event_name || b.contact_name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{b.locations?.name || '-'} · acara {fmtDate(b.booking_date)}</p>
+                    <p className="text-xs text-muted-foreground truncate">{b.locations?.name || '-'} · {b.booking_date ? `acara ${fmtDate(b.booking_date)}` : `masuk ${fmtDate(b.created_at)}`}</p>
                   </div>
                   <span className={b.status === 'pending' ? 'ota-badge' : b.status === 'approved' ? 'ota-pill-ok' : 'ota-pill-full'}>
                     {b.status === 'pending' ? 'Menunggu' : b.status === 'approved' ? 'Disetujui' : b.status === 'rejected' ? 'Ditolak' : b.status}

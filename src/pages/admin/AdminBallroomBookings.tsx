@@ -35,16 +35,18 @@ import { MoreHorizontal, Eye, Check, X, Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
+const bookingCode = (id: string) => `KDM-${id.replace(/-/g, '').slice(0, 8).toUpperCase()}`;
+
 type BallroomBooking = {
   id: string;
   location_id: string;
-  booking_date: string;
+  booking_date: string | null;
   start_time: string | null;
   end_time: string | null;
   contact_name: string;
-  contact_email: string;
+  contact_email: string | null;
   contact_phone: string;
-  event_name: string;
+  event_name: string | null;
   event_type: string | null;
   guest_count: number | null;
   package_name?: string | null;
@@ -77,31 +79,39 @@ const AdminBallroomBookings = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<BallroomBooking | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
+  const [approveDate, setApproveDate] = useState('');
 
   const handleView = (booking: BallroomBooking) => {
     setSelectedBooking(booking);
     setAdminNotes(booking.admin_notes || '');
+    setApproveDate(booking.booking_date || '');
     setViewOpen(true);
   };
 
   const handleApprove = async (booking: BallroomBooking) => {
+    const scheduleDate = booking.booking_date || approveDate;
+    if (!scheduleDate) {
+      toast.error('Isi tanggal acara dulu sebelum approve (form ringkas tidak meminta tanggal).');
+      return;
+    }
     try {
       // Update booking status
       await updateMutation.mutateAsync({
         id: booking.id,
         status: 'approved',
+        booking_date: scheduleDate,
         admin_notes: adminNotes || undefined,
       });
 
       // Create schedule entry to block the date
       await createScheduleMutation.mutateAsync({
         location_id: booking.location_id,
-        schedule_date: booking.booking_date,
+        schedule_date: scheduleDate,
         start_time: booking.start_time || undefined,
         end_time: booking.end_time || undefined,
         status: 'booked',
-        event_name: booking.event_name,
-        notes: `Booking oleh: ${booking.contact_name}`,
+        event_name: booking.event_name || `Booking ${booking.contact_name}`,
+        notes: `Booking oleh: ${booking.contact_name} (${bookingCode(booking.id)})`,
       });
 
       toast.success('Booking approved dan jadwal diupdate');
@@ -209,8 +219,9 @@ const AdminBallroomBookings = () => {
                   <TableRow key={booking.id}>
                     <TableCell>
                       <div className="font-medium">
-                        {format(new Date(booking.booking_date), 'dd MMM yyyy', { locale: idLocale })}
+                        {booking.booking_date ? format(new Date(booking.booking_date), 'dd MMM yyyy', { locale: idLocale }) : <span className="text-muted-foreground">Belum ditentukan</span>}
                       </div>
+                      <div className="font-mono text-[11px] text-muted-foreground">{bookingCode(booking.id)}</div>
                       <div className="text-xs text-muted-foreground">
                         {booking.start_time?.slice(0, 5)} - {booking.end_time?.slice(0, 5)}
                       </div>
@@ -219,10 +230,13 @@ const AdminBallroomBookings = () => {
                       {booking.locations?.name || '-'}
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{booking.event_name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {booking.event_type} • {booking.guest_count} tamu
-                      </div>
+                      <div className="font-medium">{booking.event_name || 'Permintaan booking'}</div>
+                      {(booking.event_type || booking.guest_count) && (
+                        <div className="text-xs text-muted-foreground">
+                          {[booking.event_type, booking.guest_count ? `${booking.guest_count} tamu` : null].filter(Boolean).join(' • ')}
+                        </div>
+                      )}
+                      {booking.notes && <div className="text-xs text-muted-foreground line-clamp-1 max-w-56">{booking.notes}</div>}
                       {booking.package_name && <div className="text-xs font-semibold text-primary">Paket: {booking.package_name}</div>}
                     </TableCell>
                     <TableCell>
@@ -308,7 +322,7 @@ const AdminBallroomBookings = () => {
               <div>
                 <Label className="text-muted-foreground text-xs">Tanggal</Label>
                 <p className="font-medium">
-                  {format(new Date(selectedBooking.booking_date), 'EEEE, dd MMMM yyyy', { locale: idLocale })}
+                  {selectedBooking.booking_date ? format(new Date(selectedBooking.booking_date), 'EEEE, dd MMMM yyyy', { locale: idLocale }) : 'Belum ditentukan'}
                 </p>
               </div>
               <div>
@@ -324,7 +338,7 @@ const AdminBallroomBookings = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-muted-foreground text-xs">Nama Acara</Label>
-                  <p className="font-medium">{selectedBooking.event_name}</p>
+                  <p className="font-medium">{selectedBooking.event_name || '-'}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground text-xs">Jenis Acara</Label>
@@ -350,7 +364,7 @@ const AdminBallroomBookings = () => {
                 </div>
                 <div>
                   <Label className="text-muted-foreground text-xs">Email</Label>
-                  <p className="font-medium">{selectedBooking.contact_email}</p>
+                  <p className="font-medium">{selectedBooking.contact_email || '-'}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground text-xs">Telepon</Label>
@@ -361,13 +375,19 @@ const AdminBallroomBookings = () => {
 
             {selectedBooking.notes && (
               <div className="border-t pt-4">
-                <Label className="text-muted-foreground text-xs">Catatan dari Customer</Label>
+                <Label className="text-muted-foreground text-xs">Pesan dari customer</Label>
                 <p className="mt-1 text-sm bg-secondary p-3 rounded-lg">{selectedBooking.notes}</p>
               </div>
             )}
 
             {selectedBooking.status === 'pending' && (
               <div className="border-t pt-4 space-y-4">
+                {!selectedBooking.booking_date && (
+                  <div>
+                    <Label>Tanggal acara (wajib untuk approve)</Label>
+                    <Input type="date" value={approveDate} onChange={(e) => setApproveDate(e.target.value)} />
+                  </div>
+                )}
                 <div>
                   <Label>Catatan Admin (Opsional)</Label>
                   <Textarea
