@@ -28,6 +28,7 @@ export const MAIN_SECTIONS = [
   { name: "Ulasan", path: "/ulasan" },
   { name: "Artikel", path: "/artikel" },
   { name: "Bantuan", path: "/bantuan" },
+  { name: "Rewards", path: "/rewards" },
 ];
 
 const HOME = { name: "Beranda", path: "/" };
@@ -88,6 +89,13 @@ export const STATIC_PAGES: PageMeta[] = [
     description: "Jawaban seputar booking venue, pembayaran, survei, dan hari acara di Kediaman Corp.",
     heading: "Bantuan",
     breadcrumbs: [HOME, { name: "Bantuan", path: "/bantuan" }],
+  },
+  {
+    path: "/rewards",
+    title: `Kediaman Rewards — Program Referral & Loyalty | ${SITE_NAME}`,
+    description: "Ajak teman booking venue di Kediaman, kumpulkan poin, dan tukarkan dengan bonus menarik untuk acara Anda.",
+    heading: "Kediaman Rewards",
+    breadcrumbs: [HOME, { name: "Rewards", path: "/rewards" }],
   },
   {
     path: "/artikel",

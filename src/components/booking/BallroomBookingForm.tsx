@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format, startOfToday } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
-import { CheckCircle, Loader2, MessageCircle, CalendarDays, Package, X, Copy, Search } from 'lucide-react';
+import { CheckCircle, Loader2, MessageCircle, CalendarDays, Package, X, Copy, Search, Gift } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -19,6 +19,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { track } from '@/lib/analytics';
 import { useCreateBallroomBooking, useSiteSettings, useLocations, useTrackVenueInterest } from '@/hooks/useCMS';
 import { useVenuePackages, formatRupiah } from '@/hooks/useOta';
+import { useReferralValid } from '@/hooks/useLoyalty';
+import { getStoredReferral, clearStoredReferral } from '@/lib/referral';
 
 const PHONE_RE = /^[+\d\s().-]+$/;
 
@@ -59,6 +61,9 @@ export function BallroomBookingForm({ locationId: propLocationId, locationName: 
   const [date, setDate] = useState(validInitialDate);
   const [packageId, setPackageId] = useState(initialPackageId ?? '');
   const [result, setResult] = useState<{ code: string; waLink: string } | null>(null);
+  const [refCode, setRefCode] = useState<string | null>(() => getStoredReferral());
+  const { data: refValid } = useReferralValid(refCode);
+  const referral = refCode && refValid ? refCode : null;
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
@@ -83,6 +88,7 @@ export function BallroomBookingForm({ locationId: propLocationId, locationName: 
       `*Venue* : ${locationName}`,
       date ? `*Tanggal* : ${format(new Date(`${date}T00:00:00`), 'EEEE, dd MMMM yyyy', { locale: idLocale })}` : null,
       pkg ? `*Paket* : ${pkg.name}` : null,
+      referral ? `*Kode referral* : ${referral}` : null,
       data.notes ? `*Pesan* : ${data.notes}` : null,
     ].filter(Boolean) as string[];
     return `https://wa.me/${waNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
@@ -99,6 +105,7 @@ export function BallroomBookingForm({ locationId: propLocationId, locationName: 
         booking_date: date || undefined,
         package_id: pkg?.id,
         package_name: pkg?.name,
+        referral_code: referral ?? undefined,
       });
       const code = bookingCode(String((row as { id?: string } | null)?.id ?? ''));
       if (date) trackInterest.mutate({ locationId: data.location_id, eventType: 'booking_request', scheduleDate: date });
@@ -179,12 +186,18 @@ export function BallroomBookingForm({ locationId: propLocationId, locationName: 
           </FormItem>
         )} />
 
-        {(date || pkg) && (
+        {(date || pkg || referral) && (
           <div className="flex flex-wrap gap-2" aria-label="Pilihan Anda sebelumnya">
             {date && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary pl-3 pr-1 py-1 text-xs font-bold text-primary">
                 <CalendarDays className="size-3.5" aria-hidden="true" />{format(new Date(`${date}T00:00:00`), 'EEE, d MMM yyyy', { locale: idLocale })}
                 <button type="button" onClick={() => setDate('')} className="grid place-items-center size-5 rounded-full hover:bg-card" aria-label="Hapus tanggal"><X className="size-3" /></button>
+              </span>
+            )}
+            {referral && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent pl-3 pr-1 py-1 text-xs font-bold text-accent-foreground">
+                <Gift className="size-3.5" aria-hidden="true" />Kode referral {referral}
+                <button type="button" onClick={() => { setRefCode(null); clearStoredReferral(); }} className="grid place-items-center size-5 rounded-full hover:bg-card" aria-label="Hapus kode referral"><X className="size-3" /></button>
               </span>
             )}
             {pkg && (

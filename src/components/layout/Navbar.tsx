@@ -13,8 +13,9 @@ export const NAV_LINKS = [
   { name: 'Paket & Harga', href: '/harga' },
   { name: 'Promo', href: '/promo' },
   { name: 'Portfolio', href: '/portfolio' },
-  { name: 'Ulasan', href: '/ulasan' },
-  { name: 'Artikel', href: '/artikel' },
+  { name: 'Ulasan', href: '/ulasan', wide: true },
+  { name: 'Rewards', href: '/rewards' },
+  { name: 'Artikel', href: '/artikel', wide: true },
   { name: 'Tentang', href: '/tentang-kami' },
 ];
 
@@ -84,6 +85,7 @@ export function Navbar() {
         <div className="ota-container flex justify-end gap-6 py-1.5 text-xs text-muted-foreground">
           <Link to="/promo" className="hover:text-foreground">Promo</Link>
           <Link to="/booking/track" className="hover:text-foreground">Cek status booking</Link>
+          <Link to="/rewards" className="hover:text-foreground">{user ? 'Poin saya' : 'Rewards'}</Link>
           <Link to="/bantuan" className="hover:text-foreground">Bantuan</Link>
           <a href={wa} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">WhatsApp</a>
           {user && isAdmin && <Link to="/admin" className="hover:text-foreground">Admin</Link>}
@@ -96,7 +98,7 @@ export function Navbar() {
         <SearchBox className="hidden md:flex flex-1 max-w-xs" />
         <nav aria-label="Navigasi utama" className="hidden lg:flex items-center gap-5 text-sm font-semibold">
           {NAV_LINKS.map((l) => (
-            <NavLink key={l.href} to={l.href} className={({ isActive }) => cn('py-2 border-b-2 border-transparent hover:text-primary', isActive && 'border-primary text-primary')}>
+            <NavLink key={l.href} to={l.href} className={({ isActive }) => cn('py-2 border-b-2 border-transparent hover:text-primary', 'wide' in l && l.wide && 'hidden xl:inline', isActive && 'border-primary text-primary')}>
               {l.name}
             </NavLink>
           ))}

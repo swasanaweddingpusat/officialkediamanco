@@ -257,6 +257,147 @@ CREATE UNIQUE INDEX IF NOT EXISTS newsletter_subscribers_token_key ON newsletter
 CREATE INDEX IF NOT EXISTS newsletter_subscribers_status_idx ON newsletter_subscribers (status, created_at);
 CREATE OR REPLACE TRIGGER newsletter_subscribers_set_updated_at BEFORE UPDATE ON newsletter_subscribers
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- =====================================================================
+-- Loyalty & referral ("Kediaman Rewards")
+-- =====================================================================
+CREATE TABLE IF NOT EXISTS loyalty_settings (
+  id integer PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  is_enabled boolean NOT NULL DEFAULT true,
+  program_name text NOT NULL DEFAULT 'Kediaman Rewards',
+  referral_points integer NOT NULL DEFAULT 500 CHECK (referral_points >= 0),
+  booking_points integer NOT NULL DEFAULT 200 CHECK (booking_points >= 0),
+  referee_benefit text,
+  terms text,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+INSERT INTO loyalty_settings (id, referee_benefit, terms) VALUES (1,
+  'Teman yang Anda ajak mendapat prioritas penawaran dan bonus spesial dari tim kami.',
+  'Poin diberikan setelah booking dikonfirmasi tim Kediaman. Poin tidak dapat diuangkan. Penukaran hadiah diproses tim dalam 3x24 jam kerja dan tergantung ketersediaan.')
+ON CONFLICT (id) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS loyalty_members (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  full_name text NOT NULL,
+  phone text NOT NULL,
+  referral_code text NOT NULL UNIQUE,
+  referred_by uuid REFERENCES loyalty_members(id) ON DELETE SET NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE OR REPLACE TRIGGER loyalty_members_set_updated_at BEFORE UPDATE ON loyalty_members
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE TABLE IF NOT EXISTS loyalty_rewards (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  description text,
+  image_url text,
+  points_cost integer NOT NULL CHECK (points_cost > 0),
+  stock integer CHECK (stock IS NULL OR stock >= 0),
+  terms text,
+  is_active boolean NOT NULL DEFAULT true,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE OR REPLACE TRIGGER loyalty_rewards_set_updated_at BEFORE UPDATE ON loyalty_rewards
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE TABLE IF NOT EXISTS loyalty_redemptions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  member_id uuid NOT NULL REFERENCES loyalty_members(id) ON DELETE CASCADE,
+  reward_id uuid REFERENCES loyalty_rewards(id) ON DELETE SET NULL,
+  reward_name text NOT NULL,
+  points_cost integer NOT NULL,
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'fulfilled', 'rejected')),
+  admin_notes text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS loyalty_redemptions_member_idx ON loyalty_redemptions (member_id);
+CREATE OR REPLACE TRIGGER loyalty_redemptions_set_updated_at BEFORE UPDATE ON loyalty_redemptions
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- Buku besar poin: saldo = SUM(points). Tidak pernah diubah langsung oleh client.
+CREATE TABLE IF NOT EXISTS loyalty_points (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  member_id uuid NOT NULL REFERENCES loyalty_members(id) ON DELETE CASCADE,
+  points integer NOT NULL,
+  type text NOT NULL CHECK (type IN ('referral', 'booking', 'redeem', 'refund', 'adjust')),
+  booking_id uuid REFERENCES ballroom_bookings(id) ON DELETE SET NULL,
+  redemption_id uuid REFERENCES loyalty_redemptions(id) ON DELETE SET NULL,
+  description text,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS loyalty_points_member_idx ON loyalty_points (member_id, created_at);
+CREATE UNIQUE INDEX IF NOT EXISTS loyalty_points_award_once ON loyalty_points (type, booking_id)
+  WHERE booking_id IS NOT NULL AND type IN ('referral', 'booking');
+
+ALTER TABLE ballroom_bookings ADD COLUMN IF NOT EXISTS referral_code text;
+
+-- Poin otomatis saat booking dikonfirmasi admin (approved/paid/completed); dicabut lagi bila status dibatalkan.
+CREATE OR REPLACE FUNCTION kdm_norm_phone(p text) RETURNS text AS $$
+  SELECT regexp_replace(regexp_replace(coalesce(p, ''), '[^0-9]', '', 'g'), '^62', '0')
+$$ LANGUAGE sql IMMUTABLE;
+
+CREATE OR REPLACE FUNCTION kdm_loyalty_award() RETURNS trigger AS $$
+DECLARE
+  st loyalty_settings;
+  owner loyalty_members;
+  ref loyalty_members;
+  ok_new boolean := NEW.status IN ('approved', 'paid', 'completed');
+  ok_old boolean := TG_OP = 'UPDATE' AND OLD.status IN ('approved', 'paid', 'completed');
+BEGIN
+  IF ok_new AND NOT ok_old THEN
+    SELECT * INTO st FROM loyalty_settings WHERE id = 1;
+    IF NOT FOUND OR NOT st.is_enabled THEN RETURN NEW; END IF;
+    IF NEW.user_id IS NOT NULL THEN
+      SELECT * INTO owner FROM loyalty_members WHERE user_id = NEW.user_id;
+    END IF;
+    IF owner.id IS NOT NULL AND st.booking_points > 0 THEN
+      INSERT INTO loyalty_points (member_id, points, type, booking_id, description)
+      VALUES (owner.id, st.booking_points, 'booking', NEW.id, 'Booking dikonfirmasi')
+      ON CONFLICT DO NOTHING;
+    END IF;
+    IF NEW.referral_code IS NOT NULL AND NEW.referral_code <> '' THEN
+      SELECT * INTO ref FROM loyalty_members WHERE referral_code = upper(NEW.referral_code);
+    ELSIF owner.referred_by IS NOT NULL THEN
+      SELECT * INTO ref FROM loyalty_members WHERE id = owner.referred_by;
+    END IF;
+    IF ref.id IS NOT NULL AND st.referral_points > 0
+       AND ref.id IS DISTINCT FROM owner.id
+       AND kdm_norm_phone(ref.phone) <> kdm_norm_phone(NEW.contact_phone) THEN
+      INSERT INTO loyalty_points (member_id, points, type, booking_id, description)
+      VALUES (ref.id, st.referral_points, 'referral', NEW.id,
+              'Referral: booking ' || split_part(trim(NEW.contact_name), ' ', 1) || ' dikonfirmasi')
+      ON CONFLICT DO NOTHING;
+    END IF;
+  ELSIF ok_old AND NOT ok_new THEN
+    DELETE FROM loyalty_points WHERE booking_id = NEW.id AND type IN ('referral', 'booking');
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+CREATE OR REPLACE TRIGGER ballroom_bookings_loyalty AFTER INSERT OR UPDATE OF status ON ballroom_bookings
+  FOR EACH ROW EXECUTE FUNCTION kdm_loyalty_award();
+
+-- Penukaran ditolak admin -> poin & stok dikembalikan (dan sebaliknya bila status dipulihkan).
+CREATE OR REPLACE FUNCTION kdm_loyalty_redemption() RETURNS trigger AS $$
+BEGIN
+  IF NEW.status = 'rejected' AND OLD.status <> 'rejected' THEN
+    INSERT INTO loyalty_points (member_id, points, type, redemption_id, description)
+    VALUES (NEW.member_id, NEW.points_cost, 'refund', NEW.id, 'Poin dikembalikan: ' || NEW.reward_name);
+    UPDATE loyalty_rewards SET stock = stock + 1 WHERE id = NEW.reward_id AND stock IS NOT NULL;
+  ELSIF OLD.status = 'rejected' AND NEW.status <> 'rejected' THEN
+    INSERT INTO loyalty_points (member_id, points, type, redemption_id, description)
+    VALUES (NEW.member_id, -NEW.points_cost, 'redeem', NEW.id, 'Tukar: ' || NEW.reward_name);
+    UPDATE loyalty_rewards SET stock = stock - 1 WHERE id = NEW.reward_id AND stock IS NOT NULL AND stock > 0;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+CREATE OR REPLACE TRIGGER loyalty_redemptions_status AFTER UPDATE OF status ON loyalty_redemptions
+  FOR EACH ROW EXECUTE FUNCTION kdm_loyalty_redemption();
 `;
 
 // ---------------------------------------------------------------------
@@ -269,7 +410,7 @@ type Filter = [string, string, unknown];
 const CONTENT_TABLES = new Set([
   "site_settings", "hero_slides", "features", "programs", "trainers", "locations", "testimonials",
   "ballroom_schedules", "articles", "video_testimonials", "about_sections", "about_settings", "venue_sessions",
-  "venue_packages", "faqs", "venue_reviews",
+  "venue_packages", "faqs", "venue_reviews", "loyalty_rewards", "loyalty_settings",
 ]);
 // Filter wajib untuk pengunjung non-admin (sama dengan policy SELECT di Supabase).
 const PUBLIC_ROW_FILTER: Record<string, Filter> = {
@@ -285,11 +426,13 @@ const PUBLIC_ROW_FILTER: Record<string, Filter> = {
   venue_packages: ["is_active", "eq", true],
   faqs: ["is_active", "eq", true],
   venue_reviews: ["is_published", "eq", true],
+  loyalty_rewards: ["is_active", "eq", true],
 };
 
 const BOOKING_FIELDS = new Set([
   "location_id", "booking_date", "start_time", "end_time", "contact_name", "contact_email", "contact_phone",
   "event_name", "event_type", "guest_count", "notes", "session_id", "package_id", "package_name", "user_id",
+  "referral_code",
 ]);
 
 /** Validasi server untuk booking dari pengunjung (jangan percaya validasi di browser saja). */
@@ -317,6 +460,10 @@ function validatePublicBooking(v: any) {
   if (v.booking_date != null && v.booking_date !== "" && !DATE_RE.test(String(v.booking_date))) bad("Tanggal tidak valid");
   for (const k of ["session_id", "package_id"]) if (v[k] != null && v[k] !== "" && !UUID_RE.test(String(v[k]))) bad(`${k} tidak valid`);
   for (const k of ["start_time", "end_time"]) if (v[k] != null && v[k] !== "" && !/^\d{2}:\d{2}(:\d{2})?$/.test(String(v[k]))) bad(`${k} tidak valid`);
+  if (v.referral_code != null && v.referral_code !== "") {
+    if (typeof v.referral_code !== "string" || !/^[A-Za-z0-9]{6,12}$/.test(v.referral_code.trim())) bad("Kode referral tidak valid");
+    v.referral_code = v.referral_code.trim().toUpperCase();
+  }
   if (v.guest_count != null && (!Number.isInteger(v.guest_count) || v.guest_count < 1 || v.guest_count > 10000)) bad("Jumlah tamu tidak valid");
 }
 
@@ -348,6 +495,8 @@ export function authorize(table: string, action: string, ctx: Ctx, values?: any[
       for (const v of values ?? []) {
         validatePublicBooking(v);
         if (v.user_id != null && v.user_id !== ctx.userId) deny();
+        // Client yang login: booking otomatis tertaut ke akunnya (untuk poin loyalty)
+        if (ctx.userId) v.user_id = ctx.userId;
         // pengunjung tidak boleh mengatur kolom pembayaran/status sendiri
         for (const k of ["status", "admin_notes", "payment_status", "paid_at", "midtrans_order_id",
           "midtrans_snap_token", "midtrans_transaction_id"]) if (k in v) deny();
@@ -651,12 +800,20 @@ app.post("/rest/v1/query", async (c) => {
   }
 });
 
+let dummyHashPromise: Promise<string> | null = null;
+const dummyHash = () => (dummyHashPromise ??= Bun.password.hash("kdm-dummy-password"));
+
 app.post("/auth/v1/token", async (c) => {
   const { email, password } = await c.req.json().catch(() => ({}));
   const em = String(email ?? "").trim().toLowerCase();
   if (limited(`login:${ip(c)}`, 10)) return c.json({ error: { message: "Terlalu banyak percobaan, coba lagi dalam 1 menit." } }, 429);
+  // Batas per akun juga, supaya password satu email tidak bisa ditebak dari banyak IP
+  if (em && limited(`login-email:${em}`, 10, 15 * 60_000)) return c.json({ error: { message: "Terlalu banyak percobaan untuk akun ini, coba lagi dalam 15 menit." } }, 429);
   const [u] = await sql`SELECT * FROM users WHERE lower(email) = ${em}`;
-  const ok = u?.password_hash && (await Bun.password.verify(String(password ?? ""), u.password_hash));
+  // Tetap verifikasi hash palsu bila akun tidak ada, agar waktu respons tidak membocorkan email terdaftar
+  const ok = u?.password_hash
+    ? await Bun.password.verify(String(password ?? ""), u.password_hash)
+    : (await Bun.password.verify("x", await dummyHash()), false);
   if (!ok) return c.json({ error: { message: "Invalid login credentials" } }, 400);
   return c.json({ data: await makeSession(u), error: null });
 });
@@ -666,7 +823,8 @@ app.post("/auth/v1/signup", async (c) => {
   const em = String(email ?? "").trim().toLowerCase();
   if (limited(`signup:${ip(c)}`, 5)) return c.json({ error: { message: "Terlalu banyak percobaan, coba lagi nanti." } }, 429);
   if (!validEmail(em)) return c.json({ error: { message: "Email tidak valid" } }, 400);
-  if (String(password ?? "").length < 6) return c.json({ error: { message: "Password should be at least 6 characters" } }, 400);
+  if (String(password ?? "").length < 8) return c.json({ error: { message: "Password minimal 8 karakter" } }, 400);
+  if (String(password ?? "").length > 200) return c.json({ error: { message: "Password terlalu panjang" } }, 400);
   const [exists] = await sql`SELECT 1 FROM users WHERE lower(email) = ${em}`;
   if (exists) return c.json({ error: { message: "User already registered" } }, 400);
   const hash = await Bun.password.hash(String(password));
@@ -938,6 +1096,125 @@ app.post("/functions/v1/newsletter-mark-sent", async (c) => {
   return c.json({ updated: r.length });
 });
 
+// ---------------------------------------------------------------------
+// Loyalty & referral (client login email + password)
+// ---------------------------------------------------------------------
+const REF_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function makeReferralCode(name: string): string {
+  const prefix = (name.normalize("NFKD").replace(/[^A-Za-z]/g, "").toUpperCase() + "KDM").slice(0, 4);
+  const bytes = randomBytes(4);
+  return prefix + Array.from(bytes, (b) => REF_ALPHABET[b % REF_ALPHABET.length]).join("");
+}
+
+async function loyaltyUser(c: any): Promise<string> {
+  const ctx = await getCtx(c.req.header("authorization"));
+  if (!ctx.userId) throw new ApiError(401, "Silakan masuk dulu", "UNAUTHENTICATED");
+  return ctx.userId;
+}
+const loyaltyFail = (c: any, e: any) => {
+  const status = e instanceof ApiError ? e.status : 500;
+  if (!(e instanceof ApiError)) console.error("loyalty:", e?.message ?? e);
+  return c.json({ error: e instanceof ApiError ? e.message : "Terjadi kesalahan, coba lagi." }, status);
+};
+
+app.get("/functions/v1/loyalty/me", async (c) => {
+  try {
+    if (limited(`loyalty:${ip(c)}`, 60)) return tooMany(c);
+    const userId = await loyaltyUser(c);
+    const [settings] = await sql`SELECT program_name, is_enabled, referral_points, booking_points, referee_benefit, terms FROM loyalty_settings WHERE id = 1`;
+    const [member] = await sql`SELECT id, full_name, phone, referral_code, created_at FROM loyalty_members WHERE user_id = ${userId}::uuid`;
+    if (!member) return c.json({ member: null, settings });
+    const [{ balance }] = await sql`SELECT coalesce(sum(points), 0)::int AS balance FROM loyalty_points WHERE member_id = ${member.id}::uuid`;
+    const ledger = await sql`SELECT id, points, type, description, created_at FROM loyalty_points
+                             WHERE member_id = ${member.id}::uuid ORDER BY created_at DESC LIMIT 50`;
+    const redemptions = await sql`SELECT id, reward_name, points_cost, status, created_at FROM loyalty_redemptions
+                                  WHERE member_id = ${member.id}::uuid ORDER BY created_at DESC LIMIT 50`;
+    const [stats] = await sql`
+      SELECT count(*)::int AS referred,
+             count(*) FILTER (WHERE status IN ('approved', 'paid', 'completed'))::int AS confirmed
+      FROM ballroom_bookings WHERE referral_code = ${member.referral_code}`;
+    return c.json({ member, settings, balance, ledger, redemptions, stats });
+  } catch (e) {
+    return loyaltyFail(c, e);
+  }
+});
+
+app.post("/functions/v1/loyalty/join", async (c) => {
+  try {
+    if (limited(`loyalty-join:${ip(c)}`, 5, 10 * 60_000)) return tooMany(c, "Terlalu banyak percobaan, coba lagi nanti.", 600);
+    const userId = await loyaltyUser(c);
+    const body: any = await c.req.json().catch(() => ({}));
+    const fullName = String(body?.full_name ?? "").trim();
+    const phone = String(body?.phone ?? "").trim();
+    const refCode = String(body?.ref ?? "").trim().toUpperCase();
+    if (fullName.length < 2 || fullName.length > 100) throw new ApiError(400, "Nama 2–100 karakter");
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 8 || digits.length > 15 || !/^[+\d\s().-]+$/.test(phone)) throw new ApiError(400, "Nomor HP tidak valid");
+    const [existing] = await sql`SELECT id FROM loyalty_members WHERE user_id = ${userId}::uuid`;
+    if (existing) return c.json({ ok: true });
+    const [dupPhone] = await sql`SELECT 1 FROM loyalty_members WHERE kdm_norm_phone(phone) = kdm_norm_phone(${phone})`;
+    if (dupPhone) throw new ApiError(409, "Nomor HP ini sudah terdaftar di akun lain");
+    let referredBy: string | null = null;
+    if (refCode) {
+      if (!/^[A-Z0-9]{6,12}$/.test(refCode)) throw new ApiError(400, "Kode referral tidak valid");
+      const [ref] = await sql`SELECT id FROM loyalty_members WHERE referral_code = ${refCode}`;
+      if (!ref) throw new ApiError(400, "Kode referral tidak ditemukan");
+      referredBy = ref.id;
+    }
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        await sql`INSERT INTO loyalty_members (user_id, full_name, phone, referral_code, referred_by)
+                  VALUES (${userId}::uuid, ${fullName}, ${phone}, ${makeReferralCode(fullName)}, ${referredBy}::uuid)`;
+        return c.json({ ok: true });
+      } catch (e: any) {
+        if (!String(e?.message ?? "").includes("referral_code")) throw e;
+      }
+    }
+    throw new ApiError(500, "Gagal membuat kode referral, coba lagi.");
+  } catch (e) {
+    return loyaltyFail(c, e);
+  }
+});
+
+app.post("/functions/v1/loyalty/redeem", async (c) => {
+  try {
+    const userId = await loyaltyUser(c);
+    if (limited(`loyalty-redeem:${userId}`, 10, 10 * 60_000)) return tooMany(c, "Terlalu banyak penukaran, coba lagi nanti.", 600);
+    const body: any = await c.req.json().catch(() => ({}));
+    const rewardId = String(body?.reward_id ?? "");
+    if (!UUID_RE.test(rewardId)) throw new ApiError(400, "Hadiah tidak valid");
+    const result = await sql.begin(async (tx) => {
+      const [member] = await tx`SELECT id FROM loyalty_members WHERE user_id = ${userId}::uuid FOR UPDATE`;
+      if (!member) throw new ApiError(403, "Daftar program rewards dulu");
+      const [st] = await tx`SELECT is_enabled FROM loyalty_settings WHERE id = 1`;
+      if (!st?.is_enabled) throw new ApiError(403, "Program rewards sedang tidak aktif");
+      const [reward] = await tx`SELECT id, name, points_cost, stock FROM loyalty_rewards WHERE id = ${rewardId}::uuid AND is_active FOR UPDATE`;
+      if (!reward) throw new ApiError(404, "Hadiah tidak tersedia");
+      if (reward.stock !== null && reward.stock <= 0) throw new ApiError(409, "Stok hadiah habis");
+      const [{ balance }] = await tx`SELECT coalesce(sum(points), 0)::int AS balance FROM loyalty_points WHERE member_id = ${member.id}::uuid`;
+      if (balance < reward.points_cost) throw new ApiError(409, "Poin Anda belum cukup");
+      const [red] = await tx`INSERT INTO loyalty_redemptions (member_id, reward_id, reward_name, points_cost)
+                             VALUES (${member.id}::uuid, ${reward.id}::uuid, ${reward.name}, ${reward.points_cost}) RETURNING id`;
+      await tx`INSERT INTO loyalty_points (member_id, points, type, redemption_id, description)
+               VALUES (${member.id}::uuid, ${-reward.points_cost}, 'redeem', ${red.id}::uuid, ${"Tukar: " + reward.name})`;
+      if (reward.stock !== null) await tx`UPDATE loyalty_rewards SET stock = stock - 1 WHERE id = ${reward.id}::uuid`;
+      return { id: red.id, balance: balance - reward.points_cost };
+    });
+    return c.json({ ok: true, ...result });
+  } catch (e) {
+    return loyaltyFail(c, e);
+  }
+});
+
+// Cek kode referral dari link ?ref= (hanya valid/tidak, tanpa data member)
+app.get("/functions/v1/loyalty/ref/:code", async (c) => {
+  if (limited(`loyalty-ref:${ip(c)}`, 30)) return tooMany(c);
+  const code = c.req.param("code").trim().toUpperCase();
+  if (!/^[A-Z0-9]{6,12}$/.test(code)) return c.json({ valid: false });
+  const [row] = await sql`SELECT 1 FROM loyalty_members m JOIN loyalty_settings s ON s.id = 1 WHERE m.referral_code = ${code} AND s.is_enabled`;
+  return c.json({ valid: Boolean(row) });
+});
+
 // Cek status booking: wajib nomor HP + kode booking (atau email lama untuk booking sebelum form ringkas).
 // Dibatasi per IP dan per nomor HP agar tidak bisa ditebak/brute-force.
 const normPhone = (p: string) => p.replace(/\D/g, "").replace(/^62/, "0");
@@ -1145,6 +1422,40 @@ async function selfTest() {
     let rl = 0; for (let i = 0; i < 4; i++) if (limited("self-test-rl", 3)) rl++;
     hits.delete("self-test-rl");
     out.push(`ratelimit=${rl === 1 ? "ok" : "GAGAL"}`);
+    // Loyalty: daftar, referral, booking dikonfirmasi -> poin, tukar, tolak -> refund (data uji dihapus)
+    {
+      const stamp = Date.now();
+      const [ua] = await sql`INSERT INTO users (email, password_hash) VALUES (${`lt-a-${stamp}@kediaman.invalid`}, NULL) RETURNING *`;
+      const [ub] = await sql`INSERT INTO users (email, password_hash) VALUES (${`lt-b-${stamp}@kediaman.invalid`}, NULL) RETURNING *`;
+      const ta = (await makeSession(ua)).access_token, tb = (await makeSession(ub)).access_token;
+      const get = async (path: string, tok: string) => {
+        const res = await app.fetch(new Request(`http://local${path}`, { headers: { authorization: `Bearer ${tok}` } }));
+        return { status: res.status, json: (await res.json()) as any };
+      };
+      try {
+        const ja = await call("/functions/v1/loyalty/join", { full_name: "Ana Tes", phone: "081200000001" }, ta);
+        const meA = await get("/functions/v1/loyalty/me", ta);
+        const code = meA.json.member?.referral_code;
+        const jb = await call("/functions/v1/loyalty/join", { full_name: "Budi Tes", phone: "081200000002", ref: code }, tb);
+        const dup = await call("/functions/v1/loyalty/join", { full_name: "X", phone: "0812-0000-0001" }, tb);
+        const bk = await call("/rest/v1/query", { table: "ballroom_bookings", action: "insert", returning: true, single: "single",
+          values: { location_id: anyLoc, contact_name: "Budi Tes", contact_phone: "081200000002", notes: "self-test loyalty" } }, tb);
+        await sql`UPDATE ballroom_bookings SET status = 'approved' WHERE id = ${bk.json.data.id}::uuid`;
+        const meA2 = await get("/functions/v1/loyalty/me", ta);
+        const meB2 = await get("/functions/v1/loyalty/me", tb);
+        const [rw] = await sql`INSERT INTO loyalty_rewards (name, points_cost, stock, is_active) VALUES ('Self-test reward', 100, 1, true) RETURNING id`;
+        const rd = await call("/functions/v1/loyalty/redeem", { reward_id: rw.id }, ta);
+        const rd2 = await call("/functions/v1/loyalty/redeem", { reward_id: rw.id }, ta);
+        await sql`UPDATE loyalty_redemptions SET status = 'rejected' WHERE id = ${rd.json.id}::uuid`;
+        const meA3 = await get("/functions/v1/loyalty/me", ta);
+        const anonRead = await call("/rest/v1/query", { table: "loyalty_points", action: "select", select: "id" });
+        out.push(`loyalty join=${ja.status}/${jb.status} dupHP=${dup.status} ref=${meA2.json.balance} booking=${meB2.json.balance} redeem=${rd.status}→${rd.json.balance} stokHabis=${rd2.status} refund=${meA3.json.balance} anon=${anonRead.status}`);
+        await sql`DELETE FROM ballroom_bookings WHERE id = ${bk.json.data?.id ?? null}::uuid`;
+        await sql`DELETE FROM loyalty_rewards WHERE id = ${rw.id}::uuid`;
+      } finally {
+        await sql`DELETE FROM users WHERE id IN (${ua.id}::uuid, ${ub.id}::uuid)`;
+      }
+    }
     const pr = await call("/rest/v1/query", { table: "ballroom_schedules", action: "select", select: "id,promo_type,promo_label,promo_expires_at", limit: 1 });
     out.push(`promo=${pr.status}`);
     const smRes = await app.fetch(new Request("http://local/sitemap.xml"));

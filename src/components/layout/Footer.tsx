@@ -32,6 +32,7 @@ const columns = [
     links: [
       { name: 'Tentang kami', href: '/tentang-kami' },
       { name: 'Bantuan / FAQ', href: '/bantuan' },
+      { name: 'Kediaman Rewards', href: '/rewards' },
     ],
   },
 ];

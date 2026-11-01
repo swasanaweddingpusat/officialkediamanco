@@ -134,8 +134,12 @@ export function summarizeReviews(reviews: VenueReview[]) {
 }
 
 // ---------------------------------------------------------------- CRUD admin (generik)
-type TableName = 'venue_packages' | 'faqs' | 'venue_reviews';
-const KEYS: Record<TableName, string> = { venue_packages: 'venue-packages', faqs: 'faqs', venue_reviews: 'venue-reviews' };
+type TableName = 'venue_packages' | 'faqs' | 'venue_reviews' | 'loyalty_rewards' | 'loyalty_settings' | 'loyalty_redemptions' | 'loyalty_points' | 'loyalty_members';
+const KEYS: Record<TableName, string> = {
+  venue_packages: 'venue-packages', faqs: 'faqs', venue_reviews: 'venue-reviews',
+  loyalty_rewards: 'loyalty-rewards', loyalty_settings: 'loyalty-settings', loyalty_redemptions: 'loyalty-admin',
+  loyalty_points: 'loyalty-admin', loyalty_members: 'loyalty-admin',
+};
 
 export function useSaveRow(table: TableName, label: string) {
   const qc = useQueryClient();

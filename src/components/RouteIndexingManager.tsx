@@ -14,6 +14,7 @@ const PUBLIC_ROUTE_PATTERNS = [
   /^\/harga\/?$/,
   /^\/ulasan\/?$/,
   /^\/bantuan\/?$/,
+  /^\/rewards\/?$/,
   /^\/lokasi(?:\/[^/]+)?\/?$/,
   /^\/artikel(?:\/[^/]+)?\/?$/,
 ];

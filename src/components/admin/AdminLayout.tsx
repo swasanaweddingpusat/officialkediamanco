@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Image, Zap, Tag, Users, MapPin, Settings, LogOut, CalendarDays, CalendarCheck, FileText,
-  Video, Info, Wallet, HelpCircle, Star, Menu, ExternalLink, Mail, type LucideIcon,
+  Video, Info, Wallet, HelpCircle, Star, Menu, ExternalLink, Mail, Gift, type LucideIcon,
 } from 'lucide-react';
 import { useOtaTheme } from '@/hooks/useOtaTheme';
 import { useAuth } from '@/hooks/useAuth';
@@ -49,7 +49,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { name: 'Tentang kami', href: '/admin/about', icon: Info },
     ],
   },
-  { label: 'Pemasaran', items: [{ name: 'Newsletter', href: '/admin/newsletter', icon: Mail }] },
+  { label: 'Pemasaran', items: [{ name: 'Newsletter', href: '/admin/newsletter', icon: Mail }, { name: 'Loyalty & referral', href: '/admin/loyalty', icon: Gift }] },
   { label: 'Pengaturan', items: [{ name: 'Pengaturan situs', href: '/admin/settings', icon: Settings }] },
 ];
 

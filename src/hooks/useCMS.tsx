@@ -702,6 +702,7 @@ export function useCreateBallroomBooking() {
       session_id?: string;
       package_id?: string;
       package_name?: string;
+      referral_code?: string;
     }) => {
       const { data, error } = await supabase.from('ballroom_bookings').insert(booking).select().single();
       if (error) throw error;
