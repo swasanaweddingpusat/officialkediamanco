@@ -48,8 +48,8 @@ export function Footer() {
 
   return (
     <footer className="mt-16 bg-primary text-primary-foreground">
-      <div className="ota-container py-12 grid gap-10 md:grid-cols-[1.3fr_repeat(3,1fr)]">
-        <div className="space-y-4">
+      <div className="ota-container py-10 md:py-12 grid grid-cols-2 gap-x-6 gap-y-8 md:gap-10 md:grid-cols-[1.3fr_repeat(3,1fr)]">
+        <div className="col-span-2 md:col-span-1 space-y-4">
           <Link to="/" className="flex items-center gap-2.5">
             {settings?.logo_url && <CMSImage src={settings.logo_url} imageWidth={96} sizes="44px" width={320} height={295} alt="" className="h-10 w-auto" />}
             <span className="text-xl font-extrabold">Kediaman</span>

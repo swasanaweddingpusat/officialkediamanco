@@ -11,9 +11,9 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   useOtaTheme(true);
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
       <Navbar />
-      <main className="flex-1 pb-20 md:pb-0">
+      <main className="flex-1">
         {children}
       </main>
       <Footer />

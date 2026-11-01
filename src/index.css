@@ -458,3 +458,34 @@
   }
   html.ota-theme .journal-page .article-body, html.ota-theme .journal-page .article-body p, html.ota-theme .journal-page .article-body li { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; }
 }
+
+/* ------------------------------------------------------------------
+   Responsif HP (tema OTA)
+   ------------------------------------------------------------------ */
+/* Posisi tombol chat: di atas nav bawah (HP) dan di atas bar booking menempel (--kdm-sticky-offset) */
+.kdm-chat-launcher { bottom: calc(5.5rem + env(safe-area-inset-bottom) + var(--kdm-sticky-offset, 0px)); }
+@media (min-width: 768px) { .kdm-chat-launcher { bottom: calc(1.5rem + var(--kdm-sticky-offset, 0px)); } }
+@media (min-width: 1024px) { .kdm-chat-launcher { bottom: 1.5rem; } }
+
+@layer base {
+  /* Cegah geser horizontal tak sengaja tanpa merusak position: sticky */
+  html.ota-theme body { overflow-x: clip; }
+  html.ota-theme img, html.ota-theme video, html.ota-theme iframe { max-width: 100%; }
+  html.ota-theme h1, html.ota-theme h2, html.ota-theme h3 { overflow-wrap: anywhere; }
+}
+
+@media (max-width: 767px) {
+  /* iOS men-zoom otomatis bila font input < 16px; paksa 16px di HP */
+  html.ota-theme input:not([type="checkbox"]):not([type="radio"]),
+  html.ota-theme select,
+  html.ota-theme textarea { font-size: 16px; }
+
+  /* Dialog (form booking, konfirmasi) tidak menempel tepi layar & tidak melebihi tinggi layar */
+  html.ota-theme [role="dialog"].fixed.translate-x-\[-50\%\] {
+    width: calc(100vw - 1.5rem);
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    border-radius: 1.25rem;
+    padding: 1.25rem;
+  }
+}

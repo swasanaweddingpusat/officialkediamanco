@@ -99,7 +99,7 @@ export function SearchWidget({ className, compact = false }: { className?: strin
         </div>
         <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
           <PopoverTrigger asChild>
-            <button type="button" className="ota-field text-left">
+            <button type="button" className="ota-field text-left col-span-2 md:col-span-1">
               <span className="ota-field-label">Tanggal acara</span>
               <span className="flex items-center gap-2 font-bold text-[15px] min-h-7"><CalendarDays className="size-4 text-muted-foreground" aria-hidden="true" />{date ? format(date, 'EEE, d MMM yyyy', { locale: idLocale }) : <span className="font-normal text-muted-foreground">Pilih tanggal</span>}</span>
             </button>

@@ -128,7 +128,7 @@ export function FloatingChat({ initiallyOpen = false }: { initiallyOpen?: boolea
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            className="fixed bottom-24 right-4 z-50 md:bottom-6 md:right-6"
+            className="kdm-chat-launcher fixed right-4 z-50 md:right-6"
           >
             <Button
               type="button"

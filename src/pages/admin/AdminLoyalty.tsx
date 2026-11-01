@@ -160,7 +160,7 @@ const AdminLoyalty = () => {
                         {r.admin_notes && <p className="text-xs text-muted-foreground mt-0.5">Catatan: {r.admin_notes}</p>}
                       </div>
                       <span className={s.tone}>{s.label}</span>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         {r.status === 'pending' && <Button size="sm" onClick={() => updateRedemption.mutate({ id: r.id, status: 'approved' })}><Check className="size-4 mr-1" />Setujui</Button>}
                         {(r.status === 'pending' || r.status === 'approved') && <Button size="sm" variant="outline" onClick={() => updateRedemption.mutate({ id: r.id, status: 'fulfilled' })}><PackageCheck className="size-4 mr-1" />Sudah diberikan</Button>}
                         {r.status !== 'rejected' && r.status !== 'fulfilled' && (

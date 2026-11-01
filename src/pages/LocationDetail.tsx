@@ -67,6 +67,12 @@ const LocationDetail = () => {
   // Kotak booking hanya dirender di satu tempat (samping di desktop, bawah konten di HP).
   // Sebelumnya dirender dua kali (satu disembunyikan CSS) sehingga popover kalender ikut terbuka dua kali.
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches);
+  // Bar booking menempel (HP/tablet) setinggi ±4.5rem: naikkan tombol chat agar tidak menimpa
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--kdm-sticky-offset', '4.75rem');
+    return () => { root.style.removeProperty('--kdm-sticky-offset'); };
+  }, []);
   useEffect(() => {
     const mql = window.matchMedia('(min-width: 1024px)');
     const onChange = () => { setIsDesktop(mql.matches); setCalendarOpen(false); };
@@ -264,11 +270,16 @@ const LocationDetail = () => {
                 )}
               </button>
             ))}
+            {allImages.length > 1 && (
+              <button type="button" onClick={() => setLightboxImage(images[0])} className="sm:hidden absolute right-3 bottom-3 inline-flex items-center gap-1.5 rounded-lg bg-card/95 px-3 py-1.5 text-xs font-bold text-foreground shadow-sm">
+                <Images className="size-4" aria-hidden="true" />{allImages.length} foto
+              </button>
+            )}
             {location.matterport_360_url && (
               <button
                 type="button"
                 onClick={() => { setTourStarted(true); document.getElementById('tur-360')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-                className="absolute left-3 bottom-3 inline-flex items-center gap-2 rounded-full bg-primary/90 backdrop-blur px-4 py-2 text-sm font-bold text-primary-foreground shadow-lg hover:bg-primary"
+                className="absolute left-3 bottom-3 inline-flex items-center gap-2 rounded-full bg-primary/90 backdrop-blur px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-bold text-primary-foreground shadow-lg hover:bg-primary"
               >
                 <Move3d className="size-4" aria-hidden="true" />Tur virtual 360°
               </button>
