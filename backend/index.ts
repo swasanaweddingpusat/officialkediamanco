@@ -13,7 +13,7 @@
 //   STORAGE_PUBLIC_URL (mis. https://bucket-jwta-production.up.railway.app)
 //   ADMIN_EMAIL + ADMIN_PASSWORD   (opsional: set password admin yang masih kosong)
 //   EXTERNAL_SUPABASE_URL + EXTERNAL_SUPABASE_ANON_KEY   (opsional: data "deals")
-//   LLM_API_KEY [+ LLM_API_URL, LLM_MODEL]   (opsional: chat asisten, API kompatibel OpenAI)
+//   ANTHROPIC_API_KEY [+ CHAT_MODEL]         (opsional: chat website dengan Claude)
 //   IMPORT_SUPABASE_URL + IMPORT_SUPABASE_KEY (opsional, sekali pakai: impor tabel publik lama)
 // =====================================================================
 import { Hono } from "hono";
@@ -1259,83 +1259,217 @@ app.all("/functions/v1/external-deals", async (c) => {
   }
 });
 
-// Pengganti edge function chat (API kompatibel OpenAI, streaming SSE)
-function buildSystemPrompt(locations: any[], programs: any[], settings: any) {
-  const locationInfo = locations.map((l) => {
-    const parts = [`- **${l.name}**`];
-    if (l.address) parts.push(`  Alamat: ${l.address}`);
-    if (l.phone) parts.push(`  Telepon: ${l.phone}`);
-    if (l.email) parts.push(`  Email: ${l.email}`);
-    if (l.category) parts.push(`  Area: ${l.category}`);
-    if (Array.isArray(l.facilities) && l.facilities.length) parts.push(`  Fasilitas: ${l.facilities.join(", ")}`);
-    if (l.ballroom_layout_capacity) parts.push(`  Kapasitas Ballroom: ${l.ballroom_layout_capacity}`);
-    if (l.ballroom_layout_dimensions) parts.push(`  Dimensi Ballroom: ${l.ballroom_layout_dimensions}`);
-    if (l.loading_area_capacity) parts.push(`  Kapasitas Loading Area: ${l.loading_area_capacity}`);
-    if (l.is_coming_soon) parts.push(`  Status: Coming Soon`);
-    return parts.join("\n");
-  }).join("\n\n");
-  const programInfo = programs.map((p) => {
-    const parts = [`- **${p.name ?? "Program"}**`];
-    if (p.category) parts.push(` (${p.category})`);
-    if (p.description) parts.push(`: ${String(p.description).substring(0, 150)}`);
-    return parts.join("");
-  }).join("\n");
-  const siteName = settings?.site_name || "Kediaman Corp";
-  return `Kamu adalah asisten virtual ${siteName}, venue operator terbaik di Indonesia. Jawab pertanyaan pengunjung dengan ramah dan informatif dalam Bahasa Indonesia.
+// ---------------------------------------------------------------------
+// Chat website (Claude) — gaya ngobrol seperti admin Kediaman di WhatsApp.
+// Balasan dipecah jadi beberapa gelembung pendek (pemisah baris "---").
+// Tool: cek_ketersediaan (jadwal ballroom), simpan_kontak (lead ke Booking masuk).
+// Env: ANTHROPIC_API_KEY (wajib), CHAT_MODEL (default claude-sonnet-5-5).
+// ---------------------------------------------------------------------
+const rupiah = (n: unknown) => (n == null || n === "" ? null : `Rp${Number(n).toLocaleString("id-ID")}`);
 
-## Informasi Perusahaan
-- Nama: ${siteName}
-${settings?.tagline ? `- Tagline: ${settings.tagline}` : ""}
-${settings?.phone ? `- Telepon: ${settings.phone}` : ""}
-${settings?.email ? `- Email: ${settings.email}` : ""}
-${settings?.address ? `- Alamat Pusat: ${settings.address}` : ""}
+async function chatKnowledge() {
+  const [locations, packages, promos, faqs, [settings]] = await Promise.all([
+    sql`SELECT id, name, slug, address, category, facilities, ballroom_layout_capacity, ballroom_layout_dimensions,
+               is_coming_soon, matterport_360_url FROM locations WHERE is_active ORDER BY sort_order LIMIT 50`,
+    sql`SELECT p.name, p.price, p.price_note, p.min_pax, p.max_pax, p.inclusions, l.name AS venue
+        FROM venue_packages p LEFT JOIN locations l ON l.id = p.location_id
+        WHERE p.is_active ORDER BY p.sort_order LIMIT 60`,
+    sql`SELECT name, slug, description, promo_code, start_date, end_date FROM programs
+        WHERE is_active AND (end_date IS NULL OR end_date >= CURRENT_DATE) ORDER BY sort_order LIMIT 15`,
+    sql`SELECT question, answer FROM faqs WHERE is_active ORDER BY sort_order LIMIT 30`,
+    sql`SELECT * FROM site_settings LIMIT 1`,
+  ]);
+  return { locations, packages, promos, faqs, settings };
+}
 
-## Lokasi Venue Kami
-${locationInfo || "Belum ada data lokasi."}
+function chatSystemPrompt(k: Awaited<ReturnType<typeof chatKnowledge>>, page: string) {
+  const site = k.settings?.site_name || "Kediaman";
+  const now = new Date();
+  const today = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Jakarta" });
+  const hour = Number(now.toLocaleString("en-GB", { hour: "2-digit", hour12: false, timeZone: "Asia/Jakarta" }));
+  const venues = k.locations.map((l: any) => [
+    `- ${l.name}${l.is_coming_soon ? " (segera dibuka)" : ""}`,
+    l.category ? `area ${l.category}` : "",
+    l.address ? `alamat: ${l.address}` : "",
+    l.ballroom_layout_capacity ? `kapasitas: ${l.ballroom_layout_capacity}` : "",
+    l.ballroom_layout_dimensions ? `ukuran: ${l.ballroom_layout_dimensions}` : "",
+    Array.isArray(l.facilities) && l.facilities.length ? `fasilitas: ${l.facilities.slice(0, 8).join(", ")}` : "",
+    l.matterport_360_url ? "ada tur virtual 360°" : "",
+    `halaman: /lokasi/${l.slug || l.id}`,
+  ].filter(Boolean).join(" | ")).join("\n");
+  const packages = k.packages.map((p: any) => `- ${p.name}${p.venue ? ` (${p.venue})` : " (semua venue)"}: ${rupiah(p.price) ? `${p.price_note || "mulai"} ${rupiah(p.price)}` : "harga by request"}${p.min_pax || p.max_pax ? `, ${p.min_pax ?? ""}-${p.max_pax ?? ""} tamu` : ""}${Array.isArray(p.inclusions) && p.inclusions.length ? `, termasuk: ${p.inclusions.slice(0, 6).join(", ")}` : ""}`).join("\n");
+  const promos = k.promos.map((p: any) => `- ${p.name || "Promo"}${p.promo_code ? ` (kode ${p.promo_code})` : ""}${p.end_date ? ` s.d. ${p.end_date}` : ""}: ${String(p.description ?? "").slice(0, 160)} | halaman: /promo/${p.slug}`).join("\n");
+  const faqs = k.faqs.map((f: any) => `T: ${f.question}\nJ: ${String(f.answer).slice(0, 300)}`).join("\n");
+  const wa = k.settings?.whatsapp_link || (k.settings?.phone ? `https://wa.me/${String(k.settings.phone).replace(/\D/g, "").replace(/^0/, "62")}` : "");
+  return `Kamu admin chat ${site} di website kediaman.co. ${site} mengelola venue & ballroom untuk pernikahan dan acara di Indonesia.
+Hari ini ${today}, sekitar pukul ${hour}.00 WIB. Pengunjung sedang membuka halaman: ${page || "/"}.
 
-## Program & Layanan
-${programInfo || "Belum ada data program."}
+CARA NGOBROL (paling penting):
+- Ngobrol seperti admin manusia yang ramah di WhatsApp, bukan seperti bot atau customer service kaku. Santai, hangat, sopan. Panggil "kak" (atau nama bila sudah tahu).
+- Pecah balasan jadi 1-3 gelembung chat pendek. Pisahkan tiap gelembung dengan baris yang isinya hanya: ---
+- Tiap gelembung 1-2 kalimat saja. Jangan menulis paragraf panjang, jangan pakai judul/heading, hindari bullet list kecuali pengunjung minta daftar (maksimal 3 butir).
+- Tanya SATU hal dalam satu waktu (mis. tanggal acara, jumlah tamu, atau area), lalu tunggu jawaban. Gali kebutuhan pelan-pelan seperti orang ngobrol.
+- Jangan mengulang salam di tiap balasan. Jangan buka dengan "Tentu!", "Baik, saya akan...", "Sebagai asisten...", atau "Terima kasih atas pertanyaannya". Langsung ke inti seperti chat biasa.
+- Boleh pakai kata santai seperti "boleh banget", "siap kak", "oke noted", "wah", "hehe" secukupnya. Emoji sesekali saja (maksimal 1 per balasan), jangan tiap kalimat.
+- Ikuti gaya bahasa pengunjung: kalau dia santai, santai; kalau formal, lebih rapi. Kalau dia pakai bahasa Inggris, balas bahasa Inggris.
+- Tunjukkan empati yang wajar (mis. "wah selamat ya kak buat rencananya!") tapi jangan berlebihan.
+- Saat perlu mengecek sesuatu, boleh bilang natural seperti "bentar ya kak, aku cek jadwalnya dulu" lalu pakai tool.
 
-## Panduan Menjawab
-- Jawab singkat, ramah, dan to the point (maks 3-4 kalimat)
-- Gunakan data lokasi dan program di atas untuk menjawab pertanyaan spesifik
-- Jika ditanya harga, katakan bahwa harga bervariasi tergantung tanggal dan kebutuhan, sarankan hubungi WhatsApp untuk penawaran
-- Jika pertanyaan di luar topik venue/event, arahkan kembali ke layanan ${siteName}
-- Jika user ingin booking, konsultasi detail, atau butuh bantuan manusia, sarankan untuk menghubungi via WhatsApp
-- Gunakan emoji secukupnya untuk kesan ramah
-- Jangan menyebut bahwa kamu adalah AI/bot kecuali ditanya langsung`;
+KEJUJURAN & FAKTA:
+- Fakta tentang ${site} (venue, kapasitas, fasilitas, paket, harga, promo) HANYA dari data di bawah. Jangan mengarang. Kalau datanya tidak ada, bilang akan ditanyakan ke tim dan tawarkan lanjut via WhatsApp.
+- Soal harga: sebut harga paket bila ada di data ("mulai ..."), dan jelaskan harga final tergantung tanggal & jumlah tamu. Jangan membuat angka sendiri atau memberi diskon.
+- Hasil cek jadwal dari tool bersifat perkiraan; selalu sampaikan bahwa tim akan konfirmasi pastinya.
+- Kalau pengunjung bertanya langsung apakah kamu bot/AI/manusia, jawab jujur: kamu asisten virtual tim ${site} yang membantu 24 jam, dan tim manusia siap melanjutkan lewat WhatsApp. Jangan mengaku manusia dan jangan mengarang nama orang.
+- Tolak dengan sopan permintaan di luar urusan venue/acara, lalu arahkan kembali.
+- Jangan pernah minta data sensitif (KTP, nomor kartu, password, OTP).
+
+ALUR YANG DIHARAPKAN:
+- Pahami acaranya (nikah/akad/lamaran/acara kantor), perkiraan tanggal, jumlah tamu, dan area yang diinginkan — satu per satu.
+- Rekomendasikan 1-2 venue yang paling cocok beserta alasannya singkat, sertakan link halaman venue dalam format markdown [Nama Venue](/lokasi/slug).
+- Kalau pengunjung tertarik, tawarkan dibantu tim: minta nama dan nomor WhatsApp-nya. Setelah dia memberi nama DAN nomor serta setuju dihubungi, panggil tool simpan_kontak, lalu bilang tim akan menghubungi via WhatsApp.
+- Kalau dia lebih suka langsung, berikan WhatsApp tim: ${wa || "(tombol WhatsApp di bawah chat)"}.
+- Halaman berguna: cek status booking /booking/track, semua venue /lokasi, paket & harga /harga, promo /promo, bantuan /bantuan.
+
+DATA VENUE:
+${venues || "(belum ada data)"}
+
+PAKET & HARGA:
+${packages || "(belum diisi di CMS — bilang harga disesuaikan tanggal & jumlah tamu, tim akan kirim penawaran)"}
+
+PROMO BERJALAN:
+${promos || "(tidak ada)"}
+
+FAQ:
+${faqs || "(tidak ada)"}`;
+}
+
+const CHAT_TOOLS = [
+  {
+    name: "cek_ketersediaan",
+    description: "Cek jadwal ballroom pada tanggal tertentu dari sistem jadwal Kediaman. Pakai saat pengunjung menyebut tanggal acara.",
+    input_schema: {
+      type: "object", required: ["tanggal"],
+      properties: {
+        tanggal: { type: "string", description: "Tanggal acara format YYYY-MM-DD" },
+        venue: { type: "string", description: "Nama venue (opsional; kosongkan untuk semua venue)" },
+      },
+    },
+  },
+  {
+    name: "simpan_kontak",
+    description: "Simpan kontak calon klien agar tim marketing menghubungi via WhatsApp. Panggil HANYA setelah pengunjung memberi nama DAN nomor HP/WhatsApp dan setuju dihubungi.",
+    input_schema: {
+      type: "object", required: ["nama", "no_hp"],
+      properties: {
+        nama: { type: "string" },
+        no_hp: { type: "string" },
+        venue: { type: "string", description: "Nama venue yang diminati (bila ada)" },
+        tanggal: { type: "string", description: "Perkiraan tanggal acara YYYY-MM-DD (bila ada)" },
+        ringkasan: { type: "string", description: "Ringkasan kebutuhan: jenis acara, jumlah tamu, preferensi, pertanyaan penting" },
+      },
+    },
+  },
+];
+
+async function runChatTool(name: string, input: any, ctx: { ip: string; locations: any[]; leadSaved: { done: boolean } }): Promise<string> {
+  const findVenue = (q: unknown) => {
+    const t = String(q ?? "").toLowerCase().trim();
+    if (!t) return null;
+    return ctx.locations.find((l: any) => l.name.toLowerCase() === t)
+      ?? ctx.locations.find((l: any) => l.name.toLowerCase().includes(t) || t.includes(l.name.toLowerCase())) ?? null;
+  };
+  if (name === "cek_ketersediaan") {
+    const date = String(input?.tanggal ?? "");
+    if (!DATE_RE.test(date)) return "Format tanggal tidak valid. Tanyakan ulang tanggalnya.";
+    if (date < new Date().toISOString().slice(0, 10)) return "Tanggal itu sudah lewat. Konfirmasi ulang tanggalnya ke pengunjung.";
+    const venue = findVenue(input?.venue);
+    const rows = await sql`SELECT s.location_id, s.status, s.start_time, s.end_time FROM ballroom_schedules s
+                           WHERE s.schedule_date = ${date}::date AND s.status IN ('booked', 'blocked')`;
+    const list = (venue ? [venue] : ctx.locations.filter((l: any) => !l.is_coming_soon)).map((l: any) => {
+      const taken = rows.filter((r: any) => r.location_id === l.id);
+      return `${l.name}: ${taken.length ? `sudah ada jadwal terisi${taken.some((r: any) => r.start_time) ? ` (${taken.map((r: any) => `${String(r.start_time ?? "").slice(0, 5)}-${String(r.end_time ?? "").slice(0, 5)}`).join(", ")})` : ""}` : "belum ada jadwal terisi di sistem"}`;
+    });
+    return `Hasil sistem jadwal untuk ${date} (perkiraan, tim tetap konfirmasi):\n${list.join("\n")}`;
+  }
+  if (name === "simpan_kontak") {
+    if (ctx.leadSaved.done) return "Kontak sudah tersimpan di percakapan ini.";
+    if (limited(`chat-lead:${ctx.ip}`, 3, 60 * 60_000)) return "Batas penyimpanan kontak tercapai; arahkan ke WhatsApp.";
+    const nama = String(input?.nama ?? "").trim().slice(0, 100);
+    const hp = String(input?.no_hp ?? "").trim().slice(0, 20);
+    const digits = hp.replace(/\D/g, "");
+    if (nama.length < 2) return "Nama belum valid, tanyakan namanya.";
+    if (digits.length < 8 || digits.length > 15) return "Nomor HP belum valid, minta nomor WhatsApp yang benar.";
+    const venue = findVenue(input?.venue) ?? ctx.locations.find((l: any) => !l.is_coming_soon) ?? ctx.locations[0];
+    if (!venue) return "Belum ada data venue; arahkan ke WhatsApp.";
+    const date = DATE_RE.test(String(input?.tanggal ?? "")) ? String(input.tanggal) : null;
+    const notes = `[Dari chat website] ${String(input?.ringkasan ?? "").slice(0, 900)}${findVenue(input?.venue) ? "" : " (venue belum ditentukan)"}`;
+    const [row] = await sql`INSERT INTO ballroom_bookings (location_id, contact_name, contact_phone, booking_date, notes, event_type)
+                            VALUES (${venue.id}::uuid, ${nama}, ${hp}, ${date}::date, ${notes}, ${"Chat"}) RETURNING id`;
+    ctx.leadSaved.done = true;
+    const code = `KDM-${String(row.id).replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+    return `Kontak tersimpan sebagai permintaan booking ${code}. Sampaikan bahwa tim akan menghubungi via WhatsApp dan kodenya bisa dipakai di /booking/track bersama nomor HP.`;
+  }
+  return "Tool tidak dikenal.";
 }
 
 app.post("/functions/v1/chat", async (c) => {
-  if (!env.LLM_API_KEY) return c.json({ error: "Layanan chat sedang tidak tersedia." }, 503);
-  if (limited(`chat:${ip(c)}`, 20)) return c.json({ error: "Terlalu banyak permintaan, coba lagi nanti." }, 429);
-  const { messages } = await c.req.json().catch(() => ({ messages: [] }));
-  const safeMessages = (Array.isArray(messages) ? messages : []).slice(-20)
-    .filter((m: any) => (m?.role === "user" || m?.role === "assistant") && typeof m.content === "string")
-    .map((m: any) => ({ role: m.role, content: m.content.slice(0, 4000) }));
-  const [locations, programs, [settings]] = await Promise.all([
-    sql`SELECT name, address, phone, email, category, facilities, ballroom_layout_capacity, ballroom_layout_dimensions,
-               loading_area_capacity, is_coming_soon FROM locations WHERE is_active ORDER BY sort_order`,
-    sql`SELECT name, description, category FROM programs WHERE is_active ORDER BY sort_order`,
-    sql`SELECT site_name, tagline, phone, email, address FROM site_settings LIMIT 1`,
-  ]);
-  const res = await fetch(`${(env.LLM_API_URL || "https://api.openai.com/v1").replace(/\/$/, "")}/chat/completions`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${env.LLM_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: env.LLM_MODEL || "gpt-4o-mini",
-      messages: [{ role: "system", content: buildSystemPrompt([...locations], [...programs], settings) }, ...safeMessages],
-      stream: true,
-    }),
-  });
-  if (!res.ok || !res.body) {
-    console.error("LLM error:", res.status, await res.text().catch(() => ""));
-    const msg = res.status === 429 ? "Terlalu banyak permintaan, coba lagi nanti." : "Gagal menghubungi AI";
-    return c.json({ error: msg }, res.status === 429 ? 429 : 500);
+  const key = env.ANTHROPIC_API_KEY;
+  if (!key) return c.json({ error: "Layanan chat sedang tidak tersedia." }, 503);
+  const who = ip(c);
+  if (limited(`chat:${who}`, 12) || limited(`chat-hour:${who}`, 120, 60 * 60_000)) {
+    return c.json({ error: "Wah, chatnya lagi rame banget nih kak. Coba lagi sebentar ya, atau langsung WhatsApp tim kami." }, 429);
   }
-  return new Response(res.body, {
-    headers: { "Content-Type": "text/event-stream", "Access-Control-Allow-Origin": "*" },
-  });
+  const body: any = await c.req.json().catch(() => ({}));
+  const history = (Array.isArray(body?.messages) ? body.messages : []).slice(-24)
+    .filter((m: any) => (m?.role === "user" || m?.role === "assistant") && typeof m.content === "string" && m.content.trim())
+    .map((m: any) => ({ role: m.role as "user" | "assistant", content: String(m.content).slice(0, 2000) }));
+  while (history.length && history[0].role !== "user") history.shift();
+  if (!history.length || history[history.length - 1].role !== "user") return c.json({ error: "Pesan kosong" }, 400);
+  const page = String(body?.page ?? "").slice(0, 120).replace(/[^\w\-/?=&.%]/g, "");
+
+  try {
+    const k = await chatKnowledge();
+    const system = chatSystemPrompt(k, page);
+    // Gabungkan pesan berurutan dari peran yang sama (mis. pengunjung kirim 2 chat beruntun)
+    const msgs: any[] = [];
+    for (const m of history) {
+      const last = msgs[msgs.length - 1];
+      if (last && last.role === m.role) last.content += `\n${m.content}`;
+      else msgs.push({ role: m.role, content: m.content });
+    }
+    const ctx = { ip: who, locations: k.locations as any[], leadSaved: { done: false } };
+    let text = "";
+    for (let step = 0; step < 4; step++) {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+        body: JSON.stringify({ model: env.CHAT_MODEL || "claude-sonnet-5-5", max_tokens: 700, system, tools: CHAT_TOOLS, messages: msgs }),
+        signal: AbortSignal.timeout(45000),
+      });
+      if (!res.ok) {
+        console.error("chat claude error:", res.status, (await res.text().catch(() => "")).slice(0, 300));
+        return c.json({ error: res.status === 429 ? "Lagi ramai nih kak, coba sebentar lagi ya." : "Maaf kak, chatnya lagi gangguan. Boleh lanjut via WhatsApp dulu ya." }, 502);
+      }
+      const out = await res.json() as { content: any[]; stop_reason: string };
+      text = out.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
+      const uses = out.content.filter((b) => b.type === "tool_use");
+      if (out.stop_reason !== "tool_use" || !uses.length) break;
+      msgs.push({ role: "assistant", content: out.content });
+      const results = [];
+      for (const u of uses) {
+        let result: string;
+        try { result = await runChatTool(u.name, u.input, ctx); } catch (e: any) { console.error("chat tool:", e?.message); result = "Sistem sedang tidak bisa diakses; arahkan ke WhatsApp."; }
+        results.push({ type: "tool_result", tool_use_id: u.id, content: result });
+      }
+      msgs.push({ role: "user", content: results });
+    }
+    const bubbles = text.split(/\n\s*-{3,}\s*\n?/).map((t) => t.trim()).filter(Boolean).slice(0, 4);
+    if (!bubbles.length) bubbles.push("Maaf kak, boleh diulang pertanyaannya? 🙏");
+    return c.json({ messages: bubbles, lead_saved: ctx.leadSaved.done });
+  } catch (e: any) {
+    console.error("chat error:", e?.message ?? e);
+    return c.json({ error: "Maaf kak, chatnya lagi gangguan. Boleh lanjut via WhatsApp dulu ya." }, 500);
+  }
 });
 
 // ---------------------------------------------------------------------
@@ -1455,6 +1589,10 @@ async function selfTest() {
       } finally {
         await sql`DELETE FROM users WHERE id IN (${ua.id}::uuid, ${ub.id}::uuid)`;
       }
+    }
+    if (env.ANTHROPIC_API_KEY) {
+      const ch = await call("/functions/v1/chat", { messages: [{ role: "user", content: "halo kak, mau tanya venue buat nikahan bulan Maret, tamunya sekitar 800" }], page: "/" });
+      out.push(`chat=${ch.status} gelembung=${ch.json.messages?.length ?? 0} contoh=${JSON.stringify(ch.json.messages ?? ch.json.error).slice(0, 300)}`);
     }
     const pr = await call("/rest/v1/query", { table: "ballroom_schedules", action: "select", select: "id,promo_type,promo_label,promo_expires_at", limit: 1 });
     out.push(`promo=${pr.status}`);
