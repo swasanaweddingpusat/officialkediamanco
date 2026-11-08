@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { AdminTable } from '@/components/admin/AdminTable';
 import { AdminFormDialog } from '@/components/admin/AdminFormDialog';
@@ -15,12 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useLocations, useCreateLocation, useUpdateLocation, useDeleteLocation } from '@/hooks/useCMS';
 import { Badge } from '@/components/ui/badge';
 
-const LOCATION_CATEGORIES = [
-  'Jakarta Selatan',
-  'Jakarta Timur',
-  'Bintaro',
-  'Bandung',
-] as const;
+// Kategori bawaan; kategori baru yang ditambahkan admin ikut muncul otomatis (diambil dari data venue).
+const DEFAULT_CATEGORIES = ['Jakarta Selatan', 'Jakarta Timur', 'Bintaro', 'Bandung'];
+const NEW_CATEGORY = '__new__';
 
 type Location = {
   id: string;
@@ -51,6 +48,11 @@ type Location = {
 
 const AdminLocations = () => {
   const { data: locations = [], isLoading } = useLocations();
+  const [newCategoryMode, setNewCategoryMode] = useState(false);
+  const categories = useMemo(() => {
+    const fromData = (locations as { category?: string | null }[]).map((l) => (l.category ?? '').trim()).filter(Boolean);
+    return [...new Set([...DEFAULT_CATEGORIES, ...fromData])].sort((a, b) => a.localeCompare(b, 'id'));
+  }, [locations]);
   const createMutation = useCreateLocation();
   const updateMutation = useUpdateLocation();
   const deleteMutation = useDeleteLocation();
@@ -86,6 +88,7 @@ const AdminLocations = () => {
   });
 
   const resetForm = () => {
+    setNewCategoryMode(false);
     setFormData({ 
       name: '', 
       address: '', 
@@ -120,6 +123,7 @@ const AdminLocations = () => {
 
   const handleEdit = (item: Location) => {
     setEditingItem(item);
+    setNewCategoryMode(false);
     setFormData({
       name: item.name,
       address: item.address || '',
@@ -166,7 +170,7 @@ const AdminLocations = () => {
       is_coming_soon: formData.is_coming_soon,
       sort_order: formData.sort_order,
       is_active: formData.is_active,
-      category: formData.category,
+      category: formData.category.trim() || 'Jakarta Selatan',
       loading_area_images: formData.loading_area_images,
       loading_area_description: formData.loading_area_description || null,
       loading_area_capacity: formData.loading_area_capacity || null,
@@ -273,22 +277,46 @@ const AdminLocations = () => {
             <p className="text-xs text-muted-foreground mt-1">Gambar pertama akan menjadi gambar utama</p>
           </div>
           <div>
-            <Label>Category *</Label>
-            <Select
-              value={formData.category}
-              onValueChange={(value) => setFormData({ ...formData, category: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih kategori" />
-              </SelectTrigger>
-              <SelectContent>
-                {LOCATION_CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Kategori / area *</Label>
+            {newCategoryMode ? (
+              <div className="flex gap-2">
+                <Input
+                  autoFocus
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value.slice(0, 60) })}
+                  placeholder="mis. Tangerang Selatan"
+                  aria-label="Nama kategori baru"
+                />
+                <button
+                  type="button"
+                  onClick={() => { setNewCategoryMode(false); if (!formData.category.trim()) setFormData({ ...formData, category: categories[0] ?? 'Jakarta Selatan' }); }}
+                  className="shrink-0 rounded-md border border-input px-3 text-sm font-semibold hover:bg-muted"
+                >
+                  Batal
+                </button>
+              </div>
+            ) : (
+              <Select
+                value={formData.category}
+                onValueChange={(value) => {
+                  if (value === NEW_CATEGORY) { setNewCategoryMode(true); setFormData({ ...formData, category: '' }); }
+                  else setFormData({ ...formData, category: value });
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[...new Set([...categories, formData.category].filter(Boolean))].map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value={NEW_CATEGORY} className="font-semibold text-primary">+ Tambah kategori baru</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+            <p className="text-xs text-muted-foreground mt-1">Kategori dipakai sebagai area/kota di pencarian dan filter halaman venue.</p>
           </div>
           <div>
             <Label>Name *</Label>
