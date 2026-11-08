@@ -48,8 +48,8 @@ export function Footer() {
 
   return (
     <footer className="mt-16 bg-primary text-primary-foreground">
-      <div className="ota-container py-10 md:py-12 grid grid-cols-2 gap-x-6 gap-y-8 md:gap-10 md:grid-cols-[1.3fr_repeat(3,1fr)]">
-        <div className="col-span-2 md:col-span-1 space-y-4">
+      <div className="ota-container py-10 md:py-12 grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3 md:gap-x-8 lg:gap-10 lg:grid-cols-[1.3fr_repeat(3,1fr)]">
+        <div className="col-span-2 md:col-span-3 lg:col-span-1 space-y-4 md:max-w-xl lg:max-w-none">
           <Link to="/" className="flex items-center gap-2.5">
             {settings?.logo_url && <CMSImage src={settings.logo_url} imageWidth={96} sizes="44px" width={320} height={295} alt="" className="h-10 w-auto" />}
             <span className="text-xl font-extrabold">Kediaman</span>
@@ -73,7 +73,7 @@ export function Footer() {
         {columns.map((col) => (
           <nav key={col.title} aria-label={col.title}>
             <h2 className="text-sm font-bold mb-3">{col.title}</h2>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-1 md:space-y-2 text-sm [&_a]:inline-block [&_a]:py-1 md:[&_a]:py-0">
               {col.links.map((l) => (
                 <li key={l.href}><Link to={l.href} className="text-primary-foreground/80 hover:text-primary-foreground">{l.name}</Link></li>
               ))}

@@ -1,5 +1,6 @@
 import { CMSImage } from '@/components/CMSImage';
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Menu, Search, X, MessageCircle, Building2, Wallet, Tag, Images, Briefcase, Gift, Newspaper, Info,
@@ -103,8 +104,28 @@ export function Navbar() {
   const { user, isAdmin, signOut } = useAuth();
   const { data: settings } = useSiteSettings();
   const wa = waLinkFrom(settings);
+  const headerRef = useRef<HTMLElement>(null);
+  const [headerH, setHeaderH] = useState(0);
+
+  // Tinggi header diukur langsung (beda di HP/tablet) supaya panel menu tepat di bawahnya
+  useLayoutEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const update = () => setHeaderH(Math.round(el.getBoundingClientRect().height));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => { setOpen(false); }, [pathname]);
+  // Tutup menu bila layar diperlebar ke ukuran desktop
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 1024px)');
+    const onChange = () => { if (mql.matches) setOpen(false); };
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -115,7 +136,9 @@ export function Navbar() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/85 border-b border-border">
+    <>
+    {/* Catatan: jangan pakai backdrop-blur di header — itu membuat panel menu "fixed" ikut terkurung di dalam header */}
+    <header ref={headerRef} className="sticky top-0 z-50 bg-card border-b border-border">
       {/* Baris utama: logo · pencarian · aksi */}
       <div className="ota-container flex items-center gap-3 lg:gap-6 h-16">
         <Logo />
@@ -132,7 +155,7 @@ export function Navbar() {
           <BookingDialog>
             <Button className="h-11 px-4 sm:px-6 rounded-xl font-extrabold shadow-sm">Booking</Button>
           </BookingDialog>
-          <Button variant="ghost" size="icon" className="lg:hidden size-11 rounded-xl" onClick={() => setOpen((v) => !v)} aria-label={open ? 'Tutup menu' : 'Buka menu'} aria-expanded={open} aria-controls="ota-mobile-menu">
+          <Button type="button" variant="ghost" size="icon" className={cn('lg:hidden size-11 rounded-xl', open && 'bg-muted')} onClick={() => setOpen((v) => !v)} aria-label={open ? 'Tutup menu' : 'Buka menu'} aria-expanded={open} aria-controls="ota-mobile-menu">
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </Button>
         </div>
@@ -167,9 +190,11 @@ export function Navbar() {
         <SearchBox className="h-10" />
       </div>
 
+    </header>
       {/* Menu mobile/tablet */}
-      {open && (
-        <div id="ota-mobile-menu" className="lg:hidden fixed inset-x-0 top-[7.25rem] md:top-16 bottom-0 z-40 bg-background overflow-y-auto border-t border-border">
+      {open && typeof document !== 'undefined' && createPortal(
+        <div id="ota-mobile-menu" role="dialog" aria-modal="true" aria-label="Menu" style={{ top: headerH }}
+          className="lg:hidden fixed inset-x-0 bottom-0 z-[55] bg-background overflow-y-auto overscroll-contain animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="ota-container py-5 space-y-6">
             <nav aria-label="Menu" className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {NAV_LINKS.map((l) => (
@@ -206,8 +231,9 @@ export function Navbar() {
               <MessageCircle className="size-4" /> Chat tim via WhatsApp
             </a>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
-    </header>
+    </>
   );
 }
