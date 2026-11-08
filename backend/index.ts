@@ -398,6 +398,70 @@ BEGIN
 END $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER loyalty_redemptions_status AFTER UPDATE OF status ON loyalty_redemptions
   FOR EACH ROW EXECUTE FUNCTION kdm_loyalty_redemption();
+
+-- =====================================================================
+-- Karier: lowongan (publik), pelamar & berkas CV (khusus admin)
+-- =====================================================================
+CREATE TABLE IF NOT EXISTS jobs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  slug text,
+  department text,
+  location_text text,
+  employment_type text NOT NULL DEFAULT 'Full-time',
+  work_mode text NOT NULL DEFAULT 'On-site',
+  experience_level text,
+  salary_min numeric(14,0),
+  salary_max numeric(14,0),
+  show_salary boolean NOT NULL DEFAULT false,
+  summary text,
+  description text,
+  responsibilities jsonb NOT NULL DEFAULT '[]'::jsonb,
+  requirements jsonb NOT NULL DEFAULT '[]'::jsonb,
+  benefits jsonb NOT NULL DEFAULT '[]'::jsonb,
+  deadline date,
+  is_active boolean NOT NULL DEFAULT true,
+  is_featured boolean NOT NULL DEFAULT false,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE OR REPLACE TRIGGER jobs_fill_slug BEFORE INSERT OR UPDATE ON jobs FOR EACH ROW EXECUTE FUNCTION kdm_fill_slug();
+CREATE UNIQUE INDEX IF NOT EXISTS jobs_slug_key ON jobs (slug);
+CREATE OR REPLACE TRIGGER jobs_set_updated_at BEFORE UPDATE ON jobs FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE TABLE IF NOT EXISTS job_applications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  job_id uuid REFERENCES jobs(id) ON DELETE SET NULL,
+  job_title text NOT NULL,
+  full_name text NOT NULL,
+  email text NOT NULL,
+  phone text NOT NULL,
+  domicile text,
+  linkedin_url text,
+  portfolio_url text,
+  expected_salary text,
+  available_from text,
+  cover_letter text,
+  has_cv boolean NOT NULL DEFAULT false,
+  status text NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'review', 'interview', 'offer', 'hired', 'rejected')),
+  rating integer CHECK (rating IS NULL OR rating BETWEEN 1 AND 5),
+  admin_notes text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS job_applications_job_idx ON job_applications (job_id, created_at DESC);
+CREATE OR REPLACE TRIGGER job_applications_set_updated_at BEFORE UPDATE ON job_applications FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- CV disimpan di database (privat), bukan di bucket publik; hanya bisa diunduh admin lewat endpoint khusus.
+CREATE TABLE IF NOT EXISTS job_application_files (
+  application_id uuid PRIMARY KEY REFERENCES job_applications(id) ON DELETE CASCADE,
+  filename text NOT NULL,
+  mime text NOT NULL,
+  size integer NOT NULL,
+  data bytea NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
 `;
 
 // ---------------------------------------------------------------------
@@ -410,7 +474,7 @@ type Filter = [string, string, unknown];
 const CONTENT_TABLES = new Set([
   "site_settings", "hero_slides", "features", "programs", "trainers", "locations", "testimonials",
   "ballroom_schedules", "articles", "video_testimonials", "about_sections", "about_settings", "venue_sessions",
-  "venue_packages", "faqs", "venue_reviews", "loyalty_rewards", "loyalty_settings",
+  "venue_packages", "faqs", "venue_reviews", "loyalty_rewards", "loyalty_settings", "jobs",
 ]);
 // Filter wajib untuk pengunjung non-admin (sama dengan policy SELECT di Supabase).
 const PUBLIC_ROW_FILTER: Record<string, Filter> = {
@@ -427,6 +491,7 @@ const PUBLIC_ROW_FILTER: Record<string, Filter> = {
   faqs: ["is_active", "eq", true],
   venue_reviews: ["is_published", "eq", true],
   loyalty_rewards: ["is_active", "eq", true],
+  jobs: ["is_active", "eq", true],
 };
 
 const BOOKING_FIELDS = new Set([
@@ -515,7 +580,7 @@ export function authorize(table: string, action: string, ctx: Ctx, values?: any[
 // ---------------------------------------------------------------------
 type Schema = Record<string, Record<string, string>>; // table -> column -> udt_name
 let schema: Schema = {};
-const HIDDEN_TABLES = new Set(["users", "venue_interest_events"]);
+const HIDDEN_TABLES = new Set(["users", "venue_interest_events", "job_application_files"]);
 
 async function loadSchema() {
   const rows = await sql`SELECT table_name, column_name, udt_name FROM information_schema.columns
@@ -929,7 +994,7 @@ const SITEMAP_BASE = "https://kediaman.co";
 const SITEMAP_STATIC: [string, string, string][] = [
   ["/", "weekly", "1.0"], ["/landing", "weekly", "0.8"], ["/venue-only", "weekly", "0.8"],
   ["/tentang-kami", "monthly", "0.8"], ["/portfolio", "weekly", "0.8"], ["/paket", "weekly", "0.9"],
-  ["/lokasi", "weekly", "0.9"], ["/artikel", "daily", "0.8"],
+  ["/lokasi", "weekly", "0.9"], ["/artikel", "daily", "0.8"], ["/karir", "weekly", "0.6"],
 ];
 let sitemapCache: { xml: string; at: number } | null = null;
 const xmlEscape = (v: string) => v.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&apos;");
@@ -947,6 +1012,8 @@ app.get("/sitemap.xml", async (c) => {
       entries.push({ path: `/tentang-kami/${r.slug}`, freq: "monthly", pri: "0.7", mod: day(r.updated_at) });
     for (const r of await sql`SELECT slug, updated_at FROM trainers WHERE is_active AND slug IS NOT NULL ORDER BY sort_order`)
       entries.push({ path: `/portfolio/${r.slug}`, freq: "monthly", pri: "0.6", mod: day(r.updated_at) });
+    for (const r of await sql`SELECT slug, updated_at FROM jobs WHERE is_active AND slug IS NOT NULL AND (deadline IS NULL OR deadline >= CURRENT_DATE)`)
+      entries.push({ path: `/karir/${r.slug}`, freq: "weekly", pri: "0.6", mod: day(r.updated_at) });
     const seen = new Set<string>();
     const urls = entries.filter((e) => !seen.has(e.path) && seen.add(e.path)).map((e) =>
       `  <url>\n    <loc>${xmlEscape(SITEMAP_BASE + e.path)}</loc>\n${e.mod ? `    <lastmod>${e.mod}</lastmod>\n` : ""}    <changefreq>${e.freq}</changefreq>\n    <priority>${e.pri}</priority>\n  </url>`);
@@ -1213,6 +1280,93 @@ app.get("/functions/v1/loyalty/ref/:code", async (c) => {
   if (!/^[A-Z0-9]{6,12}$/.test(code)) return c.json({ valid: false });
   const [row] = await sql`SELECT 1 FROM loyalty_members m JOIN loyalty_settings s ON s.id = 1 WHERE m.referral_code = ${code} AND s.is_enabled`;
   return c.json({ valid: Boolean(row) });
+});
+
+// ---------------------------------------------------------------------
+// Karier: kirim lamaran (publik, multipart) & unduh CV (admin)
+// ---------------------------------------------------------------------
+const CV_MAX = 5 * 1024 * 1024;
+function cvKind(bytes: Uint8Array): { mime: string; ext: string } | null {
+  const b = (i: number) => bytes[i];
+  if (b(0) === 0x25 && b(1) === 0x50 && b(2) === 0x44 && b(3) === 0x46) return { mime: "application/pdf", ext: "pdf" };          // %PDF
+  if (b(0) === 0x50 && b(1) === 0x4b && b(2) === 0x03 && b(3) === 0x04) return { mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", ext: "docx" }; // ZIP (docx)
+  if (b(0) === 0xd0 && b(1) === 0xcf && b(2) === 0x11 && b(3) === 0xe0) return { mime: "application/msword", ext: "doc" };       // OLE (doc)
+  return null;
+}
+const httpsUrl = (v: string) => !v || (/^https?:\/\/[^\s<>"']{3,300}$/i.test(v));
+
+app.post("/functions/v1/careers/apply", async (c) => {
+  const who = ip(c);
+  if (limited(`apply:${who}`, 3, 10 * 60_000) || limited(`apply-day:${who}`, 10, 24 * 60 * 60_000)) {
+    return c.json({ error: "Terlalu banyak lamaran dari perangkat ini. Coba lagi nanti." }, 429);
+  }
+  try {
+    const len = Number(c.req.header("content-length") ?? 0);
+    if (len > CV_MAX + 200_000) throw new ApiError(413, "Ukuran berkas maksimal 5 MB");
+    const form = await c.req.formData();
+    const get = (k: string, max: number) => String(form.get(k) ?? "").trim().slice(0, max);
+    if (get("website", 200)) return c.json({ ok: true }); // honeypot
+    const jobId = get("job_id", 40);
+    const fullName = get("full_name", 100), email = get("email", 160).toLowerCase(), phone = get("phone", 25);
+    const domicile = get("domicile", 100), linkedin = get("linkedin_url", 300), portfolio = get("portfolio_url", 300);
+    const expected = get("expected_salary", 60), available = get("available_from", 60), cover = get("cover_letter", 4000);
+    if (!UUID_RE.test(jobId)) throw new ApiError(400, "Lowongan tidak valid");
+    if (fullName.length < 2) throw new ApiError(400, "Nama lengkap wajib diisi");
+    if (!validEmail(email)) throw new ApiError(400, "Email tidak valid");
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 8 || digits.length > 15 || !/^[+\d\s().-]+$/.test(phone)) throw new ApiError(400, "Nomor HP tidak valid");
+    if (!httpsUrl(linkedin) || !httpsUrl(portfolio)) throw new ApiError(400, "Tautan LinkedIn/portofolio harus diawali https://");
+    const [job] = await sql`SELECT id, title FROM jobs WHERE id = ${jobId}::uuid AND is_active AND (deadline IS NULL OR deadline >= CURRENT_DATE)`;
+    if (!job) throw new ApiError(404, "Lowongan ini sudah ditutup");
+    const [dup] = await sql`SELECT 1 FROM job_applications WHERE job_id = ${jobId}::uuid AND lower(email) = ${email} AND created_at > now() - interval '30 days'`;
+    if (dup) throw new ApiError(409, "Anda sudah melamar posisi ini. Tim kami akan menghubungi bila lolos seleksi berkas.");
+
+    const file = form.get("cv");
+    let cv: { name: string; mime: string; bytes: Uint8Array } | null = null;
+    if (file && typeof file === "object" && "arrayBuffer" in file && (file as File).size > 0) {
+      const f = file as File;
+      if (f.size > CV_MAX) throw new ApiError(413, "Ukuran CV maksimal 5 MB");
+      const bytes = new Uint8Array(await f.arrayBuffer());
+      const kind = cvKind(bytes);
+      if (!kind) throw new ApiError(400, "CV harus berformat PDF atau Word (.doc/.docx)");
+      const safeName = (f.name || "cv").replace(/[^\w.\- ]+/g, "_").replace(/\.[^.]*$/, "").slice(0, 80) || "cv";
+      cv = { name: `${safeName}.${kind.ext}`, mime: kind.mime, bytes };
+    } else {
+      throw new ApiError(400, "Mohon lampirkan CV (PDF/Word, maks 5 MB)");
+    }
+
+    const id = crypto.randomUUID();
+    await sql.begin(async (tx) => {
+      await tx`INSERT INTO job_applications (id, job_id, job_title, full_name, email, phone, domicile, linkedin_url, portfolio_url,
+                                             expected_salary, available_from, cover_letter, has_cv)
+               VALUES (${id}::uuid, ${jobId}::uuid, ${job.title}, ${fullName}, ${email}, ${phone}, ${domicile || null}, ${linkedin || null},
+                       ${portfolio || null}, ${expected || null}, ${available || null}, ${cover || null}, ${!!cv})`;
+      if (cv) await tx`INSERT INTO job_application_files (application_id, filename, mime, size, data)
+                       VALUES (${id}::uuid, ${cv.name}, ${cv.mime}, ${cv.bytes.byteLength}, ${cv.bytes})`;
+    });
+    return c.json({ ok: true });
+  } catch (e: any) {
+    if (e instanceof ApiError) return c.json({ error: e.message }, e.status as any);
+    console.error("careers apply:", e?.message ?? e);
+    return c.json({ error: "Gagal mengirim lamaran, coba lagi." }, 500);
+  }
+});
+
+app.get("/functions/v1/careers/cv/:id", async (c) => {
+  const ctx = await getCtx(c.req.header("authorization"));
+  if (!ctx.isAdmin) return c.json({ error: "Forbidden" }, 403);
+  const id = c.req.param("id");
+  if (!UUID_RE.test(id)) return c.json({ error: "Not found" }, 404);
+  const [f] = await sql`SELECT filename, mime, data FROM job_application_files WHERE application_id = ${id}::uuid`;
+  if (!f) return c.json({ error: "Not found" }, 404);
+  return new Response(f.data, {
+    headers: {
+      "Content-Type": f.mime,
+      "Content-Disposition": `attachment; filename="${String(f.filename).replace(/"/g, "")}"`,
+      "X-Content-Type-Options": "nosniff",
+      "Cache-Control": "private, no-store",
+    },
+  });
 });
 
 // Cek status booking: wajib nomor HP + kode booking (atau email lama untuk booking sebelum form ringkas).
@@ -1588,6 +1742,30 @@ async function selfTest() {
         await sql`DELETE FROM loyalty_rewards WHERE id = ${rw.id}::uuid`;
       } finally {
         await sql`DELETE FROM users WHERE id IN (${ua.id}::uuid, ${ub.id}::uuid)`;
+      }
+    }
+    // Karier: lamar dengan CV PDF kecil, cek duplikat, CV tidak bisa diunduh/dibaca publik (data uji dihapus)
+    {
+      const [job] = await sql`INSERT INTO jobs (title, is_active) VALUES (${`Self Test Job ${Date.now()}`}, true) RETURNING id, slug`;
+      try {
+        const mk = (email: string, cvBytes: Uint8Array) => {
+          const fd = new FormData();
+          fd.set("job_id", job.id); fd.set("full_name", "Tes Pelamar"); fd.set("email", email); fd.set("phone", "081234567890");
+          fd.set("cv", new File([cvBytes], "cv tes.pdf", { type: "application/pdf" }));
+          return app.fetch(new Request("http://local/functions/v1/careers/apply", { method: "POST", body: fd }));
+        };
+        const pdf = new TextEncoder().encode("%PDF-1.4\n%self-test\n");
+        const ok = await mk("tes@kediaman.invalid", pdf);
+        const dup = await mk("tes@kediaman.invalid", pdf);
+        const bad = await mk("tes2@kediaman.invalid", new TextEncoder().encode("MZ bukan pdf"));
+        const anonCv = await app.fetch(new Request(`http://local/functions/v1/careers/cv/${crypto.randomUUID()}`));
+        const anonApps = await call("/rest/v1/query", { table: "job_applications", action: "select", select: "id" });
+        const anonFiles = await call("/rest/v1/query", { table: "job_application_files", action: "select" });
+        const pub = await call("/rest/v1/query", { table: "jobs", action: "select", select: "id,slug", filters: [["id", "eq", job.id]] });
+        out.push(`karir lamar=${ok.status} duplikat=${dup.status} bukanPdf=${bad.status} cvAnon=${anonCv.status} pelamarAnon=${anonApps.status} berkasAnon=${anonFiles.status} lowonganPublik=${pub.json.data?.length} slug=${job.slug}`);
+      } finally {
+        await sql`DELETE FROM job_applications WHERE job_id = ${job.id}::uuid`;
+        await sql`DELETE FROM jobs WHERE id = ${job.id}::uuid`;
       }
     }
     if (env.ANTHROPIC_API_KEY) {

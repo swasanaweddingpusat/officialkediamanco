@@ -44,6 +44,9 @@ const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
 const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const Rewards = lazy(() => import("./pages/Rewards"));
+const Careers = lazy(() => import("./pages/Careers"));
+const CareerDetail = lazy(() => import("./pages/CareerDetail"));
+const AdminCareers = lazy(() => import("./pages/admin/AdminCareers"));
 const AdminLoyalty = lazy(() => import("./pages/admin/AdminLoyalty"));
 import { DeferredChat } from "./components/DeferredChat";
 import { RouteIndexingManager } from "./components/RouteIndexingManager";
@@ -86,6 +89,8 @@ const App = () => (
               <Route path="/booking/track" element={<BookingTrack />} />
               <Route path="/berhenti-langganan" element={<Unsubscribe />} />
               <Route path="/rewards" element={<Rewards />} />
+              <Route path="/karir" element={<Careers />} />
+              <Route path="/karir/:slug" element={<CareerDetail />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="/admin" element={<Admin />} />
@@ -103,6 +108,7 @@ const App = () => (
               <Route path="/admin/reviews" element={<AdminReviews />} />
               <Route path="/admin/newsletter" element={<AdminNewsletter />} />
               <Route path="/admin/loyalty" element={<AdminLoyalty />} />
+              <Route path="/admin/careers" element={<AdminCareers />} />
               <Route path="/admin/ballroom-schedules" element={<AdminBallroomSchedules />} />
               <Route path="/admin/ballroom-bookings" element={<AdminBallroomBookings />} />
               <Route path="*" element={<NotFound />} />

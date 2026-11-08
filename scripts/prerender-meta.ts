@@ -29,6 +29,7 @@ export const MAIN_SECTIONS = [
   { name: "Artikel", path: "/artikel" },
   { name: "Bantuan", path: "/bantuan" },
   { name: "Rewards", path: "/rewards" },
+  { name: "Karier", path: "/karir" },
 ];
 
 const HOME = { name: "Beranda", path: "/" };
@@ -96,6 +97,13 @@ export const STATIC_PAGES: PageMeta[] = [
     description: "Ajak teman booking venue di Kediaman, kumpulkan poin, dan tukarkan dengan bonus menarik untuk acara Anda.",
     heading: "Kediaman Rewards",
     breadcrumbs: [HOME, { name: "Rewards", path: "/rewards" }],
+  },
+  {
+    path: "/karir",
+    title: `Karier & Lowongan Kerja | ${SITE_NAME}`,
+    description: "Bergabung bersama tim Kediaman: lowongan kerja di bidang venue, sales, operasional event, kreatif, dan lainnya.",
+    heading: "Karier di Kediaman",
+    breadcrumbs: [HOME, { name: "Karier", path: "/karir" }],
   },
   {
     path: "/artikel",
