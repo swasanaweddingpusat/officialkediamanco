@@ -289,7 +289,7 @@ const LocationDetail = () => {
       </div>
 
       {/* Tab bagian */}
-      <nav aria-label="Bagian halaman" className="sticky top-[7.25rem] md:top-16 lg:top-[6.25rem] z-30 bg-card border-y border-border">
+      <nav aria-label="Bagian halaman" className="sticky top-[7.25rem] md:top-16 lg:top-[6.875rem] z-30 bg-card border-y border-border">
         <div className="ota-container ota-scroll-x gap-6 text-sm font-bold">
           {visibleTabs.map((t) => <a key={t.id} href={`#${t.id}`} className="py-3 shrink-0 border-b-2 border-transparent hover:border-primary hover:text-primary">{t.label}</a>)}
         </div>
