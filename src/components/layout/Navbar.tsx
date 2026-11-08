@@ -13,7 +13,7 @@ export const NAV_LINKS = [
   { name: 'Paket & Harga', href: '/harga' },
   { name: 'Promo', href: '/promo' },
   { name: 'Portfolio', href: '/portfolio' },
-  { name: 'Ulasan', href: '/ulasan', wide: true },
+  { name: 'Karier', href: '/karir' },
   { name: 'Rewards', href: '/rewards' },
   { name: 'Artikel', href: '/artikel', wide: true },
   { name: 'Tentang', href: '/tentang-kami' },
@@ -85,7 +85,6 @@ export function Navbar() {
         <div className="ota-container flex justify-end gap-6 py-1.5 text-xs text-muted-foreground">
           <Link to="/promo" className="hover:text-foreground">Promo</Link>
           <Link to="/booking/track" className="hover:text-foreground">Cek status booking</Link>
-          <Link to="/karir" className="hover:text-foreground">Karier</Link>
           <Link to="/rewards" className="hover:text-foreground">{user ? 'Poin saya' : 'Rewards'}</Link>
           <Link to="/bantuan" className="hover:text-foreground">Bantuan</Link>
           <a href={wa} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">WhatsApp</a>
