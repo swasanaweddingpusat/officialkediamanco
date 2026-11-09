@@ -16,6 +16,13 @@ import { cn } from '@/lib/utils';
 type Content = Record<string, any>;
 type Section = { id: string; section_type: string; is_visible: boolean; sort_order: number; content: Content | null; styling: Content | null };
 
+// Link CTA lama dari CMS (mis. "/locations") diarahkan ke route yang benar
+const fixLink = (href?: string) => {
+  const h = (href || '').trim();
+  if (!h) return '/lokasi';
+  return h.replace(/^(https?:\/\/(www\.)?kediaman\.co)?\/locations(?=\/|$|\?|#)/, '/lokasi');
+};
+
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.5, ease: [0.4, 0, 0.2, 1] as const } }),
@@ -235,7 +242,7 @@ const Classes = () => {
           <h2 className="mt-3 text-2xl md:text-4xl font-extrabold tracking-tight">{content.title || 'Wujudkan acara impian Anda bersama kami'}</h2>
           {content.description && <p className="mt-3 text-primary-foreground/80 leading-relaxed">{content.description}</p>}
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            <a href={content.button_link || '/lokasi'} className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-gold text-primary font-extrabold text-sm hover:brightness-105">
+            <a href={fixLink(content.button_link)} className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-gold text-primary font-extrabold text-sm hover:brightness-105">
               {content.button_text || 'Cari venue'}<ArrowRight className="size-4" aria-hidden="true" />
             </a>
             {(content.show_whatsapp ?? true) && waLink && (

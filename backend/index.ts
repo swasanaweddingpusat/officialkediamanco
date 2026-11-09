@@ -33,6 +33,11 @@ const SESSION_SECONDS = 60 * 60 * 24 * 7;
 // 1. Schema tambahan (tabel yang belum ada di ekspor CSV). Idempoten.
 // ---------------------------------------------------------------------
 const BOOTSTRAP = `
+-- Perbaikan link CTA lama "/locations" (404) → "/lokasi"
+DO $fixcta$ BEGIN
+  UPDATE about_sections SET content = jsonb_set(content, '{button_link}', to_jsonb(regexp_replace(content->>'button_link', '/locations', '/lokasi')))
+    WHERE content->>'button_link' ~ '/locations(/|$)';
+EXCEPTION WHEN others THEN NULL; END $fixcta$;
 CREATE TABLE IF NOT EXISTS features (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text NOT NULL,

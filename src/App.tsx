@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { useDynamicFavicon } from "@/hooks/useDynamicFavicon";
 import { HelmetProvider } from "react-helmet-async";
@@ -58,6 +58,11 @@ function FaviconManager() {
   return null;
 }
 
+const LegacyLocationRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/lokasi/${id ?? ''}`} replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
@@ -84,6 +89,9 @@ const App = () => (
               <Route path="/ulasan" element={<Reviews />} />
               <Route path="/lokasi" element={<Locations />} />
               <Route path="/lokasi/:id" element={<LocationDetail />} />
+              {/* URL lama (bahasa Inggris) → halaman venue */}
+              <Route path="/locations" element={<Navigate to="/lokasi" replace />} />
+              <Route path="/locations/:id" element={<LegacyLocationRedirect />} />
               <Route path="/artikel" element={<Blog />} />
               <Route path="/artikel/:slug" element={<ArticleDetail />} />
               <Route path="/booking/track" element={<BookingTrack />} />
