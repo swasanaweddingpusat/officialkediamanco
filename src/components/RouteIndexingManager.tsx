@@ -16,6 +16,7 @@ const PUBLIC_ROUTE_PATTERNS = [
   /^\/bantuan\/?$/,
   /^\/rewards\/?$/,
   /^\/aplikasi\/?$/,
+  /^\/kebijakan-privasi\/?$/,
   /^\/karir(?:\/[^/]+)?\/?$/,
   /^\/lokasi(?:\/[^/]+)?\/?$/,
   /^\/artikel(?:\/[^/]+)?\/?$/,

@@ -83,7 +83,13 @@ export function Footer() {
         ))}
       </div>
       <div className="border-t border-primary-foreground/15">
-        <p className="ota-container py-5 text-xs text-primary-foreground/70">© {new Date().getFullYear()} {settings?.site_name || 'Kediaman Corp'} · The Best Choice Venue Operator</p>
+        <div className="ota-container py-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-xs text-primary-foreground/70">
+          <p>© {new Date().getFullYear()} {settings?.site_name || 'Kediaman Corp'} · The Best Choice Venue Operator</p>
+          <p className="flex gap-4">
+            <Link to="/kebijakan-privasi" className="hover:text-primary-foreground">Kebijakan privasi</Link>
+            <Link to="/hapus-akun" className="hover:text-primary-foreground">Hapus akun</Link>
+          </p>
+        </div>
       </div>
     </footer>
   );

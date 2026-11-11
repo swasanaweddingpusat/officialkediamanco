@@ -1211,6 +1211,45 @@ app.get("/functions/v1/loyalty/me", async (c) => {
   }
 });
 
+// Hapus akun sendiri (wajib Play Store/App Store untuk aplikasi yang punya fitur akun).
+// Perlu password ulang. Data akun & Rewards dihapus; riwayat booking tetap untuk keperluan
+// administrasi tetapi tidak lagi terhubung ke akun (user_id SET NULL).
+app.post("/functions/v1/account/delete", async (c) => {
+  try {
+    if (limited(`acct-del:${ip(c)}`, 5)) return tooMany(c);
+    const ctx = await getCtx(c.req.header("authorization"));
+    if (!ctx.userId) throw new ApiError(401, "Silakan masuk dulu", "UNAUTHENTICATED");
+    if (ctx.isAdmin) throw new ApiError(403, "Akun admin tidak bisa dihapus dari sini. Hubungi pengelola situs.", "ADMIN");
+    const { password, confirm } = await c.req.json().catch(() => ({}));
+    if (String(confirm ?? "").trim().toUpperCase() !== "HAPUS") throw new ApiError(400, "Ketik HAPUS untuk konfirmasi");
+    const [u] = await sql`SELECT id, password_hash FROM users WHERE id = ${ctx.userId}::uuid`;
+    if (!u) throw new ApiError(404, "Akun tidak ditemukan");
+    const ok = u.password_hash ? await Bun.password.verify(String(password ?? ""), u.password_hash) : false;
+    if (!ok) throw new ApiError(400, "Password salah");
+    const id = String(u.id);
+    try {
+      await sql.begin(async (tx) => {
+        await tx`DELETE FROM loyalty_members WHERE user_id = ${id}::uuid`;
+        await tx`DELETE FROM user_roles WHERE user_id = ${id}::uuid`;
+        await tx`DELETE FROM profiles WHERE user_id = ${id}::uuid`;
+        await tx`DELETE FROM users WHERE id = ${id}::uuid`;
+      });
+    } catch (e) {
+      // Ada relasi lain yang menahan baris users: anonimkan saja supaya tidak bisa dipakai/dikenali lagi.
+      console.error("account delete fallback:", (e as Error)?.message);
+      await sql.begin(async (tx) => {
+        await tx`DELETE FROM loyalty_members WHERE user_id = ${id}::uuid`;
+        await tx`DELETE FROM user_roles WHERE user_id = ${id}::uuid`;
+        await tx`UPDATE profiles SET email = ${`deleted-${id}@deleted.invalid`} WHERE user_id = ${id}::uuid`;
+        await tx`UPDATE users SET email = ${`deleted-${id}@deleted.invalid`}, password_hash = ${await Bun.password.hash(crypto.randomUUID())} WHERE id = ${id}::uuid`;
+      });
+    }
+    return c.json({ ok: true });
+  } catch (e) {
+    return loyaltyFail(c, e);
+  }
+});
+
 app.post("/functions/v1/loyalty/join", async (c) => {
   try {
     if (limited(`loyalty-join:${ip(c)}`, 5, 10 * 60_000)) return tooMany(c, "Terlalu banyak percobaan, coba lagi nanti.", 600);
@@ -1715,6 +1754,22 @@ async function selfTest() {
     let rl = 0; for (let i = 0; i < 4; i++) if (limited("self-test-rl", 3)) rl++;
     hits.delete("self-test-rl");
     out.push(`ratelimit=${rl === 1 ? "ok" : "GAGAL"}`);
+    // Hapus akun sendiri: salah password ditolak, benar terhapus, lalu tidak bisa login
+    {
+      const em = `del-${Date.now()}@kediaman.invalid`, pw = "uji-hapus-akun-123";
+      const [ud] = await sql`INSERT INTO users (email, password_hash) VALUES (${em}, ${await Bun.password.hash(pw)}) RETURNING *`;
+      const tk = (await makeSession(ud)).access_token;
+      try {
+        const anon = await call("/functions/v1/account/delete", { password: pw, confirm: "HAPUS" });
+        const bad = await call("/functions/v1/account/delete", { password: "salah", confirm: "HAPUS" }, tk);
+        const good = await call("/functions/v1/account/delete", { password: pw, confirm: "HAPUS" }, tk);
+        const login = await call("/auth/v1/token", { email: em, password: pw });
+        out.push(`hapusAkun anon=${anon.status} salah=${bad.status} ok=${good.status} loginSetelah=${login.status}`);
+      } finally {
+        await sql`DELETE FROM users WHERE id = ${ud.id}::uuid OR email = ${em}`;
+        hits.delete("acct-del:unknown");
+      }
+    }
     // Loyalty: daftar, referral, booking dikonfirmasi -> poin, tukar, tolak -> refund (data uji dihapus)
     {
       const stamp = Date.now();

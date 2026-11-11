@@ -31,9 +31,14 @@ function detectPlatform(): InstallPlatform {
   return 'other';
 }
 
+/** Berjalan di dalam aplikasi native (Capacitor) dari Play Store / App Store. */
+export const isNativeApp = (): boolean =>
+  typeof window !== 'undefined' &&
+  !!(window as Window & { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.();
+
 const isStandalone = () =>
   typeof window !== 'undefined' &&
-  (window.matchMedia?.('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true);
+  (isNativeApp() || window.matchMedia?.('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true);
 
 function compute(): InstallState {
   const platform = detectPlatform();
@@ -81,7 +86,7 @@ export function initPwa(): void {
 
   // Service worker hanya di build produksi & bukan di dalam iframe (pratinjau editor)
   const inFrame = window.self !== window.top;
-  if (import.meta.env.PROD && !inFrame && 'serviceWorker' in navigator) {
+  if (import.meta.env.PROD && !inFrame && !isNativeApp() && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch((err) => console.warn('SW gagal didaftarkan', err));
     });

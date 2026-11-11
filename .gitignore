@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Proyek native dibuat ulang otomatis oleh GitHub Actions (mobile-*.yml)
+/android/
+/ios/

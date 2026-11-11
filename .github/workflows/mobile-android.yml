@@ -1,0 +1,105 @@
+# Build aplikasi Android (Play Store) dari website kediaman.co dengan Capacitor.
+# Jalankan manual: GitHub → Actions → "Mobile · Android" → Run workflow.
+#
+# Secret repo yang dibutuhkan (Settings → Secrets and variables → Actions):
+#   ANDROID_KEYSTORE_BASE64     isi file upload-keystore.jks dalam base64 (dari workflow "Mobile · Buat kunci Android")
+#   ANDROID_KEYSTORE_PASSWORD   password keystore & key
+#   ANDROID_KEY_ALIAS           alias key (default: upload)
+#   PLAY_SERVICE_ACCOUNT_JSON   (opsional) JSON service account Play Console → upload otomatis ke jalur internal/production
+name: "Mobile · Android"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: "Versi yang tampil di Play Store (mis. 1.0.0)"
+        required: true
+        default: "1.0.0"
+      track:
+        description: "Jalur Play Store bila upload otomatis aktif"
+        type: choice
+        options: [internal, closedTesting, production]
+        default: internal
+
+concurrency:
+  group: mobile-android
+  cancel-in-progress: false
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+
+      - name: Siapkan proyek Android
+        run: |
+          [ -d android ] || npx cap add android
+          npx --yes @capacitor/assets@3 generate --android \
+            --iconBackgroundColor '#17261F' --iconBackgroundColorDark '#17261F' \
+            --splashBackgroundColor '#17261F' --splashBackgroundColorDark '#17261F'
+          npx cap sync android
+
+      - name: Set versi
+        env:
+          VERSION_NAME: ${{ inputs.version_name }}
+          VERSION_CODE: ${{ github.run_number }}
+        run: |
+          f=android/app/build.gradle
+          sed -i -E "s/versionCode [0-9]+/versionCode $((VERSION_CODE + 100))/" "$f"
+          sed -i -E "s/versionName \"[^\"]*\"/versionName \"${VERSION_NAME}\"/" "$f"
+          grep -E "versionCode|versionName|applicationId" "$f"
+
+      - name: Build AAB
+        working-directory: android
+        run: ./gradlew --no-daemon bundleRelease
+
+      - name: Tanda tangani AAB
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KS_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          if [ -z "$KS_B64" ] || [ -z "$KS_PASS" ]; then
+            echo "::error::Secret ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASSWORD belum diisi. Jalankan workflow 'Mobile · Buat kunci Android' dulu."
+            exit 1
+          fi
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          aab=android/app/build/outputs/bundle/release/app-release.aab
+          jarsigner -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore "$RUNNER_TEMP/upload.jks" -storepass "$KS_PASS" -keypass "$KS_PASS" \
+            "$aab" "${KS_ALIAS:-upload}"
+          jarsigner -verify "$aab" | tail -1
+          mkdir -p out && cp "$aab" "out/kediaman-${{ inputs.version_name }}-${{ github.run_number }}.aab"
+          rm -f "$RUNNER_TEMP/upload.jks"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kediaman-android-${{ inputs.version_name }}-${{ github.run_number }}
+          path: out/*.aab
+          retention-days: 30
+
+      - name: Upload ke Play Console
+        if: env.HAS_PLAY == 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: co.kediaman.app
+          releaseFiles: out/*.aab
+          track: ${{ inputs.track }}
+          status: ${{ inputs.track == 'internal' && 'completed' || 'draft' }}

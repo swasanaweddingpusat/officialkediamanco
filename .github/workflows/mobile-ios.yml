@@ -1,0 +1,110 @@
+# Build & upload aplikasi iPhone ke App Store Connect (TestFlight) dengan Capacitor, di runner macOS.
+# Jalankan manual: GitHub → Actions → "Mobile · iOS" → Run workflow.
+#
+# Persiapan (sekali) di developer.apple.com / appstoreconnect.apple.com:
+#   - Buat app baru di App Store Connect dengan Bundle ID co.kediaman.app.
+#   - Users and Access → Integrations → App Store Connect API → buat key dengan akses "App Manager".
+# Secret repo:
+#   APPLE_TEAM_ID      Team ID (10 karakter, Membership details)
+#   ASC_KEY_ID         Key ID API key
+#   ASC_ISSUER_ID      Issuer ID
+#   ASC_KEY_P8_BASE64  isi file AuthKey_XXXX.p8 dalam base64
+name: "Mobile · iOS"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: "Versi yang tampil di App Store (mis. 1.0.0)"
+        required: true
+        default: "1.0.0"
+
+concurrency:
+  group: mobile-ios
+  cancel-in-progress: false
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Pilih Xcode terbaru
+        run: |
+          latest=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          sudo xcode-select -s "$latest"
+          xcodebuild -version
+
+      - name: Cek secret
+        env:
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+          KID: ${{ secrets.ASC_KEY_ID }}
+          ISS: ${{ secrets.ASC_ISSUER_ID }}
+          P8: ${{ secrets.ASC_KEY_P8_BASE64 }}
+        run: |
+          for v in TEAM KID ISS P8; do
+            if [ -z "${!v}" ]; then echo "::error::Secret Apple belum lengkap (APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8_BASE64)."; exit 1; fi
+          done
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+
+      - name: Siapkan proyek iOS
+        run: |
+          [ -d ios ] || npx cap add ios
+          npx --yes @capacitor/assets@3 generate --ios \
+            --iconBackgroundColor '#17261F' --splashBackgroundColor '#17261F' --splashBackgroundColorDark '#17261F'
+          npx cap sync ios
+
+      - name: Info.plist & versi
+        env:
+          VERSION_NAME: ${{ inputs.version_name }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          plist=ios/App/App/Info.plist
+          pb=/usr/libexec/PlistBuddy
+          $pb -c "Set :CFBundleDisplayName Kediaman" "$plist" 2>/dev/null || $pb -c "Add :CFBundleDisplayName string Kediaman" "$plist"
+          $pb -c "Add :ITSAppUsesNonExemptEncryption bool false" "$plist" 2>/dev/null || $pb -c "Set :ITSAppUsesNonExemptEncryption false" "$plist"
+          $pb -c "Add :NSPhotoLibraryUsageDescription string 'Untuk memilih berkas (mis. CV) yang ingin Anda unggah.'" "$plist" 2>/dev/null || true
+          $pb -c "Add :NSCameraUsageDescription string 'Untuk memotret dokumen yang ingin Anda unggah.'" "$plist" 2>/dev/null || true
+          cd ios/App
+          sed -i '' -E "s/MARKETING_VERSION = [^;]+;/MARKETING_VERSION = ${VERSION_NAME};/g" App.xcodeproj/project.pbxproj
+          sed -i '' -E "s/CURRENT_PROJECT_VERSION = [^;]+;/CURRENT_PROJECT_VERSION = ${BUILD_NUMBER};/g" App.xcodeproj/project.pbxproj
+          grep -m2 -E "MARKETING_VERSION|CURRENT_PROJECT_VERSION" App.xcodeproj/project.pbxproj
+
+      - name: Archive & upload ke App Store Connect
+        env:
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+          KID: ${{ secrets.ASC_KEY_ID }}
+          ISS: ${{ secrets.ASC_ISSUER_ID }}
+          P8: ${{ secrets.ASC_KEY_P8_BASE64 }}
+        run: |
+          KEY="$RUNNER_TEMP/AuthKey_${KID}.p8"
+          echo "$P8" | base64 -d > "$KEY"
+          cd ios/App
+          if [ -d App.xcworkspace ]; then SRC=(-workspace App.xcworkspace); else SRC=(-project App.xcodeproj); fi
+          AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$KID" -authenticationKeyIssuerID "$ISS")
+          xcodebuild "${SRC[@]}" -scheme App -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic \
+            PRODUCT_BUNDLE_IDENTIFIER=co.kediaman.app "${AUTH[@]}" -quiet archive
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>${TEAM}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" "${AUTH[@]}"
+          rm -f "$KEY"
+          echo "Terkirim ke App Store Connect. Cek TestFlight ±15–30 menit lagi."

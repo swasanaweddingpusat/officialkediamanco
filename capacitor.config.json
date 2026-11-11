@@ -1,11 +1,25 @@
 {
   "appId": "co.kediaman.app",
   "appName": "Kediaman",
-  "webDir": "dist",
+  "webDir": "mobile/www",
   "server": {
-    "url": "https://kediaman.co",
+    "url": "https://kediaman.co/?source=app",
     "androidScheme": "https",
-    "cleartext": false
+    "cleartext": false,
+    "allowNavigation": [
+      "kediaman.co",
+      "*.kediaman.co"
+    ],
+    "errorPath": "index.html"
   },
-  "backgroundColor": "#FFFFFF"
+  "backgroundColor": "#17261F",
+  "android": {
+    "appendUserAgent": "KediamanApp/Android",
+    "allowMixedContent": false
+  },
+  "ios": {
+    "appendUserAgent": "KediamanApp/iOS",
+    "contentInset": "automatic",
+    "limitsNavigationsToAppBoundDomains": false
+  }
 }

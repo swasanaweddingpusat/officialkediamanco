@@ -9,6 +9,8 @@ import { useDynamicFavicon } from "@/hooks/useDynamicFavicon";
 import { HelmetProvider } from "react-helmet-async";
 const Index = lazy(() => import("./pages/Index"));
 const AppInstall = lazy(() => import("./pages/AppInstall"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const AccountDelete = lazy(() => import("./pages/AccountDelete"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const Packages = lazy(() => import("./pages/Packages"));
 const VenueOnly = lazy(() => import("./pages/VenueOnly"));
@@ -87,6 +89,9 @@ const App = () => (
               <Route path="/promo/:id" element={<ProgramDetail />} />
               <Route path="/harga" element={<PriceList />} />
               <Route path="/aplikasi" element={<AppInstall />} />
+              <Route path="/kebijakan-privasi" element={<PrivacyPolicy />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/hapus-akun" element={<AccountDelete />} />
               <Route path="/bantuan" element={<Help />} />
               <Route path="/ulasan" element={<Reviews />} />
               <Route path="/lokasi" element={<Locations />} />

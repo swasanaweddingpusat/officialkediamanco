@@ -32,6 +32,7 @@ const staticEntries: SitemapEntry[] = [
   { path: "/bantuan", changefreq: "monthly", priority: "0.6" },
   { path: "/rewards", changefreq: "monthly", priority: "0.6" },
   { path: "/aplikasi", changefreq: "monthly", priority: "0.5" },
+  { path: "/kebijakan-privasi", changefreq: "yearly", priority: "0.3" },
   { path: "/karir", changefreq: "weekly", priority: "0.6" },
   { path: "/lokasi", changefreq: "weekly", priority: "0.9" },
   { path: "/artikel", changefreq: "weekly", priority: "0.8" },
