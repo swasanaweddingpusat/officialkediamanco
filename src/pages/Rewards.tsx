@@ -251,7 +251,7 @@ const Rewards = () => {
         <div className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full bg-gold/20 blur-3xl" aria-hidden="true" />
         <div className="pointer-events-none absolute -left-16 bottom-0 size-72 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
         <div className="ota-container relative py-8 md:py-14">
-          <Breadcrumbs items={[{ name: 'Rewards' }]} className="mb-6 [&_a]:text-primary-foreground/70 text-primary-foreground/70" />
+          <Breadcrumbs items={[{ name: 'Rewards' }]} className="mb-6 [&_a]:text-primary-foreground/70 [&_[aria-current]]:text-primary-foreground text-primary-foreground/70" />
           <p className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wide"><Gift className="size-3.5" />{programName}</p>
           <h1 className="mt-4 text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.1] max-w-2xl">Ajak teman, kumpulkan poin, tukar bonus menarik</h1>
           <p className="mt-4 text-primary-foreground/80 max-w-xl">Setiap teman yang booking venue Kediaman lewat kode Anda memberi <span className="font-extrabold text-gold">+{refPts.toLocaleString('id-ID')} poin</span>. Kumpulkan dan tukarkan dengan bonus untuk acara Anda.</p>

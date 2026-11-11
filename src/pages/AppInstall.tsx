@@ -33,7 +33,7 @@ const AppInstall = () => {
         <div className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full bg-gold/20 blur-3xl" aria-hidden="true" />
         <div className="ota-container relative py-8 md:py-14 grid md:grid-cols-[1.2fr_1fr] gap-10 items-center">
           <div>
-            <Breadcrumbs items={[{ name: 'Aplikasi' }]} className="mb-6 [&_a]:text-primary-foreground/70 text-primary-foreground/70" />
+            <Breadcrumbs items={[{ name: 'Aplikasi' }]} className="mb-6 [&_a]:text-primary-foreground/70 [&_[aria-current]]:text-primary-foreground text-primary-foreground/70" />
             <p className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wide"><Smartphone className="size-3.5" />Android & iPhone</p>
             <h1 className="mt-4 text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.1] max-w-xl">Kediaman, langsung dari layar utama HP kamu</h1>
             <p className="mt-4 max-w-lg text-primary-foreground/80">Cari venue, cek jadwal, bandingkan paket, dan pantau status booking — lebih cepat, tanpa buka browser.</p>
