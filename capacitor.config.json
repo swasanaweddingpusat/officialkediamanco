@@ -1,9 +1,11 @@
 {
-  "appId": "app.lovable.508105860d854747ae692bf423cfb55f",
-  "appName": "officialkediamanco",
+  "appId": "co.kediaman.app",
+  "appName": "Kediaman",
   "webDir": "dist",
   "server": {
-    "url": "https://50810586-0d85-4747-ae69-2bf423cfb55f.lovableproject.com?forceHideBadge=true",
-    "cleartext": true
-  }
+    "url": "https://kediaman.co",
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "backgroundColor": "#FFFFFF"
 }

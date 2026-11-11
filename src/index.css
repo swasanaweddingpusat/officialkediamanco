@@ -466,6 +466,10 @@
 .kdm-chat-launcher { bottom: calc(5.5rem + env(safe-area-inset-bottom) + var(--kdm-sticky-offset, 0px)); }
 @media (min-width: 768px) { .kdm-chat-launcher { bottom: calc(1.5rem + var(--kdm-sticky-offset, 0px)); } }
 @media (min-width: 1024px) { .kdm-chat-launcher { bottom: 1.5rem; } }
+/* Banner "Pasang aplikasi" (HP): tombol chat naik supaya tidak menutupi banner */
+@media (max-width: 767px) { html.kdm-install-banner .kdm-chat-launcher { transform: translateY(-5.25rem); transition: transform .25s; } }
+/* Mode aplikasi terpasang: tanpa pull-to-refresh yang tak sengaja & tanpa sorot ketuk biru */
+@media (display-mode: standalone) { html.ota-theme body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; } }
 
 @layer base {
   /* Cegah geser horizontal tak sengaja tanpa merusak position: sticky */

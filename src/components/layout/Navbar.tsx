@@ -5,6 +5,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Menu, Search, X, MessageCircle, Building2, Wallet, Tag, Images, Briefcase, Gift, Newspaper, Info,
   ClipboardCheck, HelpCircle, LayoutDashboard, LogOut, ChevronRight, type LucideIcon,
+  Smartphone,
 } from 'lucide-react';
 import { BookingDialog } from '@/components/booking/BookingDialog';
 import { Button } from '@/components/ui/button';
@@ -212,6 +213,7 @@ export function Navbar() {
               {[
                 { to: '/booking/track', icon: ClipboardCheck, label: 'Cek status booking' },
                 { to: '/bantuan', icon: HelpCircle, label: 'Bantuan / FAQ' },
+                { to: '/aplikasi', icon: Smartphone, label: 'Pasang aplikasi di HP' },
                 ...(user && isAdmin ? [{ to: '/admin', icon: LayoutDashboard, label: 'Panel admin' }] : []),
               ].map((i) => (
                 <Link key={i.to} to={i.to} className="flex items-center gap-3 px-4 py-3.5 text-sm font-semibold hover:bg-muted">

@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { MobileBottomNav } from './MobileBottomNav';
+import { InstallAppBanner } from '@/components/pwa/InstallApp';
 import { useOtaTheme } from '@/hooks/useOtaTheme';
 
 interface LayoutProps {
@@ -18,6 +19,7 @@ export function Layout({ children }: LayoutProps) {
       </main>
       <Footer />
       <MobileBottomNav />
+      <InstallAppBanner />
     </div>
   );
 }

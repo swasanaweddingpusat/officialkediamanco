@@ -99,6 +99,13 @@ export const STATIC_PAGES: PageMeta[] = [
     breadcrumbs: [HOME, { name: "Rewards", path: "/rewards" }],
   },
   {
+    path: "/aplikasi",
+    title: `Aplikasi Kediaman untuk Android & iPhone | ${SITE_NAME}`,
+    description: "Pasang aplikasi Kediaman gratis di Android dan iPhone: cari venue & ballroom, cek jadwal, lihat paket, dan booking langsung dari layar utama HP.",
+    heading: "Aplikasi Kediaman",
+    breadcrumbs: [HOME, { name: "Aplikasi", path: "/aplikasi" }],
+  },
+  {
     path: "/karir",
     title: `Karier & Lowongan Kerja | ${SITE_NAME}`,
     description: "Bergabung bersama tim Kediaman: lowongan kerja di bidang venue, sales, operasional event, kreatif, dan lainnya.",

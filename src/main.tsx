@@ -3,12 +3,14 @@ import App from "./App.tsx";
 import "./index.css";
 import { initAnalytics } from "./lib/analytics";
 import { captureReferralFromUrl } from "./lib/referral";
+import { initPwa } from "./lib/pwa";
 // Font self-host: @font-face di src/index.css, file di public/fonts.
 
 const root = document.getElementById("root");
 if (root) createRoot(root).render(<App />);
 initAnalytics();
 captureReferralFromUrl();
+initPwa();
 
 // index.html may contain a static copy of the home hero (scripts/prerender-meta.ts) so the
 // hero photo paints before this bundle runs. Remove it once the React hero image is ready.

@@ -999,7 +999,7 @@ const SITEMAP_BASE = "https://kediaman.co";
 const SITEMAP_STATIC: [string, string, string][] = [
   ["/", "weekly", "1.0"], ["/landing", "weekly", "0.8"], ["/venue-only", "weekly", "0.8"],
   ["/tentang-kami", "monthly", "0.8"], ["/portfolio", "weekly", "0.8"], ["/paket", "weekly", "0.9"],
-  ["/lokasi", "weekly", "0.9"], ["/artikel", "daily", "0.8"], ["/karir", "weekly", "0.6"],
+  ["/lokasi", "weekly", "0.9"], ["/artikel", "daily", "0.8"], ["/karir", "weekly", "0.6"], ["/aplikasi", "monthly", "0.5"],
 ];
 let sitemapCache: { xml: string; at: number } | null = null;
 const xmlEscape = (v: string) => v.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&apos;");
