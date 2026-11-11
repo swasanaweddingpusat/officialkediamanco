@@ -10,7 +10,7 @@ name: "Mobile · Android"
 
 on:
   push:
-    tags: ['android-v*']   # mis. git tag android-v1.0.0 && git push origin android-v1.0.0
+    branches: ['build/android']   # push ke branch ini = build otomatis (versi dari mobile/VERSION)
   workflow_dispatch:
     inputs:
       version_name:
@@ -32,13 +32,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
-      APP_VERSION: ${{ inputs.version_name || github.ref_name }}
+      APP_VERSION: ${{ inputs.version_name }}
       HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
     steps:
-      - name: Versi dari tag
-        run: echo "APP_VERSION=${APP_VERSION#android-v}" >> "$GITHUB_ENV"
-
       - uses: actions/checkout@v4
+
+      - name: Versi
+        run: |
+          v="${APP_VERSION:-$(tr -d ' \n' < mobile/VERSION)}"
+          echo "APP_VERSION=$v" >> "$GITHUB_ENV"; echo "Versi: $v"
 
       - uses: actions/setup-node@v4
         with:

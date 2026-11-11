@@ -1,12 +1,14 @@
 # Sekali saja: membuat kunci upload Android (upload-keystore.jks).
 # 1. Isi dulu secret ANDROID_KEYSTORE_PASSWORD (minimal 12 karakter, simpan juga di password manager).
-# 2. Jalankan workflow ini, unduh artefak "android-upload-key" (berlaku 1 hari).
+# 2. Jalankan workflow ini (Actions → Run workflow, atau push ke branch build/android-key), unduh artefak "android-upload-key" (berlaku 1 hari).
 # 3. SIMPAN file .jks itu di tempat aman (Google Drive pribadi/password manager) — dipakai untuk semua update.
 # 4. Salin isi upload-keystore.base64.txt ke secret ANDROID_KEYSTORE_BASE64, dan isi ANDROID_KEY_ALIAS = upload.
 # 5. Hapus artefak dari halaman run setelah diunduh.
 name: "Mobile · Buat kunci Android"
 
 on:
+  push:
+    branches: ['build/android-key']   # push ke branch ini = buat kunci (sekali saja)
   workflow_dispatch:
 
 jobs:
