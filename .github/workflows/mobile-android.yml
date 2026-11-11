@@ -2,9 +2,9 @@
 # Jalankan manual: GitHub → Actions → "Mobile · Android" → Run workflow.
 #
 # Secret repo yang dibutuhkan (Settings → Secrets and variables → Actions):
-#   ANDROID_KEYSTORE_BASE64     isi file upload-keystore.jks dalam base64 (dari workflow "Mobile · Buat kunci Android")
+#   ANDROID_KEYSTORE_BASE64     isi upload-keystore.enc.txt (dari workflow "Mobile · Buat kunci Android")
 #   ANDROID_KEYSTORE_PASSWORD   password keystore & key
-#   ANDROID_KEY_ALIAS           alias key (default: upload)
+#   ANDROID_KEY_ALIAS           (opsional) alias key, default: upload
 #   PLAY_SERVICE_ACCOUNT_JSON   (opsional) JSON service account Play Console → upload otomatis ke jalur internal/production
 name: "Mobile · Android"
 
@@ -87,14 +87,20 @@ jobs:
             echo "::error::Secret ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASSWORD belum diisi. Jalankan workflow 'Mobile · Buat kunci Android' dulu."
             exit 1
           fi
-          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/upload.bin"
+          # Kunci dari workflow "Buat kunci Android" terenkripsi (header "Salted__"); dekripsi dengan password yang sama
+          if [ "$(head -c 8 "$RUNNER_TEMP/upload.bin")" = "Salted__" ]; then
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:KS_PASS -in "$RUNNER_TEMP/upload.bin" -out "$RUNNER_TEMP/upload.jks"
+          else
+            mv "$RUNNER_TEMP/upload.bin" "$RUNNER_TEMP/upload.jks"
+          fi
           aab=android/app/build/outputs/bundle/release/app-release.aab
           jarsigner -sigalg SHA256withRSA -digestalg SHA-256 \
             -keystore "$RUNNER_TEMP/upload.jks" -storepass "$KS_PASS" -keypass "$KS_PASS" \
             "$aab" "${KS_ALIAS:-upload}"
           jarsigner -verify "$aab" | tail -1
           mkdir -p out && cp "$aab" "out/kediaman-${{ env.APP_VERSION }}-${{ github.run_number }}.aab"
-          rm -f "$RUNNER_TEMP/upload.jks"
+          rm -f "$RUNNER_TEMP/upload.jks" "$RUNNER_TEMP/upload.bin"
 
       - uses: actions/upload-artifact@v4
         with:

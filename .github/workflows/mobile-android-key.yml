@@ -1,14 +1,17 @@
-# Sekali saja: membuat kunci upload Android (upload-keystore.jks).
-# 1. Isi dulu secret ANDROID_KEYSTORE_PASSWORD (minimal 12 karakter, simpan juga di password manager).
-# 2. Jalankan workflow ini (Actions → Run workflow, atau push ke branch build/android-key), unduh artefak "android-upload-key" (berlaku 1 hari).
-# 3. SIMPAN file .jks itu di tempat aman (Google Drive pribadi/password manager) — dipakai untuk semua update.
-# 4. Salin isi upload-keystore.base64.txt ke secret ANDROID_KEYSTORE_BASE64, dan isi ANDROID_KEY_ALIAS = upload.
-# 5. Hapus artefak dari halaman run setelah diunduh.
+# Sekali saja: membuat kunci upload Android. Repo ini PUBLIK, jadi kunci hanya disimpan dalam
+# bentuk TERENKRIPSI dengan password Anda (AES-256) — artefak aman walau bisa diunduh orang lain.
+#
+# 1. Settings → Secrets and variables → Actions → New repository secret:
+#      ANDROID_KEYSTORE_PASSWORD = password kuat min. 16 karakter (simpan juga di password manager)
+# 2. Actions → "Mobile · Buat kunci Android" → Run workflow (atau minta Claude mem-push branch build/android-key).
+# 3. Buka run-nya → unduh artefak "android-upload-key" → buka file upload-keystore.enc.txt,
+#    salin SELURUH isinya ke secret baru ANDROID_KEYSTORE_BASE64. Simpan juga file itu sebagai cadangan.
+# 4. Hapus artefak dari halaman run. Selesai — workflow "Mobile · Android" bisa dijalankan.
 name: "Mobile · Buat kunci Android"
 
 on:
   push:
-    branches: ['build/android-key']   # push ke branch ini = buat kunci (sekali saja)
+    branches: ['build/android-key']
   workflow_dispatch:
 
 jobs:
@@ -19,17 +22,19 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - name: Buat keystore
+      - name: Buat & enkripsi keystore
         env:
           KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
-          if [ ${#KS_PASS} -lt 12 ]; then echo "::error::Isi secret ANDROID_KEYSTORE_PASSWORD (min. 12 karakter) dulu."; exit 1; fi
+          if [ ${#KS_PASS} -lt 16 ]; then echo "::error::Isi secret ANDROID_KEYSTORE_PASSWORD (min. 16 karakter) dulu."; exit 1; fi
           mkdir key
-          keytool -genkeypair -v -keystore key/upload-keystore.jks -storetype JKS -alias upload \
+          keytool -genkeypair -keystore "$RUNNER_TEMP/upload.jks" -storetype JKS -alias upload \
             -keyalg RSA -keysize 4096 -validity 10000 -storepass "$KS_PASS" -keypass "$KS_PASS" \
-            -dname "CN=Kediaman, O=Kediaman Corp, L=Jakarta, C=ID"
-          base64 -w0 key/upload-keystore.jks > key/upload-keystore.base64.txt
-          keytool -list -v -keystore key/upload-keystore.jks -storepass "$KS_PASS" | grep -E "SHA256|Alias"
+            -dname "CN=Kediaman, O=Kediaman Corp, L=Jakarta, C=ID" 2>/dev/null
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:KS_PASS -in "$RUNNER_TEMP/upload.jks" | base64 -w0 > key/upload-keystore.enc.txt
+          keytool -list -v -keystore "$RUNNER_TEMP/upload.jks" -storepass "$KS_PASS" | grep -E "SHA256:" > key/sidik-jari-sha256.txt
+          rm -f "$RUNNER_TEMP/upload.jks"
+          cat key/sidik-jari-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
           name: android-upload-key
