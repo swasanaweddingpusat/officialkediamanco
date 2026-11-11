@@ -12,6 +12,8 @@
 name: "Mobile · iOS"
 
 on:
+  push:
+    tags: ['ios-v*']   # mis. git tag ios-v1.0.0 && git push origin ios-v1.0.0
   workflow_dispatch:
     inputs:
       version_name:
@@ -26,8 +28,13 @@ concurrency:
 jobs:
   ios:
     runs-on: macos-latest
+    env:
+      APP_VERSION: ${{ inputs.version_name || github.ref_name }}
     timeout-minutes: 60
     steps:
+      - name: Versi dari tag
+        run: echo "APP_VERSION=${APP_VERSION#ios-v}" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -64,7 +71,7 @@ jobs:
 
       - name: Info.plist & versi
         env:
-          VERSION_NAME: ${{ inputs.version_name }}
+          VERSION_NAME: ${{ env.APP_VERSION }}
           BUILD_NUMBER: ${{ github.run_number }}
         run: |
           plist=ios/App/App/Info.plist

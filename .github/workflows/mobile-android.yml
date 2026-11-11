@@ -9,6 +9,8 @@
 name: "Mobile · Android"
 
 on:
+  push:
+    tags: ['android-v*']   # mis. git tag android-v1.0.0 && git push origin android-v1.0.0
   workflow_dispatch:
     inputs:
       version_name:
@@ -30,8 +32,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
+      APP_VERSION: ${{ inputs.version_name || github.ref_name }}
       HAS_PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
     steps:
+      - name: Versi dari tag
+        run: echo "APP_VERSION=${APP_VERSION#android-v}" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -57,7 +63,7 @@ jobs:
 
       - name: Set versi
         env:
-          VERSION_NAME: ${{ inputs.version_name }}
+          VERSION_NAME: ${{ env.APP_VERSION }}
           VERSION_CODE: ${{ github.run_number }}
         run: |
           f=android/app/build.gradle
@@ -85,12 +91,12 @@ jobs:
             -keystore "$RUNNER_TEMP/upload.jks" -storepass "$KS_PASS" -keypass "$KS_PASS" \
             "$aab" "${KS_ALIAS:-upload}"
           jarsigner -verify "$aab" | tail -1
-          mkdir -p out && cp "$aab" "out/kediaman-${{ inputs.version_name }}-${{ github.run_number }}.aab"
+          mkdir -p out && cp "$aab" "out/kediaman-${{ env.APP_VERSION }}-${{ github.run_number }}.aab"
           rm -f "$RUNNER_TEMP/upload.jks"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: kediaman-android-${{ inputs.version_name }}-${{ github.run_number }}
+          name: kediaman-android-${{ env.APP_VERSION }}-${{ github.run_number }}
           path: out/*.aab
           retention-days: 30
 
@@ -101,5 +107,5 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: co.kediaman.app
           releaseFiles: out/*.aab
-          track: ${{ inputs.track }}
-          status: ${{ inputs.track == 'internal' && 'completed' || 'draft' }}
+          track: ${{ inputs.track || 'internal' }}
+          status: ${{ (inputs.track || 'internal') == 'internal' && 'completed' || 'draft' }}
