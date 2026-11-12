@@ -6,7 +6,7 @@
 //   seo     Bima  — Analis SEO & laporan: laporan mingguan (Senin 07:00 WIB) dari data booking, artikel, newsletter, Rewards
 //   social  Nadia — Admin media sosial: tiap pagi draf caption Instagram/TikTok dari artikel, portfolio, promo (perlu disetujui)
 //   guard   Raka  — Penjaga website: cek halaman penting tiap 30 menit, lapor bila error/lambat
-// Agent eksternal (hanya dipantau): writer Dewi (Railway Function article-agent), chat Ayu (chat website).
+// Agent eksternal (hanya dipantau): writer Dewi (Railway Function article-agent), chat Andi (chat website).
 //
 // Aturan: TIDAK ADA yang terkirim ke klien/publik tanpa persetujuan tim. Draf masuk "meja persetujuan"
 // (office_tasks status 'pending'); tim menyetujui lalu mengirim sendiri (WhatsApp dibuka dengan teks terisi).
@@ -348,7 +348,7 @@ export const AGENTS: AgentDef[] = [
   },
   { id: "writer", name: "Dewi", role: "Penulis artikel", avatar: "DW", schedule: "5 artikel/hari, 05:00–00:00 WIB", external: true,
     description: "Menulis artikel SEO berniat booking (umum, syar'i, Gen Z, MICE) lengkap dengan gambar yang dicek relevansinya." },
-  { id: "chat", name: "Ayu", role: "Admin chat website", avatar: "AY", schedule: "24 jam", external: true,
+  { id: "chat", name: "Andi", role: "Admin chat website", avatar: "AN", schedule: "24 jam", external: true,
     description: "Menjawab chat pengunjung seperti admin manusia, cek jadwal ballroom, dan menyimpan kontak calon klien ke Booking masuk." },
 ];
 

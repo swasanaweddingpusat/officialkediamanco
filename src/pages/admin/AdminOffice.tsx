@@ -10,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { PixelOffice } from './office/PixelOffice';
+import { SpriteOffice } from './office/SpriteOffice';
 import { cn } from '@/lib/utils';
 
 type Agent = {
@@ -237,7 +237,7 @@ const AdminOffice = () => {
 
         <TabsContent value="kantor">
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-            <PixelOffice agents={agents} pendingByAgent={pendingByAgent} selectedId={selected?.id ?? null} onSelect={setSelectedId} todayArticles={todayArticles} />
+            <SpriteOffice agents={agents} pendingByAgent={pendingByAgent} selectedId={selected?.id ?? null} onSelect={setSelectedId} todayArticles={todayArticles} />
             <div className="space-y-3">
               {selected ? <AgentCard a={selected} /> : <p className="text-sm text-muted-foreground">Memuat karyawan…</p>}
               {(pendingByAgent[selected?.id ?? ''] ?? 0) > 0 && (
