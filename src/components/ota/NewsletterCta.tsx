@@ -41,7 +41,7 @@ export function NewsletterCta({ source = 'homepage' }: { source?: string }) {
       <div className="pointer-events-none absolute -right-16 -top-16 size-64 rounded-full bg-gold/20 blur-3xl" aria-hidden="true" />
       <div className="pointer-events-none absolute -left-10 -bottom-20 size-56 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
 
-      <div className="relative grid lg:grid-cols-2 gap-6 lg:gap-10 p-6 md:p-10 items-center">
+      <div className="relative grid lg:grid-cols-2 gap-6 lg:gap-10 p-5 sm:p-6 md:p-10 items-center">
         <div>
           <p className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wide">
             <Mail className="size-3.5" aria-hidden="true" /> Newsletter Kediaman
@@ -59,7 +59,7 @@ export function NewsletterCta({ source = 'homepage' }: { source?: string }) {
           </ul>
         </div>
 
-        <div className="rounded-2xl bg-white/[0.06] ring-1 ring-white/10 p-5 md:p-6">
+        <div className="min-w-0 rounded-2xl bg-white/[0.06] ring-1 ring-white/10 p-4 sm:p-5 md:p-6">
           {state === 'done' ? (
             <div className="text-center py-4" role="status">
               <CheckCircle2 className="size-10 mx-auto text-gold" aria-hidden="true" />
@@ -69,7 +69,7 @@ export function NewsletterCta({ source = 'homepage' }: { source?: string }) {
           ) : (
             <form onSubmit={submit} noValidate>
               <label htmlFor="newsletter-email" className="text-sm font-bold">Email Anda</label>
-              <div className="mt-2 flex flex-col sm:flex-row gap-2">
+              <div className="mt-2 flex flex-col sm:flex-row gap-2.5 sm:gap-2">
                 <input
                   id="newsletter-email"
                   type="email"
@@ -81,12 +81,12 @@ export function NewsletterCta({ source = 'homepage' }: { source?: string }) {
                   placeholder="nama@email.com"
                   aria-invalid={state === 'error'}
                   aria-describedby="newsletter-help"
-                  className="h-12 flex-1 rounded-xl bg-white px-4 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-gold"
+                  className="h-12 w-full min-w-0 shrink-0 sm:flex-1 sm:shrink rounded-xl bg-white px-4 text-base sm:text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-gold"
                 />
                 <button
                   type="submit"
                   disabled={state === 'loading'}
-                  className="h-12 px-6 rounded-xl bg-gold text-primary font-extrabold text-sm hover:brightness-105 disabled:opacity-70 inline-flex items-center justify-center gap-2"
+                  className="h-12 w-full sm:w-auto shrink-0 px-6 rounded-xl bg-gold text-primary font-extrabold text-base sm:text-sm hover:brightness-105 disabled:opacity-70 inline-flex items-center justify-center gap-2"
                 >
                   {state === 'loading' && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
                   Langganan
