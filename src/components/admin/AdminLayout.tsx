@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Image, Zap, Tag, Users, MapPin, Settings, LogOut, CalendarDays, CalendarCheck, FileText,
-  Video, Info, Wallet, HelpCircle, Star, Menu, ExternalLink, Mail, Gift, Briefcase, type LucideIcon,
+  Video, Info, Wallet, HelpCircle, Star, Menu, ExternalLink, Mail, Gift, Briefcase, Bot, type LucideIcon,
 } from 'lucide-react';
 import { useOtaTheme } from '@/hooks/useOtaTheme';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,7 +20,7 @@ interface AdminLayoutProps {
 type NavItem = { name: string; href: string; icon: LucideIcon; badge?: 'pending' };
 
 const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
-  { label: 'Ringkasan', items: [{ name: 'Dashboard', href: '/admin', icon: LayoutDashboard }] },
+  { label: 'Ringkasan', items: [{ name: 'Dashboard', href: '/admin', icon: LayoutDashboard }, { name: 'Kantor virtual', href: '/admin/kantor', icon: Bot }] },
   {
     label: 'Booking',
     items: [

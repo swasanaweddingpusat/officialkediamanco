@@ -53,6 +53,7 @@ const Careers = lazyPage(() => import("./pages/Careers"));
 const CareerDetail = lazyPage(() => import("./pages/CareerDetail"));
 const AdminCareers = lazyPage(() => import("./pages/admin/AdminCareers"));
 const AdminLoyalty = lazyPage(() => import("./pages/admin/AdminLoyalty"));
+const AdminOffice = lazyPage(() => import("./pages/admin/AdminOffice"));
 import { DeferredChat } from "./components/DeferredChat";
 import { RouteIndexingManager } from "./components/RouteIndexingManager";
 
@@ -148,6 +149,7 @@ const App = () => (
               <Route path="/admin/reviews" element={<AdminReviews />} />
               <Route path="/admin/newsletter" element={<AdminNewsletter />} />
               <Route path="/admin/loyalty" element={<AdminLoyalty />} />
+              <Route path="/admin/kantor" element={<AdminOffice />} />
               <Route path="/admin/careers" element={<AdminCareers />} />
               <Route path="/admin/ballroom-schedules" element={<AdminBallroomSchedules />} />
               <Route path="/admin/ballroom-bookings" element={<AdminBallroomBookings />} />

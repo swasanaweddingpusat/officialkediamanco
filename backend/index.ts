@@ -22,6 +22,7 @@ import { sign, verify } from "hono/jwt";
 import { SQL, S3Client } from "bun";
 import sharp from "sharp";
 import { randomBytes, timingSafeEqual } from "node:crypto";
+import { officeBootstrap, registerOfficeRoutes, startOfficeScheduler } from "./office";
 
 const env = Bun.env;
 const sql = new SQL(env.DATABASE_URL!);
@@ -585,7 +586,7 @@ export function authorize(table: string, action: string, ctx: Ctx, values?: any[
 // ---------------------------------------------------------------------
 type Schema = Record<string, Record<string, string>>; // table -> column -> udt_name
 let schema: Schema = {};
-const HIDDEN_TABLES = new Set(["users", "venue_interest_events", "job_application_files"]);
+const HIDDEN_TABLES = new Set(["users", "venue_interest_events", "job_application_files", "office_agents", "office_runs", "office_tasks"]);
 
 async function loadSchema() {
   const rows = await sql`SELECT table_name, column_name, udt_name FROM information_schema.columns
@@ -1699,11 +1700,16 @@ app.post("/functions/v1/chat", async (c) => {
   }
 });
 
+// Kantor virtual (karyawan agent) — lihat backend/office.ts
+const officeDeps = { app, sql, getCtx, limited, ip, tooMany, env: env as Record<string, string | undefined> };
+registerOfficeRoutes(officeDeps);
+
 // ---------------------------------------------------------------------
 // 6. Start
 // ---------------------------------------------------------------------
 async function startup() {
   await sql.unsafe(BOOTSTRAP).simple();
+  await officeBootstrap(sql);
   await loadSchema();
   console.log(`Schema dimuat: ${Object.keys(schema).length} tabel.`);
 
@@ -1793,6 +1799,13 @@ async function selfTest() {
         const ok2 = r2.status === 301 && r2.headers.get("location") === "https://kediaman.co/lokasi";
         out.push(`legacyRedirect=${ok1 && ok2 ? "ok" : `GAGAL(${r1.status} ${r1.headers.get("location")} | ${r2.status} ${r2.headers.get("location")})`}`);
       }
+    }
+    // Kantor virtual: endpoint khusus admin, tabel siap, agent terdaftar
+    {
+      const anon = await app.fetch(new Request("http://local/functions/v1/office"));
+      const [{ n: agentsN }] = await sql`SELECT count(*)::int AS n FROM office_agents`;
+      const hidden = await call("/rest/v1/query", { table: "office_tasks", action: "select", select: "*", filters: [], order: [], limit: 1 });
+      out.push(`kantor anon=${anon.status} agents=${agentsN} restTersembunyi=${hidden.status}`);
     }
     // Hapus akun sendiri: salah password ditolak, benar terhapus, lalu tidak bisa login
     {
@@ -1909,4 +1922,5 @@ if (import.meta.main !== false && env.DATABASE_URL) {
   await selfTest();
   Bun.serve({ port: Number(env.PORT ?? 3000), fetch: app.fetch, idleTimeout: 120, maxRequestBodySize: 200 * 1024 * 1024 });
   console.log("kediaman-api siap.");
+  startOfficeScheduler(officeDeps);
 }
