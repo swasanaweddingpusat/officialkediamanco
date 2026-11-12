@@ -535,3 +535,30 @@
 }
 
 @keyframes kdm-progress { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+
+/* ---------- Kantor virtual pixel (admin) ---------- */
+.px-idle, .px-type-bob, .px-sleep, .px-plumbob, .px-bounce, .px-hand-l, .px-hand-r { transform-box: fill-box; }
+.px-idle { animation: px-idle 3.2s steps(2) infinite; }
+.px-type-bob { animation: px-idle 0.9s steps(2) infinite; }
+.px-sleep { transform: translateY(3px); }
+.px-hand-l { animation: px-hand 0.28s steps(2) infinite; }
+.px-hand-r { animation: px-hand 0.28s steps(2) infinite reverse; }
+.px-plumbob { animation: px-plumbob 2.4s ease-in-out infinite; }
+.px-bounce { animation: px-bounce 1.2s steps(3) infinite; }
+.px-screen { animation: px-screen 1.6s steps(4) infinite; }
+.px-zzz { animation: px-zzz 2.4s steps(6) infinite; }
+.px-blink { animation: px-blink 0.8s steps(2) infinite; }
+.px-blink-slow { animation: px-blink 2.6s steps(2) infinite; }
+.px-cloud { animation: px-cloud 14s steps(14) infinite alternate; }
+.px-steam { animation: px-zzz 1.8s steps(4) infinite; }
+@keyframes px-idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-0.6px); } }
+@keyframes px-hand { 0% { transform: translateY(0); } 100% { transform: translateY(-1px); } }
+@keyframes px-plumbob { 0%, 100% { transform: translateY(0) scaleX(1); } 25% { transform: translateY(-1px) scaleX(0.35); } 50% { transform: translateY(-1.5px) scaleX(1); } 75% { transform: translateY(-1px) scaleX(0.35); } }
+@keyframes px-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+@keyframes px-screen { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-2px); opacity: 0.6; } }
+@keyframes px-zzz { 0% { transform: translate(0, 0); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(3px, -6px); opacity: 0; } }
+@keyframes px-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+@keyframes px-cloud { 0% { transform: translateX(0); } 100% { transform: translateX(14px); } }
+@media (prefers-reduced-motion: reduce) {
+  .px-idle, .px-type-bob, .px-hand-l, .px-hand-r, .px-plumbob, .px-bounce, .px-screen, .px-zzz, .px-blink, .px-blink-slow, .px-cloud, .px-steam { animation: none; }
+}

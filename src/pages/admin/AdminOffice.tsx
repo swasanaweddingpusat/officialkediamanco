@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { PixelOffice } from './office/PixelOffice';
 import { cn } from '@/lib/utils';
 
 type Agent = {
@@ -132,6 +133,10 @@ const AdminOffice = () => {
   const pending = tasks.filter((t) => t.status === 'pending');
   const history = tasks.filter((t) => t.status !== 'pending' && t.status !== 'info');
   const reports = tasks.filter((t) => t.status === 'info');
+  const pendingByAgent = useMemo(() => pending.reduce<Record<string, number>>((m, t) => { m[t.agent_id] = (m[t.agent_id] ?? 0) + 1; return m; }, {}), [pending]);
+  const todayArticles = Number(byId.get('writer')?.last_summary?.match(/^(\d+)\/5/)?.[1] ?? NaN);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = (selectedId ? byId.get(selectedId) : null) ?? agents.find((a) => (pendingByAgent[a.id] ?? 0) > 0) ?? agents[0] ?? null;
 
   const act = useMutation({
     mutationFn: ({ id, action, body }: { id: string; action: string; body?: string }) => api(`office/tasks/${id}`, { body: { action, body } }),
@@ -157,6 +162,50 @@ const AdminOffice = () => {
   });
 
   const activeCount = agents.filter((a) => a.is_active).length;
+  const AgentCard = ({ a }: { a: Agent }) => (
+    <article className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <header className="flex items-start gap-3">
+        <Avatar agent={a} />
+        <div className="min-w-0 flex-1">
+          <h3 className="text-lg font-extrabold leading-tight">{a.name}</h3>
+          <p className="text-sm text-muted-foreground">{a.role}</p>
+        </div>
+        {!a.external && (
+          <Switch checked={a.is_active} onCheckedChange={(v) => toggle.mutate({ id: a.id, is_active: v })} aria-label={`${a.is_active ? 'Liburkan' : 'Aktifkan'} ${a.name}`} />
+        )}
+      </header>
+      <p className="mt-3 text-sm text-muted-foreground">{a.description}</p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <StatusPill agent={a} />
+        <span className="text-xs text-muted-foreground">{a.schedule}</span>
+      </div>
+      <div className="mt-3 rounded-xl bg-muted/50 p-3 text-sm">
+        <p className="text-xs text-muted-foreground">{a.external ? 'Aktivitas terakhir' : `Terakhir bekerja ${ago(a.last_run_at)}`}</p>
+        <p className="mt-0.5 font-semibold">{a.last_summary || '—'}</p>
+        {a.id === 'guard' && a.state?.results && (
+          <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+            {a.state.results.map((r) => (
+              <li key={r.name} className="flex items-center gap-1.5">
+                <span className={cn('size-1.5 rounded-full', r.ok ? (r.note ? 'bg-gold' : 'bg-emerald-500') : 'bg-destructive')} />
+                {r.name}{r.ms ? ` · ${r.ms} ms` : ''}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div className="mt-auto pt-4">
+        {a.external ? (
+          <p className="text-xs text-muted-foreground">Dikelola terpisah ({a.id === 'writer' ? 'agen artikel di Railway' : 'chat di website'}).</p>
+        ) : (
+          <Button size="sm" variant="outline" className="rounded-xl" disabled={runNow.isPending || a.last_status === 'berjalan'} onClick={() => runNow.mutate(a.id)}>
+            {a.last_status === 'berjalan' ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
+            {a.last_status === 'berjalan' ? 'Sedang bekerja…' : 'Suruh kerja sekarang'}
+          </Button>
+        )}
+      </div>
+    </article>
+  );
+
 
   return (
     <AdminLayout title="Kantor virtual" description="Karyawan agent yang bekerja otomatis. Semua yang akan dikirim ke klien atau dipublikasikan menunggu persetujuan tim di meja persetujuan.">
@@ -177,13 +226,26 @@ const AdminOffice = () => {
         ))}
       </section>
 
-      <Tabs defaultValue={(data?.stats.pending ?? 0) > 0 ? 'meja' : 'tim'}>
+      <Tabs defaultValue="kantor">
         <TabsList className="mb-5 h-auto flex-wrap rounded-xl">
+          <TabsTrigger value="kantor" className="rounded-lg">🎮 Kantor</TabsTrigger>
           <TabsTrigger value="meja" className="rounded-lg">Meja persetujuan{pending.length ? ` (${pending.length})` : ''}</TabsTrigger>
           <TabsTrigger value="tim" className="rounded-lg">Tim</TabsTrigger>
           <TabsTrigger value="laporan" className="rounded-lg">Laporan & peringatan</TabsTrigger>
           <TabsTrigger value="log" className="rounded-lg">Log kerja</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="kantor">
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <PixelOffice agents={agents} pendingByAgent={pendingByAgent} selectedId={selected?.id ?? null} onSelect={setSelectedId} todayArticles={todayArticles} />
+            <div className="space-y-3">
+              {selected ? <AgentCard a={selected} /> : <p className="text-sm text-muted-foreground">Memuat karyawan…</p>}
+              {(pendingByAgent[selected?.id ?? ''] ?? 0) > 0 && (
+                <p className="rounded-xl bg-gold/20 p-3 text-sm font-semibold">{selected?.name} punya {pendingByAgent[selected!.id]} draf menunggu persetujuan — buka tab <b>Meja persetujuan</b>.</p>
+              )}
+            </div>
+          </div>
+        </TabsContent>
 
         <TabsContent value="meja" className="space-y-4">
           {isLoading && <p className="text-sm text-muted-foreground">Memuat…</p>}
@@ -209,49 +271,7 @@ const AdminOffice = () => {
 
         <TabsContent value="tim">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {agents.map((a) => (
-              <article key={a.id} className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm">
-                <header className="flex items-start gap-3">
-                  <Avatar agent={a} />
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-lg font-extrabold leading-tight">{a.name}</h3>
-                    <p className="text-sm text-muted-foreground">{a.role}</p>
-                  </div>
-                  {!a.external && (
-                    <Switch checked={a.is_active} onCheckedChange={(v) => toggle.mutate({ id: a.id, is_active: v })} aria-label={`${a.is_active ? 'Liburkan' : 'Aktifkan'} ${a.name}`} />
-                  )}
-                </header>
-                <p className="mt-3 text-sm text-muted-foreground">{a.description}</p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <StatusPill agent={a} />
-                  <span className="text-xs text-muted-foreground">{a.schedule}</span>
-                </div>
-                <div className="mt-3 rounded-xl bg-muted/50 p-3 text-sm">
-                  <p className="text-xs text-muted-foreground">{a.external ? 'Aktivitas terakhir' : `Terakhir bekerja ${ago(a.last_run_at)}`}</p>
-                  <p className="mt-0.5 font-semibold">{a.last_summary || '—'}</p>
-                  {a.id === 'guard' && a.state?.results && (
-                    <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                      {a.state.results.map((r) => (
-                        <li key={r.name} className="flex items-center gap-1.5">
-                          <span className={cn('size-1.5 rounded-full', r.ok ? (r.note ? 'bg-gold' : 'bg-emerald-500') : 'bg-destructive')} />
-                          {r.name}{r.ms ? ` · ${r.ms} ms` : ''}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-                <div className="mt-auto pt-4">
-                  {a.external ? (
-                    <p className="text-xs text-muted-foreground">Dikelola terpisah ({a.id === 'writer' ? 'agen artikel di Railway' : 'chat di website'}).</p>
-                  ) : (
-                    <Button size="sm" variant="outline" className="rounded-xl" disabled={runNow.isPending || a.last_status === 'berjalan'} onClick={() => runNow.mutate(a.id)}>
-                      {a.last_status === 'berjalan' ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
-                      {a.last_status === 'berjalan' ? 'Sedang bekerja…' : 'Suruh kerja sekarang'}
-                    </Button>
-                  )}
-                </div>
-              </article>
-            ))}
+            {agents.map((a) => <AgentCard key={a.id} a={a} />)}
           </div>
         </TabsContent>
 
