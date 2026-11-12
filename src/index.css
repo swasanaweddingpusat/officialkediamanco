@@ -533,3 +533,5 @@
     padding: 1.25rem;
   }
 }
+
+@keyframes kdm-progress { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }

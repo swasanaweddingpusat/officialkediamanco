@@ -1,56 +1,58 @@
-import { lazy, Suspense } from "react";
+import { Suspense, useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
+import { lazyPage } from "@/lib/lazy-page";
+import { RouteFallback, RouteErrorBoundary } from "@/components/RouteFallback";
 import { AuthProvider } from "@/hooks/useAuth";
 import { useDynamicFavicon } from "@/hooks/useDynamicFavicon";
 import { HelmetProvider } from "react-helmet-async";
-const Index = lazy(() => import("./pages/Index"));
-const AppInstall = lazy(() => import("./pages/AppInstall"));
-const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
-const AccountDelete = lazy(() => import("./pages/AccountDelete"));
-const LandingPage = lazy(() => import("./pages/LandingPage"));
-const Packages = lazy(() => import("./pages/Packages"));
-const VenueOnly = lazy(() => import("./pages/VenueOnly"));
-const Classes = lazy(() => import("./pages/Classes"));
-const ProgramDetail = lazy(() => import("./pages/ProgramDetail"));
-const Trainers = lazy(() => import("./pages/Trainers"));
-const PortfolioDetail = lazy(() => import("./pages/PortfolioDetail"));
-const Locations = lazy(() => import("./pages/Locations"));
-const LocationDetail = lazy(() => import("./pages/LocationDetail"));
-const Auth = lazy(() => import("./pages/Auth"));
-const Admin = lazy(() => import("./pages/Admin"));
-const AdminHero = lazy(() => import("./pages/admin/AdminHero"));
-const AdminFeatures = lazy(() => import("./pages/admin/AdminFeatures"));
-const AdminPrograms = lazy(() => import("./pages/admin/AdminPrograms"));
-const AdminTrainers = lazy(() => import("./pages/admin/AdminTrainers"));
-const AdminLocations = lazy(() => import("./pages/admin/AdminLocations"));
-const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
-const AdminBallroomSchedules = lazy(() => import("./pages/admin/AdminBallroomSchedules"));
-const AdminBallroomBookings = lazy(() => import("./pages/admin/AdminBallroomBookings"));
-const AdminArticles = lazy(() => import("./pages/admin/AdminArticles"));
-const AdminVideoTestimonials = lazy(() => import("./pages/admin/AdminVideoTestimonials"));
-const AdminAbout = lazy(() => import("./pages/admin/AdminAbout"));
-const Blog = lazy(() => import("./pages/Blog"));
-const ArticleDetail = lazy(() => import("./pages/ArticleDetail"));
-const BookingTrack = lazy(() => import("./pages/BookingTrack"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
-const PriceList = lazy(() => import("./pages/PriceList"));
-const Help = lazy(() => import("./pages/Help"));
-const Reviews = lazy(() => import("./pages/Reviews"));
-const AdminPackages = lazy(() => import("./pages/admin/AdminPackages"));
-const AdminFaqs = lazy(() => import("./pages/admin/AdminFaqs"));
-const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
-const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
-const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
-const Rewards = lazy(() => import("./pages/Rewards"));
-const Careers = lazy(() => import("./pages/Careers"));
-const CareerDetail = lazy(() => import("./pages/CareerDetail"));
-const AdminCareers = lazy(() => import("./pages/admin/AdminCareers"));
-const AdminLoyalty = lazy(() => import("./pages/admin/AdminLoyalty"));
+const Index = lazyPage(() => import("./pages/Index"));
+const AppInstall = lazyPage(() => import("./pages/AppInstall"));
+const PrivacyPolicy = lazyPage(() => import("./pages/PrivacyPolicy"));
+const AccountDelete = lazyPage(() => import("./pages/AccountDelete"));
+const LandingPage = lazyPage(() => import("./pages/LandingPage"));
+const Packages = lazyPage(() => import("./pages/Packages"));
+const VenueOnly = lazyPage(() => import("./pages/VenueOnly"));
+const Classes = lazyPage(() => import("./pages/Classes"));
+const ProgramDetail = lazyPage(() => import("./pages/ProgramDetail"));
+const Trainers = lazyPage(() => import("./pages/Trainers"));
+const PortfolioDetail = lazyPage(() => import("./pages/PortfolioDetail"));
+const Locations = lazyPage(() => import("./pages/Locations"));
+const LocationDetail = lazyPage(() => import("./pages/LocationDetail"));
+const Auth = lazyPage(() => import("./pages/Auth"));
+const Admin = lazyPage(() => import("./pages/Admin"));
+const AdminHero = lazyPage(() => import("./pages/admin/AdminHero"));
+const AdminFeatures = lazyPage(() => import("./pages/admin/AdminFeatures"));
+const AdminPrograms = lazyPage(() => import("./pages/admin/AdminPrograms"));
+const AdminTrainers = lazyPage(() => import("./pages/admin/AdminTrainers"));
+const AdminLocations = lazyPage(() => import("./pages/admin/AdminLocations"));
+const AdminSettings = lazyPage(() => import("./pages/admin/AdminSettings"));
+const AdminBallroomSchedules = lazyPage(() => import("./pages/admin/AdminBallroomSchedules"));
+const AdminBallroomBookings = lazyPage(() => import("./pages/admin/AdminBallroomBookings"));
+const AdminArticles = lazyPage(() => import("./pages/admin/AdminArticles"));
+const AdminVideoTestimonials = lazyPage(() => import("./pages/admin/AdminVideoTestimonials"));
+const AdminAbout = lazyPage(() => import("./pages/admin/AdminAbout"));
+const Blog = lazyPage(() => import("./pages/Blog"));
+const ArticleDetail = lazyPage(() => import("./pages/ArticleDetail"));
+const BookingTrack = lazyPage(() => import("./pages/BookingTrack"));
+const NotFound = lazyPage(() => import("./pages/NotFound"));
+const OAuthConsent = lazyPage(() => import("./pages/OAuthConsent"));
+const PriceList = lazyPage(() => import("./pages/PriceList"));
+const Help = lazyPage(() => import("./pages/Help"));
+const Reviews = lazyPage(() => import("./pages/Reviews"));
+const AdminPackages = lazyPage(() => import("./pages/admin/AdminPackages"));
+const AdminFaqs = lazyPage(() => import("./pages/admin/AdminFaqs"));
+const AdminReviews = lazyPage(() => import("./pages/admin/AdminReviews"));
+const AdminNewsletter = lazyPage(() => import("./pages/admin/AdminNewsletter"));
+const Unsubscribe = lazyPage(() => import("./pages/Unsubscribe"));
+const Rewards = lazyPage(() => import("./pages/Rewards"));
+const Careers = lazyPage(() => import("./pages/Careers"));
+const CareerDetail = lazyPage(() => import("./pages/CareerDetail"));
+const AdminCareers = lazyPage(() => import("./pages/admin/AdminCareers"));
+const AdminLoyalty = lazyPage(() => import("./pages/admin/AdminLoyalty"));
 import { DeferredChat } from "./components/DeferredChat";
 import { RouteIndexingManager } from "./components/RouteIndexingManager";
 
@@ -66,6 +68,28 @@ const LegacyLocationRedirect = () => {
   return <Navigate to={`/lokasi/${id ?? ''}`} replace />;
 };
 
+// Muat halaman yang paling sering dibuka di latar belakang (setelah halaman pertama tampil),
+// supaya pindah halaman terasa instan dan tidak menunggu unduhan.
+function PrefetchPages() {
+  useEffect(() => {
+    const run = () => [Locations, LocationDetail, Index, PriceList, Packages, Blog, ArticleDetail, Trainers, Reviews, Help, Classes, BookingTrack]
+      .forEach((p, i) => setTimeout(() => p.preload(), i * 250));
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+    const t = window.setTimeout(() => (w.requestIdleCallback ? w.requestIdleCallback(run, { timeout: 4000 }) : run()), 2500);
+    return () => window.clearTimeout(t);
+  }, []);
+  return null;
+}
+
+function AppRoutes({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+  return (
+    <RouteErrorBoundary resetKey={pathname}>
+      <Suspense fallback={<RouteFallback />}>{children}</Suspense>
+    </RouteErrorBoundary>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
@@ -74,9 +98,10 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <RouteIndexingManager />
-            <Suspense fallback={<div className="min-h-screen bg-background" aria-busy="true" />}><Routes>
+            <PrefetchPages />
+            <AppRoutes><Routes>
               <Route path="/" element={<Index />} />
               <Route path="/landing" element={<LandingPage />} />
               <Route path="/venue-only" element={<VenueOnly />} />
@@ -127,7 +152,7 @@ const App = () => (
               <Route path="/admin/ballroom-schedules" element={<AdminBallroomSchedules />} />
               <Route path="/admin/ballroom-bookings" element={<AdminBallroomBookings />} />
               <Route path="*" element={<NotFound />} />
-            </Routes></Suspense>
+            </Routes></AppRoutes>
             <DeferredChat />
           </BrowserRouter>
         </TooltipProvider>
