@@ -1,5 +1,5 @@
 import { CMSImage } from '@/components/CMSImage';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useArticleBySlug, useArticlePreviews, useSiteSettings } from '@/hooks/useCMS';
@@ -12,12 +12,35 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { JournalMasthead, JournalSidebar, ArticleShare } from '@/components/articles/JournalElements';
 
+/** Bungkus setiap <table> agar bisa digeser horizontal di HP tanpa merusak tata letak artikel. */
+export function wrapArticleTables(html: string): string {
+  if (!/<table/i.test(html)) return html;
+  return html
+    .replace(/<table\b/gi, '<div class="article-table" role="region" aria-label="Tabel" tabindex="0"><table')
+    .replace(/<\/table>/gi, '</table></div><p class="article-table-hint" aria-hidden="true">Geser tabel ke samping untuk melihat semua kolom →</p>');
+}
+
 const ArticleDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { data: article, isLoading, error } = useArticleBySlug(slug || '');
   const { data: allArticles } = useArticlePreviews();
   const { data: siteSettings } = useSiteSettings();
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const bodyHtml = useMemo(() => wrapArticleTables(article?.content || ''), [article?.content]);
+
+  // Tandai tabel yang lebih lebar dari layar supaya petunjuk "geser" muncul di HP
+  useEffect(() => {
+    const root = bodyRef.current;
+    if (!root) return;
+    const mark = () => root.querySelectorAll<HTMLElement>('.article-table').forEach((el) => {
+      el.classList.toggle('is-scrollable', el.scrollWidth > el.clientWidth + 2);
+    });
+    mark();
+    const ro = new ResizeObserver(mark);
+    ro.observe(root);
+    return () => ro.disconnect();
+  }, [bodyHtml]);
 
   const siteName = siteSettings?.site_name || 'Kediaman Corp';
   const siteUrl = 'https://kediaman.co';
@@ -274,7 +297,8 @@ const ArticleDetail = () => {
                 prose-strong:text-foreground prose-strong:font-semibold
                 prose-ul:my-6 prose-ol:my-6
               "
-              dangerouslySetInnerHTML={{ __html: article.content || '' }}
+              ref={bodyRef}
+              dangerouslySetInnerHTML={{ __html: bodyHtml }}
             />
 
             <div className="border-t border-border mt-8 pt-5"><ArticleShare article={article} /></div>

@@ -319,6 +319,46 @@
   .journal-page .article-body img { max-width: 100%; height: auto; border-radius: 0; }
   .journal-page .article-body a { color: hsl(var(--primary)); }
   .journal-page .article-body strong { color: hsl(var(--foreground)); }
+
+  /* Isi artikel: daftar, kutipan, dan TABEL (plugin typography tidak dipakai, jadi ditata manual) */
+  .journal-page .article-body ul, .journal-page .article-body ol { margin: 1.25rem 0 1.5rem; padding-left: 1.4rem; }
+  .journal-page .article-body ul { list-style: disc; }
+  .journal-page .article-body ol { list-style: decimal; }
+  .journal-page .article-body li { margin: .4rem 0; padding-left: .2rem; }
+  .journal-page .article-body li::marker { color: hsl(var(--primary)); }
+  .journal-page .article-body p { margin: 0 0 1.25rem; }
+  .journal-page .article-body blockquote { margin: 1.75rem 0; padding: .9rem 1.25rem; border-left: 3px solid hsl(var(--primary)); background: hsl(var(--muted) / .45); border-radius: 0 .75rem .75rem 0; }
+  .journal-page .article-body blockquote p:last-child { margin-bottom: 0; }
+
+  .journal-page .article-body .article-table {
+    position: relative; margin: 1.75rem 0 2rem; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    border: 1px solid hsl(var(--border)); border-radius: 1rem; background: hsl(var(--card));
+    overscroll-behavior-x: contain;
+  }
+  .journal-page .article-body table { width: 100%; min-width: 100%; border-collapse: collapse; margin: 0; font-size: 15px; line-height: 1.55; }
+  .journal-page .article-body th, .journal-page .article-body td {
+    padding: .8rem 1rem; text-align: left; vertical-align: top;
+    overflow-wrap: normal; word-break: normal; hyphens: auto;
+    border-bottom: 1px solid hsl(var(--border)); min-width: 8.5rem;
+  }
+  .journal-page .article-body th + th, .journal-page .article-body td + td { border-left: 1px solid hsl(var(--border) / .7); }
+  .journal-page .article-body thead th, .journal-page .article-body tr:first-child > th {
+    background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-weight: 700; font-size: 14px; white-space: nowrap;
+    border-bottom: 0;
+  }
+  .journal-page .article-body thead th + th { border-left-color: hsl(var(--primary-foreground) / .18); }
+  .journal-page .article-body tbody tr:nth-child(even) td { background: hsl(var(--muted) / .4); }
+  .journal-page .article-body tbody tr:last-child td, .journal-page .article-body tbody tr:last-child th { border-bottom: 0; }
+  .journal-page .article-body tbody td:first-child, .journal-page .article-body tbody th { font-weight: 700; color: hsl(var(--foreground)); }
+  .journal-page .article-body th p, .journal-page .article-body td p,
+  html.ota-theme .journal-page .article-body th p, html.ota-theme .journal-page .article-body td p { margin: 0; font-size: inherit; line-height: inherit; }
+  .journal-page .article-body th ul, .journal-page .article-body td ul { margin: .25rem 0 0; }
+  html.ota-theme .journal-page .article-body td, html.ota-theme .journal-page .article-body th { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14.5px; }
+  .article-table-hint { display: none; }
+  @media (max-width: 640px) {
+    .journal-page .article-body th, .journal-page .article-body td { padding: .7rem .85rem; min-width: 9.5rem; }
+    .journal-page .article-body .article-table.is-scrollable + .article-table-hint { display: block; margin: -1.4rem 0 1.75rem; font-size: 12px; color: hsl(var(--muted-foreground)); }
+  }
   @media (max-width: 900px) { .journal-columns { grid-template-columns: minmax(0, 720px); justify-content: center; } .journal-sidebar { display: none; } }
 }
 
