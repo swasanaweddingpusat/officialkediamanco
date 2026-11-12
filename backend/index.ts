@@ -1004,6 +1004,35 @@ const SITEMAP_STATIC: [string, string, string][] = [
 let sitemapCache: { xml: string; at: number } | null = null;
 const xmlEscape = (v: string) => v.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&apos;");
 
+// Redirect 301 permanen dari URL lama ber-UUID ke URL slug (dipanggil Caddy: /legacy-redirect/<tipe>/<uuid>).
+// Google lalu memindahkan peringkat URL lama ke URL slug yang benar.
+const LEGACY_TABLES: Record<string, { table: string; base: string }> = {
+  lokasi: { table: "locations", base: "/lokasi" },
+  portfolio: { table: "trainers", base: "/portfolio" },
+  promo: { table: "programs", base: "/promo" },
+  "tentang-kami": { table: "programs", base: "/promo" },
+};
+app.get("/legacy-redirect/:type/:id", async (c) => {
+  const conf = LEGACY_TABLES[c.req.param("type")];
+  const id = c.req.param("id");
+  const site = "https://kediaman.co";
+  const qs = new URL(c.req.url).search;
+  if (!conf) return c.redirect(`${site}/`, 301);
+  if (limited(`legacy:${ip(c)}`, 120)) return tooMany(c);
+  let slug: string | null = null;
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    try {
+      const rows = conf.table === "locations" ? await sql`SELECT slug FROM locations WHERE id = ${id}::uuid LIMIT 1`
+        : conf.table === "trainers" ? await sql`SELECT slug FROM trainers WHERE id = ${id}::uuid LIMIT 1`
+        : await sql`SELECT slug FROM programs WHERE id = ${id}::uuid LIMIT 1`;
+      const row = rows[0];
+      slug = row?.slug ? String(row.slug) : null;
+    } catch (e) { console.error("legacy-redirect:", (e as Error)?.message); }
+  }
+  c.header("Cache-Control", "public, max-age=86400");
+  return c.redirect(slug ? `${site}${conf.base}/${encodeURIComponent(slug)}${qs}` : `${site}${conf.base === "/promo" && c.req.param("type") === "tentang-kami" ? "/tentang-kami" : conf.base}`, 301);
+});
+
 app.get("/sitemap.xml", async (c) => {
   if (!sitemapCache || Date.now() - sitemapCache.at > 10 * 60_000) {
     const entries: { path: string; freq: string; pri: string; mod?: string }[] =
@@ -1754,6 +1783,17 @@ async function selfTest() {
     let rl = 0; for (let i = 0; i < 4; i++) if (limited("self-test-rl", 3)) rl++;
     hits.delete("self-test-rl");
     out.push(`ratelimit=${rl === 1 ? "ok" : "GAGAL"}`);
+    // Redirect URL lama ber-UUID → slug
+    {
+      const [lv] = await sql`SELECT id, slug FROM locations WHERE slug IS NOT NULL LIMIT 1`;
+      if (lv) {
+        const r1 = await app.fetch(new Request(`http://local/legacy-redirect/lokasi/${lv.id}`, { redirect: "manual" }));
+        const r2 = await app.fetch(new Request("http://local/legacy-redirect/lokasi/00000000-0000-0000-0000-000000000000", { redirect: "manual" }));
+        const ok1 = r1.status === 301 && r1.headers.get("location") === `https://kediaman.co/lokasi/${lv.slug}`;
+        const ok2 = r2.status === 301 && r2.headers.get("location") === "https://kediaman.co/lokasi";
+        out.push(`legacyRedirect=${ok1 && ok2 ? "ok" : `GAGAL(${r1.status} ${r1.headers.get("location")} | ${r2.status} ${r2.headers.get("location")})`}`);
+      }
+    }
     // Hapus akun sendiri: salah password ditolak, benar terhapus, lalu tidak bisa login
     {
       const em = `del-${Date.now()}@kediaman.invalid`, pw = "uji-hapus-akun-123";

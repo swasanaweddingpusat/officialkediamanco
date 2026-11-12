@@ -22,6 +22,7 @@ import { Breadcrumbs, RatingStars, ReviewCard, EmptyState } from '@/components/o
 import { waLinkFrom } from '@/components/layout/Navbar';
 import { portfolioPath } from '@/lib/content-url';
 import { useSEO } from '@/hooks/useSEO';
+import { venueSeoTitle, venueSeoDescription } from '@/lib/venue-seo';
 import { cn } from '@/lib/utils';
 
 const Calendar = lazy(() => import('@/components/ui/calendar').then((m) => ({ default: m.Calendar })));
@@ -38,12 +39,6 @@ const TABS = [
   { id: 'dokumentasi', label: 'Dokumentasi' },
   { id: 'lokasi', label: 'Lokasi' },
 ];
-
-function buildVenueDescription(name: string, category?: string | null, address?: string | null) {
-  const details = [category, address].filter(Boolean).join(' di ');
-  const description = `${name}${details ? `, venue ${details}` : ''}. Cek tanggal kosong, paket & harga, fasilitas, galeri, dan ulasan, lalu ajukan booking di Kediaman Corp.`;
-  return description.length <= 160 ? description : `${description.slice(0, 157).trimEnd()}...`;
-}
 
 const LocationDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -96,9 +91,14 @@ const LocationDetail = () => {
   }, [location?.slug, location?.id, id, navigate, routeLocation.search, routeLocation.hash, location]);
 
   const canonicalUrl = `${SITE_URL}${location ? venuePath(location) : `/lokasi/${id || ''}`}`;
+  const seoMinPrice = packages.reduce<number | null>((m, p) => (p.is_active && p.price !== null && (m === null || p.price < m) ? p.price : m), null);
+  const seoInput = location ? {
+    name: location.name, category: location.category, capacity: location.ballroom_layout_capacity,
+    minPrice: seoMinPrice, hasVideo: !!location.hero_video_url, has360: !!location.matterport_360_url,
+  } : null;
   useSEO({
-    title: location ? `${location.name} | Kediaman Corp` : 'Detail Venue | Kediaman Corp',
-    description: location ? buildVenueDescription(location.name, location.category, location.address) : 'Detail venue Kediaman Corp: paket & harga, fasilitas, galeri, jadwal, dan ulasan.',
+    title: seoInput ? venueSeoTitle(seoInput) : 'Detail Venue | Kediaman Corp',
+    description: seoInput ? venueSeoDescription(seoInput) : 'Detail venue Kediaman Corp: paket & harga, fasilitas, galeri, jadwal, dan ulasan.',
     image: location?.image_url || undefined,
     url: canonicalUrl,
     type: 'website',

@@ -6,6 +6,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { venueSeoTitle, venueSeoDescription } from "../src/lib/venue-seo";
 
 export const SITE_URL = "https://kediaman.co";
 const SITE_NAME = "Kediaman Corp";
@@ -193,14 +194,26 @@ export async function dynamicPages(apiUrl: string): Promise<PageMeta[]> {
   };
 
   await settle("locations", async () => {
-    for (const row of await query(apiUrl, "locations", "id,slug,name,category,address,image_url", "is_active")) {
+    // Harga paket termurah per venue (untuk snippet Google); gagal = tanpa harga
+    const minPrice: Record<string, number> = {};
+    try {
+      for (const p of await query(apiUrl, "venue_packages", "location_id,price", "is_active")) {
+        const price = Number(p.price);
+        const loc = String(p.location_id ?? "");
+        if (loc && price > 0 && (minPrice[loc] === undefined || price < minPrice[loc])) minPrice[loc] = price;
+      }
+    } catch (error) { console.warn(`prerender: harga paket dilewati (${(error as Error).message})`); }
+    for (const row of await query(apiUrl, "locations", "id,slug,name,category,address,image_url,ballroom_layout_capacity,hero_video_url,matterport_360_url", "is_active")) {
       const path = `/lokasi/${row.slug || row.id}`;
       const name = plain(row.name, 90);
-      const where = [row.category, row.address].map((v) => plain(v, 120)).filter(Boolean).join(" — ");
+      const seo = {
+        name, category: plain(row.category, 40), capacity: plain(row.ballroom_layout_capacity, 60),
+        minPrice: minPrice[String(row.id)] ?? null, hasVideo: Boolean(row.hero_video_url), has360: Boolean(row.matterport_360_url),
+      };
       pages.push({
         path,
-        title: `${name} | ${SITE_NAME}`,
-        description: plain(`${name}: venue ${SITE_NAME}${where ? ` di ${where}` : ""}. Lihat fasilitas, galeri, jadwal tersedia, dan informasi pemesanan.`),
+        title: venueSeoTitle(seo),
+        description: venueSeoDescription(seo),
         image: (row.image_url as string) || null,
         heading: name,
         breadcrumbs: [HOME, { name: "Lokasi", path: "/lokasi" }, { name, path }],

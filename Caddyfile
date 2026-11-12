@@ -74,9 +74,16 @@
 	# Rute SPA diarahkan ke index.html, tetapi file /assets/ yang tidak ada tetap 404
 	# (supaya index.html tidak ikut ter-cache 1 tahun sebagai file JS/CSS).
 	route {
+		# URL lama ber-UUID (/lokasi/<uuid>, /portfolio/<uuid>, /promo/<uuid>, /tentang-kami/<uuid>) → 301 ke URL slug
+		@legacyUuid path_regexp legacy ^/(lokasi|portfolio|promo|tentang-kami)/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/?$
+		rewrite @legacyUuid /legacy-redirect/{re.legacy.1}/{re.legacy.2}
+		reverse_proxy /legacy-redirect/* {$API_ORIGIN:https://kediaman-api-production.up.railway.app} {
+			header_up Host {upstream_hostport}
+		}
+
 		try_files {path} {path}.html {path}/index.html
 		@spa {
-			not path /assets/* /img/* /sitemap.xml
+			not path /assets/* /img/* /sitemap.xml /legacy-redirect/*
 			not file
 		}
 		rewrite @spa /index.html
