@@ -7,6 +7,7 @@ import { useLocations } from '@/hooks/useCMS';
 import { useSEO } from '@/hooks/useSEO';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader, ReviewCard, RatingStars, EmptyState } from '@/components/ota/OtaKit';
+import { VideoTestimonials } from '@/components/ota/VideoTestimonials';
 
 const Reviews = () => {
   const { data: reviews = [], isLoading } = useVenueReviews();
@@ -62,6 +63,9 @@ const Reviews = () => {
             <div className="grid md:grid-cols-2 gap-4">{shown.map((r) => <ReviewCard key={r.id} review={r} />)}</div>
           )}
         </div>
+      </div>
+      <div className="ota-container pb-10">
+        <VideoTestimonials limit={30} />
       </div>
     </Layout>
   );

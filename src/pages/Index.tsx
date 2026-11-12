@@ -9,6 +9,7 @@ import { SearchWidget } from '@/components/ota/SearchWidget';
 import { SectionHeader, VenueCard, ReviewCard, RatingStars, venueImage } from '@/components/ota/OtaKit';
 import { PackageCard } from '@/components/ota/PackageCard';
 import { NewsletterCta } from '@/components/ota/NewsletterCta';
+import { VideoTestimonials } from '@/components/ota/VideoTestimonials';
 import { CMSImage } from '@/components/CMSImage';
 import { cmsImageUrl, cmsImageSrcSet } from '@/lib/cms-image';
 import { portfolioPath, promotionPath } from '@/lib/content-url';
@@ -156,6 +157,9 @@ const Index = () => {
             </div>
           </section>
         )}
+
+        {/* Video testimoni (CMS) */}
+        <VideoTestimonials />
 
         {/* Cara booking */}
         <section id="panduan-booking" className="scroll-mt-24">

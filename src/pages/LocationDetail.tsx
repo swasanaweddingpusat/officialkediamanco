@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
-import { MapPin, Users, Ruler, CalendarDays, Images, Check, MessageCircle, Share2, Navigation, Clock, Move3d } from 'lucide-react';
+import { MapPin, Users, Ruler, CalendarDays, Images, Check, MessageCircle, Share2, Navigation, Clock, Move3d, PlayCircle } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useLocations, useBallroomSchedules, usePortfoliosByLocation, useTrackVenueInterest, useVenueInterest, useSiteSettings } from '@/hooks/useCMS';
 import { useVenuePackages, useVenueReviews, summarizeReviews, formatRupiah } from '@/hooks/useOta';
@@ -14,6 +14,7 @@ import { LocationFacilities } from '@/components/location/LocationFacilities';
 import { LocationAreaSection } from '@/components/location/LocationAreaSection';
 import { LocationLightbox } from '@/components/location/LocationLightbox';
 import { Matterport360Embed } from '@/components/location/Matterport360Embed';
+import { VideoEmbed } from '@/components/media/VideoEmbed';
 import { BookingDialog } from '@/components/booking/BookingDialog';
 import { PackageCard } from '@/components/ota/PackageCard';
 import { CMSImage } from '@/components/CMSImage';
@@ -31,6 +32,7 @@ const TABS = [
   { id: 'paket', label: 'Paket' },
   { id: 'fasilitas', label: 'Fasilitas' },
   { id: 'tata-letak', label: 'Tata letak' },
+  { id: 'video', label: 'Video' },
   { id: 'tur-360', label: 'Tur 360°' },
   { id: 'ulasan', label: 'Ulasan' },
   { id: 'dokumentasi', label: 'Dokumentasi' },
@@ -62,6 +64,8 @@ const LocationDetail = () => {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [tourStarted, setTourStarted] = useState(false);
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  useEffect(() => { setVideoPlaying(false); }, [locationId]);
   const [bookingPackageId, setBookingPackageId] = useState<string | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
   // Kotak booking hanya dirender di satu tempat (samping di desktop, bawah konten di HP).
@@ -139,6 +143,7 @@ const LocationDetail = () => {
   const visibleTabs = TABS.filter((t) => {
     if (!location) return false;
     if (t.id === 'tur-360') return !!location.matterport_360_url;
+    if (t.id === 'video') return !!location.hero_video_url;
     if (t.id === 'tata-letak') return !!(location.ballroom_layout_description || location.ballroom_layout_images?.length || location.loading_area_description);
     if (t.id === 'ulasan') return summary.count > 0;
     if (t.id === 'dokumentasi') return portfolios.length > 0;
@@ -275,14 +280,27 @@ const LocationDetail = () => {
                 <Images className="size-4" aria-hidden="true" />{allImages.length} foto
               </button>
             )}
-            {location.matterport_360_url && (
-              <button
-                type="button"
-                onClick={() => { setTourStarted(true); document.getElementById('tur-360')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-                className="absolute left-3 bottom-3 inline-flex items-center gap-2 rounded-full bg-primary/90 backdrop-blur px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-bold text-primary-foreground shadow-lg hover:bg-primary"
-              >
-                <Move3d className="size-4" aria-hidden="true" />Tur virtual 360°
-              </button>
+            {(location.matterport_360_url || location.hero_video_url) && (
+              <div className="absolute left-3 bottom-3 flex flex-wrap gap-2">
+                {location.hero_video_url && (
+                  <button
+                    type="button"
+                    onClick={() => { setVideoPlaying(true); document.getElementById('video')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                    className="inline-flex items-center gap-2 rounded-full bg-card/95 px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-bold text-foreground shadow-lg hover:bg-card"
+                  >
+                    <PlayCircle className="size-4 text-primary" aria-hidden="true" />Putar video
+                  </button>
+                )}
+                {location.matterport_360_url && (
+                  <button
+                    type="button"
+                    onClick={() => { setTourStarted(true); document.getElementById('tur-360')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+                    className="inline-flex items-center gap-2 rounded-full bg-primary/90 backdrop-blur px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-bold text-primary-foreground shadow-lg hover:bg-primary"
+                  >
+                    <Move3d className="size-4" aria-hidden="true" />Tur virtual 360°
+                  </button>
+                )}
+              </div>
             )}
           </div>
         )}
@@ -336,6 +354,16 @@ const LocationDetail = () => {
             <section id="tata-letak" className="ota-card p-5 space-y-8 scroll-mt-48">
               <LocationAreaSection title="Tata Letak Ballroom" description={location.ballroom_layout_description} capacity={location.ballroom_layout_capacity} dimensions={location.ballroom_layout_dimensions} images={location.ballroom_layout_images} onOpenLightbox={setLightboxImage} />
               <LocationAreaSection title="Area Logistik" description={location.loading_area_description} capacity={location.loading_area_capacity} dimensions={location.loading_area_dimensions} images={location.loading_area_images} onOpenLightbox={setLightboxImage} />
+            </section>
+          )}
+
+          {location.hero_video_url && (
+            <section id="video" className="ota-card p-5 scroll-mt-48">
+              <div className="mb-4">
+                <h2 className="text-lg font-extrabold">Video preview ballroom</h2>
+                <p className="text-sm text-muted-foreground">Lihat suasana {location.name} sebelum survei langsung.</p>
+              </div>
+              <VideoEmbed key={location.id} url={location.hero_video_url} title={`Video ${location.name}`} playing={videoPlaying || undefined} onPlay={() => setVideoPlaying(true)} />
             </section>
           )}
 

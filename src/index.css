@@ -525,7 +525,7 @@
   html.ota-theme textarea { font-size: 16px; }
 
   /* Dialog (form booking, konfirmasi) tidak menempel tepi layar & tidak melebihi tinggi layar */
-  html.ota-theme [role="dialog"].fixed.translate-x-\[-50\%\] {
+  html.ota-theme [role="dialog"].fixed.translate-x-\[-50\%\]:not(.kdm-video-dialog) {
     width: calc(100vw - 1.5rem);
     max-height: calc(100dvh - 2rem);
     overflow-y: auto;
