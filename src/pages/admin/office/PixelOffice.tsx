@@ -104,7 +104,7 @@ function Desk({ agentId, x, y, mood, pending, selected, onSelect, name }: {
       <rect x={cx - 7} y={y - 6} width={14} height={9} fill="#3d4b5c" />
       <rect x={cx - 6} y={y - 5} width={12} height={2} fill="#4e6074" />
       {/* karakter (bergoyang pelan; menunduk saat tidur) */}
-      <g className={cn(working ? 'px-type-bob' : sleeping ? 'px-sleep' : 'px-idle')} style={{ transformOrigin: `${cx}px ${y}px` }}>
+      <g className={cn(working ? 'px-type-bob' : sleeping ? 'px-sleep' : 'px-idle')}>
         <Sprite look={look} x={cx - 5} y={y - 15} sleeping={sleeping} />
       </g>
       {/* meja */}
@@ -134,7 +134,7 @@ function Desk({ agentId, x, y, mood, pending, selected, onSelect, name }: {
       {/* cangkir kopi */}
       <rect x={x + 4} y={y - 4} width={3} height={3} fill="#f5f5f5" /><rect x={x + 7} y={y - 3} width={1} height={1} fill="#f5f5f5" />
       {/* plumbob ala The Sims */}
-      <g className="px-plumbob" style={{ transformOrigin: `${cx}px ${y - 22}px` }}>
+      <g className="px-plumbob">
         <polygon points={`${cx},${y - 26} ${cx + 3},${y - 22} ${cx},${y - 18} ${cx - 3},${y - 22}`} fill={PLUMBOB[mood]} stroke="#0f3d22" strokeWidth={0.4} />
         <polygon points={`${cx},${y - 26} ${cx + 3},${y - 22} ${cx},${y - 22}`} fill="#ffffff" opacity={0.35} />
       </g>
@@ -142,7 +142,7 @@ function Desk({ agentId, x, y, mood, pending, selected, onSelect, name }: {
       {sleeping && <text x={cx + 6} y={y - 15} className="px-zzz" fontSize={5} fill="#475569" fontFamily="monospace" fontWeight="bold">z</text>}
       {mood === 'gagal' && <text x={cx + 6} y={y - 14} fontSize={7} fill="#ef4444" fontFamily="monospace" fontWeight="bold" className="px-blink">!</text>}
       {pending > 0 && (
-        <g className="px-bounce" style={{ transformOrigin: `${x + 43}px ${y - 14}px` }}>
+        <g className="px-bounce">
           <rect x={x + 39} y={y - 18} width={9} height={6} rx={1} fill="#ef4444" />
           <rect x={x + 41} y={y - 12} width={2} height={1} fill="#ef4444" />
           <text x={x + 43.5} y={y - 13.6} fontSize={4.2} fill="#fff" fontFamily="monospace" fontWeight="bold" textAnchor="middle">{pending > 9 ? '9+' : pending}</text>
@@ -208,7 +208,7 @@ export function PixelOffice({ agents, pendingByAgent, selectedId, onSelect, toda
         <rect x={70} y={8} width={54} height={23} fill="#f8fafc" />
         <text x={73} y={14} fontSize={4} fill="#17261f" fontFamily="monospace" fontWeight="bold">KEDIAMAN HQ</text>
         <text x={73} y={20} fontSize={3.4} fill="#334155" fontFamily="monospace">Draf menunggu: {totalPending}</text>
-        <text x={73} y={25} fontSize={3.4} fill="#334155" fontFamily="monospace">Artikel hari ini: {todayArticles ?? '-'}/5</text>
+        <text x={73} y={25} fontSize={3.4} fill="#334155" fontFamily="monospace">Artikel: {Number.isFinite(todayArticles) ? todayArticles : '-'}/5</text>
         <rect x={110} y={21} width={2} height={8} fill="#3ddc6a" /><rect x={113} y={18} width={2} height={11} fill="#f5c542" /><rect x={116} y={14} width={2} height={15} fill="#2f6f8f" />
         {/* jam dinding (WIB) */}
         <circle cx={144} cy={18} r={8} fill="#7c5430" /><circle cx={144} cy={18} r={6.5} fill="#fffdf5" />
