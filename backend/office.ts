@@ -333,7 +333,8 @@ export const AGENTS: AgentDef[] = [
   {
     id: "seo", name: "Bima", role: "Analis SEO & laporan", avatar: "BM", schedule: "Senin 07:00 WIB",
     description: "Menyusun laporan mingguan: booking per venue, artikel, newsletter, Rewards, plus 3 aksi prioritas minggu depan.",
-    due: (w, last, now) => w.dow === 1 && w.h >= 7 && (!last || now.getTime() - last.getTime() >= 6 * 24 * 60 * MIN), run: runSeo,
+    // Tiap Senin ≥07:00 WIB, sekali per Senin (jalan manual di hari lain tidak menggeser jadwal)
+    due: (w, last) => w.dow === 1 && w.h >= 7 && (!last || wibDate(last) !== w.date), run: runSeo,
   },
   {
     id: "social", name: "Nadia", role: "Admin media sosial", avatar: "ND", schedule: "Tiap hari 07:30 WIB",
